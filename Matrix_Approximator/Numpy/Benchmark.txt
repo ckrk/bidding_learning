@@ -1,0 +1,3 @@
+Contrasts Matrix_Approximator_Numpy and Matrix_Approximator_Numpy_Torch
+Both have almost identical code, but onre uses a torch implementation and the other a numpy implementation
+These examples are both given in pytorc by examples

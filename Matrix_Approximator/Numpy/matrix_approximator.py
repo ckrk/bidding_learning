@@ -5,20 +5,21 @@
 
 import time
 
+# N is batch size; D_in is input dimension;
+# H is hidden dimension; D_out is output dimension.
+N, D_in, H, D_out = 64, 1000, 100, 10
+# Define Learning Rate
+learning_rate = 1e-6
+
 #Define GPU + CPU torch implementation
 
-def matrix_approximator_gpu_torch():
+def matrix_approximator_gpu_torch(N, D_in, H, D_out, learning_rate):
     import torch
-    
     
     dtype = torch.float
     device = torch.device("cpu")
     # Activate GPU
     device = torch.device("cuda:0") 
-    
-    # N is batch size; D_in is input dimension;
-    # H is hidden dimension; D_out is output dimension.
-    N, D_in, H, D_out = 64, 1000, 100, 10
     
     # Create random input and output data
     x = torch.randn(N, D_in, device=device, dtype=dtype)
@@ -28,7 +29,6 @@ def matrix_approximator_gpu_torch():
     w1 = torch.randn(D_in, H, device=device, dtype=dtype)
     w2 = torch.randn(H, D_out, device=device, dtype=dtype)
     
-    learning_rate = 1e-6
     for t in range(500):
         # Forward pass: compute predicted y
         h = x.mm(w1)
@@ -57,17 +57,13 @@ def matrix_approximator_gpu_torch():
 
 #Define CPU-only torch implementation
 
-def matrix_approximator_cpu_torch():
+def matrix_approximator_cpu_torch(N, D_in, H, D_out, learning_rate):
     import torch
     
     
     dtype = torch.float
     device = torch.device("cpu")
     # device = torch.device("cuda:0") # Uncomment this to run on GPU
-    
-    # N is batch size; D_in is input dimension;
-    # H is hidden dimension; D_out is output dimension.
-    N, D_in, H, D_out = 64, 1000, 100, 10
     
     # Create random input and output data
     x = torch.randn(N, D_in, device=device, dtype=dtype)
@@ -77,7 +73,6 @@ def matrix_approximator_cpu_torch():
     w1 = torch.randn(D_in, H, device=device, dtype=dtype)
     w2 = torch.randn(H, D_out, device=device, dtype=dtype)
     
-    learning_rate = 1e-6
     for t in range(500):
         # Forward pass: compute predicted y
         h = x.mm(w1)
@@ -106,14 +101,9 @@ def matrix_approximator_cpu_torch():
     
 #Define Numpy Implementation
 
-def matrix_approximator_numpy():
+def matrix_approximator_numpy(N, D_in, H, D_out, learning_rate):
     import numpy as np
     # Implemented as Example 1 from https://pytorch.org/tutorials/beginner/pytorch_with_examples.html
-    
-    # N is batch size; D_in is input dimension;
-    # H is hidden dimension; D_out is output dimension
-    
-    N, D_in, H, D_out = 64, 1000, 100, 10
     
     # Create random input and output data
     
@@ -124,10 +114,6 @@ def matrix_approximator_numpy():
     
     w1 = np.random.randn(D_in,H)
     w2 = np.random.randn(H,D_out)
-    
-    # Set learning rate, this is done locally currently, but should probably become an input eventually
-    
-    learning_rate = 1e-6
     
     # Start main loop, Iterations are set internally, should probably become an input eventually
     
@@ -157,21 +143,21 @@ def matrix_approximator_numpy():
 
 tic = time.perf_counter()
 print("\n Numpy:\n")        
-matrix_approximator_numpy()
+matrix_approximator_numpy(N, D_in, H, D_out, learning_rate)
 toc = time.perf_counter()
 numpy_time = toc-tic
 print("Runtime:",numpy_time)
 
 tic = time.perf_counter()
 print("\n CPU: \n")        
-matrix_approximator_cpu_torch()
+matrix_approximator_cpu_torch(N, D_in, H, D_out, learning_rate)
 toc = time.perf_counter()
 cpu_time = toc-tic
 print("Runtime:",cpu_time)
 
 tic = time.perf_counter()
 print("\n GPU: \n")
-matrix_approximator_gpu_torch()
+matrix_approximator_gpu_torch(N, D_in, H, D_out, learning_rate)
 toc = time.perf_counter()
 gpu_time = toc-tic
 print("Runtime:",gpu_time)

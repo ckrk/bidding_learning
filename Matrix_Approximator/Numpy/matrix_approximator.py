@@ -7,7 +7,17 @@ import time
 
 # N is batch size; D_in is input dimension;
 # H is hidden dimension; D_out is output dimension.
+
+#these parameters work, but numpy is fastest and gpu slowest
 N, D_in, H, D_out = 64, 1000, 100, 10
+
+#these parameters yield NANS, but the gpu speed is fastest
+# N, D_in, H, D_out = 640, 10000, 1000, 100
+
+# problems as above
+# N, D_in, H, D_out = 300, 5000, 500, 50
+
+
 # Define Learning Rate
 learning_rate = 1e-6
 

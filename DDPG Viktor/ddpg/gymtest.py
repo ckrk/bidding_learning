@@ -189,14 +189,13 @@ class StockTradingEnv(gym.Env):
 
 #Call my MWE Trading Environment
 demand = 10        
-env = CustomTradingEnv()
+env = CustomTradingEnv()                         #Imported from CustomTrade.py
 
 #Take Random Actions in Environment
 env.reset()
 for _ in range(1000):
     env.render()
     a=env.action_space.sample()
-    print(a)
     env.step(a) # take a random action
 env.close()
 env.reset()

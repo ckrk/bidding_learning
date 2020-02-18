@@ -44,9 +44,12 @@ class CustomTradingEnv(gym.Env):
         reward = sold_quantity * action[1]
         self.total_reward += reward
         
-        #print(f'Bid quantity: {action[0]})
-        #print(f'Bid price: {action[1]})  
-        #print(f'Reward: {reward})  
+        
+        self.last_action = action                   #This stores the action to be called via render
+        self.last_reward = reward                   #This stores the reward to be called via render
+        #print(f'Bid quantity: {action[0]}')
+        #print(f'Bid price: {action[1]}')  
+        #print(f'Reward: {reward}')  
         
         obs = 0
         
@@ -56,6 +59,8 @@ class CustomTradingEnv(gym.Env):
         # Reset the state of the environment to an initial state
         self.total_reward = 0
         self.current_step = 0
+        self.last_action = np.array([0.0, 0.0])
+        self.last_reward = 0
         
         obs = 0
         #done = 0
@@ -64,6 +69,12 @@ class CustomTradingEnv(gym.Env):
     
     def render(self, mode='human', close=False):
         # Render the environment to the screen
-         #print(f'Step: {self.current_step}')
-         #print(f'Total Reward: {self.total_reward}
-         print(self.total_reward)
+         print(f'\n Step: {self.current_step} \n')
+         
+         print(f'Bid quantity: {self.last_action[0]}')
+         print(f'Bid price: {self.last_action[1]}')  
+         print(f'Reward: {self.last_reward}')  
+        
+         
+         print(f'Total Reward: {self.total_reward}')
+         #print(self.total_reward)

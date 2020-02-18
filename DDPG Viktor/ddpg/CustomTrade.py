@@ -35,6 +35,7 @@ class CustomTradingEnv(gym.Env):
     def step(self, action):
         # Limit sales by demand and pay
         self.current_step += 1
+        done = 0
         
         #if self.current_step == 500: # Runtime!
         #    done = 1
@@ -50,9 +51,9 @@ class CustomTradingEnv(gym.Env):
         #print(f'Bid price: {action[1]}')  
         #print(f'Reward: {reward}')  
         
-        obs = 0
+        obs = np.array([0.0])
         
-        return obs, reward, None , {}
+        return obs, reward, done, {} #Attention this returns are important! They need to be defined properly. Observation, Reward, Done, Info!
 
     def reset(self):
         # Reset the state of the environment to an initial state
@@ -61,7 +62,7 @@ class CustomTradingEnv(gym.Env):
         self.last_action = np.array([0.0, 0.0])
         self.last_reward = 0
         
-        obs = 0
+        obs = np.array([0.0])
         #done = 0
         
         return obs

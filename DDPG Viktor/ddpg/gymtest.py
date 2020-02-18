@@ -188,8 +188,11 @@ class StockTradingEnv(gym.Env):
 #env = StockTradingEnv()
 
 #Call my MWE Trading Environment
-demand = 10        
-env = CustomTradingEnv()                         #Imported from CustomTrade.py
+# Limits can be finite or infinite, although infinite is not well tested
+demand = 1        
+capacity = 1000
+price_cap = 20
+env = CustomTradingEnv(demand,capacity,price_cap)                         #Imported from CustomTrade.py
 
 #Take Random Actions in Environment
 env.reset()

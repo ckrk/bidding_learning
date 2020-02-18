@@ -15,7 +15,7 @@ class CustomTradingEnv(gym.Env):
     """Minimum Working Example of a Customn Trading Environment for Gym """
     metadata = {'render.modes': ['human']}
     
-    def __init__(self):
+    def __init__(self, demand, capacity, price_cap):
         super(CustomTradingEnv, self).__init__()   
         
         # Define action and observation space
@@ -25,13 +25,12 @@ class CustomTradingEnv(gym.Env):
         # Action Space
         # Should allow a quantity-price bid, both need to be continous with quantity unlimited or limited by capacity and price either unlimited or artifical limit
         
-        self.action_space = spaces.Box( low = np.array([0.0, 0.0]), high=np.array([10.0, 100.0]), dtype=np.float32)    # Bid of form (q,p) , Capacity = 10 , price_Cap = 100
-        
+        self.action_space = spaces.Box( low = np.array([0.0, 0.0]), high=np.array([capacity, price_cap]), dtype=np.float32)    # Bid of form (q,p) limited by capacity and price_cap
         
         
         # Observation Space
-        # This should allow a continous reward signal, limits should resemble price limits
-        self.observation_space = spaces.Box( low = np.array([0.0]), high=np.array([100.0]), dtype=np.float32) # Reward
+        # What are the observations?
+        self.observation_space = spaces.Box( low = np.array([0.0]), high=np.array([np.inf]), dtype=np.float32) # Unclear, maybe demand?
     
     def step(self, action):
         # Limit sales by demand and pay
@@ -40,7 +39,7 @@ class CustomTradingEnv(gym.Env):
         #if self.current_step == 500: # Runtime!
         #    done = 1
         
-        sold_quantity = np.clip(action[0], None, 5) # Demand = 5
+        sold_quantity = np.clip(action[0], None, demand) # Limits sold quantity to demand
         reward = sold_quantity * action[1]
         self.total_reward += reward
         

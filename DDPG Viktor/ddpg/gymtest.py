@@ -22,6 +22,8 @@ from gym import spaces
 from gym import envs
 import numpy as np
 
+import CustomTrade
+
 MAX_ACCOUNT_BALANCE = 2147483647
 MAX_NUM_SHARES = 2147483647
 MAX_SHARE_PRICE = 5000
@@ -38,8 +40,11 @@ class StockTradingEnv(gym.Env):
     
 
 
-    def __init__(self, df):
+    def __init__(self):
         super(StockTradingEnv, self).__init__()
+
+        df  = pd.read_csv('./data/AAPL.csv')
+        df  = df.sort_values('Date')
 
         self.df = df
         self.reward_range = (0, MAX_ACCOUNT_BALANCE)
@@ -165,13 +170,12 @@ class StockTradingEnv(gym.Env):
 
 
 
-
-
 # Predefined Gym Environments
 
-env = gym.make('CartPole-v0')
+#env = gym.make('CartPole-v0')
 #env = gym.make('BipedalWalker-v2') #This environment seems not to work
 #env = gym.make('Pendulum-v0')
+#env = gym.make("Blackjack-v0") #Standard Gym Enviroment with Tuple, Discrete spaces #ERROR!
 
 
 # Customs Gym Environments
@@ -181,13 +185,18 @@ env = gym.make('CartPole-v0')
 #df  = df.sort_values('Date')
 
 #Call StockTradingEnv
-#env = StockTradingEnv(df)
+#env = StockTradingEnv()
 
+#Call my MWE Trading Environment
+demand = 10        
+env = CustomTradingEnv()
 
 #Take Random Actions in Environment
 env.reset()
 for _ in range(1000):
     env.render()
-    env.step(env.action_space.sample()) # take a random action
+    a=env.action_space.sample()
+    print(a)
+    env.step(a) # take a random action
 env.close()
 env.reset()

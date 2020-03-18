@@ -47,7 +47,7 @@ for episode in range(50):
         action = np.append(action0, action1, action2)
         new_state, reward, done, _ = env.step(action)   
         
-        agent0.memory.push(state, np.array([action[0]]), np.array([action[0]]), new_state, done)
+        agent0.memory.push(state, np.array([action[0]]), np.array([reward[0]]), new_state, done)
         agent1.memory.push(state, np.array([action[1]]), np.array([reward[1]]), new_state, done)
         agent2.memory.push(state, np.array([action[2]]), np.array([reward[2]]), new_state, done)
 

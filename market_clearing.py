@@ -7,9 +7,11 @@ import numpy as np
 
 a = np.array([0,5,10])
 b = np.array([1,2,10])
-c = np.array([2,3,10])
-d = np.array([1,9,10])
-test_array = np.stack((a,b,d,a,b,c,b,c))
+c = np.array([2,3,11])
+d = np.array([1,9,7])
+#test_array = np.stack((a,b,d,a,b,c,b,c))
+test_array = np.stack((a,b,d,c))
+
 
 print(test_array)
 def market_clearing(self,demand,bids):    
@@ -26,7 +28,6 @@ def market_clearing(self,demand,bids):
     -   Market Price
     -   Assigns sold quantities
     """
-    
     
     # Sort by 2nd Row (ie by Price-Bids)
     ind = np.argsort(bids[:,1]) 
@@ -46,8 +47,10 @@ def market_clearing(self,demand,bids):
     market_price = bids[cutoff,1]
     print(bids)
     
-    #Set all quantities above cutoff to 0
-    bids[cutoff+1:,2] = 0
+    #Convert CumSum to Differences
+    #This sets all quantities above cutoff to 0 and gives sold quantities below cutoff
+    bids[:,2]=np.hstack((bids[0,-1],np.diff(bids[:,2])))
+    
     print(bids)
     
     #Split the bids according to players
@@ -61,6 +64,14 @@ def market_clearing(self,demand,bids):
     #print(market_price)
     return market_price,bids
 
-market_clearing(_,47,test_array)
+market_clearing(_,17,test_array)
+
+''' 
+Possible Testcases:
+    Check if sales \leq supply
+    Check if sales \geq demand
+    Check 3 cases low demand, equal demanl and high demand
+'''
+
 
     

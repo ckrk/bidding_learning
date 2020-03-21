@@ -19,6 +19,7 @@ test_array = np.stack((a,b,d,a,b,c,b,c))
 test_array = np.stack((a,b,d,c))
 
 
+
 print(test_array)
 def market_clearing(self,demand,bids):    
     """ 
@@ -78,6 +79,7 @@ Possible Testcases:
     Check if sales \geq demand
     Check 3 cases low demand, equal demanl and high demand
 '''
+
 
 
     

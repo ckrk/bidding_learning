@@ -8,17 +8,17 @@ Created on Wed Mar  4 10:05:17 2020
 ###### Versuch mit 2 agents ########################
 
 import sys
-import gym
+#import gym
 import numpy as np
-import pandas as pd
+#import pandas as pd
 import matplotlib.pyplot as plt
 from DDPG02_ import DDPGagent02
 from utils_ import OUNoise, Memory
-from EnMarketEnv02_ import EnMarketEnv02 
+from EnMarketEnv06_ import EnMarketEnv06
 
 
 
-env = EnMarketEnv02(CAP = np.array([400,500,600]), costs = 30)
+env = EnMarketEnv06(CAP = np.array([400,500,600]), costs = np.array([100,100,100]))
 
 
 
@@ -44,7 +44,7 @@ for episode in range(50):
         action2 = agent2.get_action(state)
         action2 = noise.get_action(action2, step)
         
-        action = np.append(action0, action1, action2)
+        action = np.concatenate([action0, action1, action2])
         new_state, reward, done, _ = env.step(action)   
         
         agent0.memory.push(state, np.array([action[0]]), np.array([reward[0]]), new_state, done)

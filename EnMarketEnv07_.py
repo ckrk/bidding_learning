@@ -32,11 +32,9 @@ class EnMarketEnv07(gym.Env):
     Energy Market environment for OpenAI gym
     market_clearing included
     
-<<<<<<< HEAD
-    Changes: observation_space with additional Dimensons: shape(1,7): 1demand, 3Capcitys, 3actions
-=======
+
     Changes: observation_space with additional Dimensons: shape(7,1): 1 demand, 3 Capcitys, 3 actions
->>>>>>> development
+
     
     only works with test03 and DDPG03_
     

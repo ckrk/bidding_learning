@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 """
+<<<<<<< HEAD
 Created on Wed Mar  4 10:22:25 2020
+=======
+Created on Tue Mar 24 11:40:26 2020
+>>>>>>> development
 
 @author: Viktor
 """
@@ -13,9 +17,15 @@ import torch.nn as nn
 from model_ import Actor, Critic
 from utils_ import OUNoise, Memory
 from torch.autograd import Variable
+<<<<<<< HEAD
 
 class DDPGagent03:
     def __init__(self, env, hidden_size=252, actor_learning_rate=1e-4, critic_learning_rate=1e-3, gamma=0.99, tau=1e-2, max_memory_size=50000):
+=======
+# original leraning rate criticer: 1e-3, actor:1e-4
+class DDPGagent03:
+    def __init__(self, env, hidden_size=256, actor_learning_rate=1e-5, critic_learning_rate=1e-4, gamma=0.99, tau=1e-2, max_memory_size=50000):
+>>>>>>> development
         # Params
         self.num_states = env.observation_space.shape[0]
         self.num_actions = env.action_space.shape[0] #-1
@@ -82,6 +92,10 @@ class DDPGagent03:
             
 ######################
             
+<<<<<<< HEAD
 #stat = torch.FloatTensor(state)
 #actin = np.array([action[1]])
 #actin = torch.FloatTensor(actin)
+=======
+
+>>>>>>> development

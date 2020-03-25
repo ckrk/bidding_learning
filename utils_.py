@@ -31,6 +31,7 @@ class OUNoise(object):
     def evolve_state(self):
         x  = self.state
         dx = self.theta * (self.mu - x) + self.sigma * np.random.randn(self.action_dim) 
+        # np.random.randn(0)
         #dx = self.theta * (self.mu - x) + self.sigma * (np.random.randn(self.action_dim) * 7)
         self.state = x + dx
         return self.state

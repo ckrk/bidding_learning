@@ -18,8 +18,12 @@ d = np.array([1,7,9])
 test_array = np.stack((a,b,d,a,b,c,b,c))
 test_array = np.stack((a,b,c))
 
+demand =27
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> development
 #print(test_array)
 def market_clearing(self,demand,bids):    
     """ 

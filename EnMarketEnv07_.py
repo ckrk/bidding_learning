@@ -32,7 +32,11 @@ class EnMarketEnv07(gym.Env):
     Energy Market environment for OpenAI gym
     market_clearing included
     
+<<<<<<< HEAD
     Changes: observation_space with additional Dimensons: shape(1,7): 1demand, 3Capcitys, 3actions
+=======
+    Changes: observation_space with additional Dimensons: shape(7,1): 1 demand, 3 Capcitys, 3 actions
+>>>>>>> development
     
     only works with test03 and DDPG03_
     
@@ -54,6 +58,10 @@ class EnMarketEnv07(gym.Env):
         #self.observation_space = spaces.Box(low=np.array([0, 0]), high=np.array([5000, 5000]), dtype=np.float16)
         self.observation_space = spaces.Box(low=0, high=10000, shape=(7,1), dtype=np.float16)
 
+<<<<<<< HEAD
+=======
+        self.reward_range = (0, 1)
+>>>>>>> development
         
     def _next_observation(self, last_action):
         
@@ -63,11 +71,19 @@ class EnMarketEnv07(gym.Env):
             last_action = last_action
         
         #Q = np.array([500, 1000, 1500])
+<<<<<<< HEAD
     
         Q = np.array([800])
         Q = random.choice(Q)
       
         obs = np.array([Q, self.CAP[0], self.CAP[1], self.CAP[2], last_action[0], last_action[1], last_action[2]])
+=======
+        #Q = np.array([800])
+        #Q = random.choice(Q)
+        Q = np.random.randint(900, 1100, 1)
+      
+        obs = np.array([Q[0], self.CAP[0], self.CAP[1], self.CAP[2], last_action[0], last_action[1], last_action[2]])
+>>>>>>> development
         
         
         return obs
@@ -170,7 +186,21 @@ class EnMarketEnv07(gym.Env):
                 reward0 = reward_max[1]
        
     
+<<<<<<< HEAD
 
+=======
+        
+        #reward0 = np.clip(reward0, 0, Demand)
+        #reward1 = np.clip(reward1, 0, Demand)
+        #reward2 = np.clip(reward2, 0, Demand)
+        #E:\Master_E\Workspace\Bidding-Learning\EnMarketEnv07_.py:181: 
+        #RuntimeWarning: invalid value encountered in double_scalars
+        
+        #reward0 = reward0 / (p * Sup0[1])
+        #reward1 = reward1 / (p * Sup1[1])
+        #reward2 = reward2 / (p * Sup2[1])
+        
+>>>>>>> development
         reward = np.append(reward0, reward1)
         reward = np.append(reward, reward2)
 

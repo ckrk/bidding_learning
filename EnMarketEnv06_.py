@@ -1,11 +1,21 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # -*- coding: utf-8 -*-
 """
 Created on Wed Mar  4 10:05:34 2020
+=======
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Mar 24 11:42:22 2020
+>>>>>>> development
 
 @author: Viktor
 """
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> development
 #### Environment für 2 Player#####
 
 
@@ -211,11 +221,18 @@ class EnMarketEnv06(gym.Env):
   
 
 
+<<<<<<< HEAD
 =======
 # -*- coding: utf-8 -*-
 """
 Created on Wed Mar  4 10:05:34 2020
 
+=======
+
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Mar  4 10:05:34 2020
+>>>>>>> development
 @author: Viktor
 """
 
@@ -420,8 +437,12 @@ class EnMarketEnv06(gym.Env):
         print(f'Average Bid: {self.avg_z}')
         print(f'Average Reward: {self.avg_rewards}')
         
+<<<<<<< HEAD
         
   
 
 
 >>>>>>> 21bdbea89fbbf668ea9b231588e29d134b585edd
+=======
+        
+>>>>>>> development

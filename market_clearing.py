@@ -18,9 +18,9 @@ d = np.array([1,7,9])
 test_array = np.stack((a,b,d,a,b,c,b,c))
 test_array = np.stack((a,b,d,c))
 
+demand =27
 
-
-print(test_array)
+#print(test_array)
 def market_clearing(self,demand,bids):    
     """ 
     Implements a uniform pricing market clearing of several players price-quantity bids
@@ -39,26 +39,26 @@ def market_clearing(self,demand,bids):
     # Sort by 3rd Row (ie by Price-Bids)
     ind = np.argsort(bids[:,2]) 
     bids = bids[ind]
-    print(bids)
+    #print(bids)
     
     #Consecutively add up 2nd Row (ie Quantity-Bids)
     bids[:,1]=np.cumsum(bids[:,1])
-    print(bids)
+    #print(bids)
     
     #Restrict Quantity by 0 and Demand
     bids[:,1]=np.clip(bids[:,1],0,demand)
-    print(bids)
+    #print(bids)
     
     #Determine Position of Price setting player and Marketprice
     cutoff = np.argmax(bids[:,1])
     market_price = bids[cutoff,2]
-    print(bids)
+    #print(bids)
     
     #Convert CumSum to Differences
     #This sets all quantities above cutoff to 0 and gives sold quantities below cutoff
     bids[:,1]=np.hstack((bids[0,1],np.diff(bids[:,1])))
     
-    print(bids)
+    #print(bids)
     
     #Split the bids according to players
     
@@ -71,7 +71,7 @@ def market_clearing(self,demand,bids):
     #print(market_price)
     return market_price,bids
 
-market_clearing(_,27,test_array)
+#market_clearing(_,27,test_array)
 
 ''' 
 Possible Testcases:

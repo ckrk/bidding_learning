@@ -1,20 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-<<<<<<< HEAD
+
 Created on Wed Mar  4 10:05:17 2020
 
 @author: Viktor
 works only for EnMarketEnv07_ and DDPG03_
 """
 
-=======
-Created on Tue Mar 24 11:41:07 2020
-
-@author: Viktor
-"""
-
-
->>>>>>> development
 ###### Versuch mit 2 agents ########################
 
 import sys

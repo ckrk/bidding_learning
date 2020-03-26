@@ -20,12 +20,9 @@ test_array = np.stack((a,b,c))
 
 demand =27
 
-<<<<<<< HEAD
 
-=======
->>>>>>> development
 #print(test_array)
-def market_clearing(self,demand,bids):    
+def market_clearing(demand, bids):    
     """ 
     Implements a uniform pricing market clearing of several players price-quantity bids
     Requires the bids in a certain from and numbered

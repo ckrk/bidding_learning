@@ -103,8 +103,11 @@ class EnMarketEnv07(gym.Env):
         
         market = market_clearing(q, All)
         
+        #Naming the results of the Market Clearing
+        p = market[0]
         allorderd = market[1]
-        
+        sold_quantities = market[2]
+        '''
         #minSup = np.append(allorderd[0], self.costs[0])
         #medSup = np.append(allorderd[1], self.costs[1])
         #maxSup = np.append(allorderd[2], self.costs[2])
@@ -187,7 +190,11 @@ class EnMarketEnv07(gym.Env):
         #reward0 = reward0 / (p * Sup0[1])
         #reward1 = reward1 / (p * Sup1[1])
         #reward2 = reward2 / (p * Sup2[1])
-        
+        '''
+
+        reward0 = sold_quantities[0]*p
+        reward1 = sold_quantities[1]*p
+        reward2 = sold_quantities[2]*p
 
         reward = np.append(reward0, reward1)
         reward = np.append(reward, reward2)

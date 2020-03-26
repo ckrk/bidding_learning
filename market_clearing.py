@@ -17,8 +17,20 @@ a = np.array([0,10, 2])
 b = np.array([1,10,3])
 c = np.array([2,11, 2])
 d = np.array([1,7,9])
-test_array = np.stack((a,b,d,a,b,c,b,c))
+
+#Fringe Readout for Testing
+
+#Readout fringe players from other.csv (m)
+read_out = np.genfromtxt("others.csv",delimiter=";",autostrip=True,comments="#",skip_header=1,usecols=(0,1))
+#Readout fringe switched to conform with format; finge[0]=quantity fringe[1]=bid
+fringe = np.fliplr(read_out)
+fringe = np.pad(fringe,((0,0),(1,0)),mode='constant')
+
+#test_array = np.stack((a,b,d,a,b,c,b,c))
 #test_array = np.stack((a,b,c))
+test_array = fringe
+
+
 
 demand =27
 
@@ -38,6 +50,8 @@ def market_clearing(demand,bids):
     -   Market Price
     -   Ordered result of each quantity assigned by bid
     -   Assigns sold quantities per player
+    
+    #Attention: player labels need to be integers
     """
     
     # Sort by 3rd Row (ie by Price-Bids)
@@ -68,13 +82,17 @@ def market_clearing(demand,bids):
     #Aggregate quantities py player name
     
     #Labels are player names in a[:,0] and Values are quantities in a[:,1]
-    #Attention: without dtype floar we get an overflow
     
-    quantities = npg.aggregate(bids[:,0],bids[:,1],func='sum',dtype=np.float)
+    #Attention: the labels need to be integers
+    #bids[:,0]=bids[:,0].astype(int)
+    
+    #Attention: without dtype float in the values we get an overflow
+    
+    quantities = npg.aggregate(bids[:,0].astype(int),bids[:,1],func='sum',dtype=np.float)
     
     return market_price, bids, quantities
 
-market_clearing(27,test_array)
+market_clearing(7,test_array)
 
 ''' 
 Possible Testcases:

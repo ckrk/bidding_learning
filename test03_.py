@@ -20,7 +20,7 @@ from EnMarketEnv07_ import EnMarketEnv07
 
 
 
-env = EnMarketEnv07(CAP = np.array([400,500,600]), costs = np.array([100,100,100]))
+env = EnMarketEnv07(CAP = np.array([400,500,600]), costs = np.array([50,40,30]))
 
 
 

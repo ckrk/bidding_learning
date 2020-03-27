@@ -95,9 +95,9 @@ class EnMarketEnv07(gym.Env):
         Demand = obs[0]
         q = obs[0]
         
-        Sup0 = np.array([0, self.CAP[0], action[0]])
-        Sup1 = np.array([1, self.CAP[1], action[1]])
-        Sup2 = np.array([2, self.CAP[2], action[2]])
+        Sup0 = np.array([0, self.CAP[0], action[0], self.costs, self.CAP[0]])
+        Sup1 = np.array([1, self.CAP[1], action[1], self.costs, self.CAP[1]])
+        Sup2 = np.array([2, self.CAP[2], action[2], self.costs, self.CAP[2]])
         
         All = np.stack((Sup0, Sup1, Sup2))
         
@@ -105,9 +105,6 @@ class EnMarketEnv07(gym.Env):
         
         allorderd = market[1]
         
-        #minSup = np.append(allorderd[0], self.costs[0])
-        #medSup = np.append(allorderd[1], self.costs[1])
-        #maxSup = np.append(allorderd[2], self.costs[2])
         
         minSup = allorderd[0]
         medSup = allorderd[1]
@@ -120,15 +117,15 @@ class EnMarketEnv07(gym.Env):
         
         # rewards
         qmin = np.clip(minSup[1], 0, q)
-        reward_min = p * qmin
+        reward_min = (p - minSup[3]) * qmin - (minSup[3] * (minSup[4] - minSup[1]))
         
         q = q - qmin
         qmed = np.clip(medSup[1], 0, q)
-        reward_med = p * qmed
+        reward_med = (p - medSup[3]) * qmed - (medSup[3] * (medSup[4] - medSup[1]))
            
         q = q - qmed
         qmax = np.clip(maxSup[1], 0, q)
-        reward_max = p * qmax
+        reward_max = (p - maxSup[3]) * qmax - (maxSup[3] * (maxSup[4] - maxSup[1]))
         
         
         

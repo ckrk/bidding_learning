@@ -26,7 +26,7 @@ from market_clearing import market_clearing
 #env.observation_space.shape[:]
 #env.action_space.shape[0]-1
 
-class EnMarketEnv07(gym.Env):
+class EnMarketEnv08(gym.Env):
     
     """
     Energy Market environment for OpenAI gym
@@ -42,7 +42,7 @@ class EnMarketEnv07(gym.Env):
     metadata = {'render.modes': ['human']}   ### ?
 
     def __init__(self, CAP, costs):              ##### mit df ?
-        super(EnMarketEnv07, self).__init__()
+        super(EnMarketEnv08, self).__init__()
         
         self.CAP = CAP
         self.costs = costs
@@ -106,8 +106,8 @@ class EnMarketEnv07(gym.Env):
         
 
         #Sup0 = np.array([0, self.CAP[0], action[0], self.costs, self.CAP[0]])
-        Sup1 = np.array([1, self.CAP[1], action[1], self.costs, self.CAP[1]])
-        Sup2 = np.array([2, self.CAP[2], action[2], self.costs, self.CAP[2]])
+        #Sup1 = np.array([1, self.CAP[1], action[1], self.costs, self.CAP[1]])
+        #Sup2 = np.array([2, self.CAP[2], action[2], self.costs, self.CAP[2]])
 
         
         
@@ -140,16 +140,16 @@ class EnMarketEnv07(gym.Env):
     
         
         # rewards
-        qmin = np.clip(minSup[1], 0, q)
-        reward_min = (p - minSup[3]) * qmin - (minSup[3] * (minSup[4] - minSup[1]))
+        #qmin = np.clip(minSup[1], 0, q)
+        #reward_min = (p - minSup[3]) * qmin - (minSup[3] * (minSup[4] - minSup[1]))
         
-        q = q - qmin
-        qmed = np.clip(medSup[1], 0, q)
-        reward_med = (p - medSup[3]) * qmed - (medSup[3] * (medSup[4] - medSup[1]))
+        #q = q - qmin
+        #qmed = np.clip(medSup[1], 0, q)
+        #reward_med = (p - medSup[3]) * qmed - (medSup[3] * (medSup[4] - medSup[1]))
            
-        q = q - qmed
-        qmax = np.clip(maxSup[1], 0, q)
-        reward_max = (p - maxSup[3]) * qmax - (maxSup[3] * (maxSup[4] - maxSup[1]))
+        #q = q - qmed
+        #qmax = np.clip(maxSup[1], 0, q)
+        #reward_max = (p - maxSup[3]) * qmax - (maxSup[3] * (maxSup[4] - maxSup[1]))
         
         
         
@@ -210,7 +210,7 @@ class EnMarketEnv07(gym.Env):
         #reward2 = reward2 / (p * Sup2[1])
         
 
-        reward0 = sold_quantities[0]*p # - (cost * unsold Capacity) # and instead of p: (p-costs)
+        reward0 = sold_quantities[0]*p 
         reward1 = sold_quantities[1]*p
         reward2 = sold_quantities[2]*p
 

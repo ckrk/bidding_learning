@@ -16,7 +16,7 @@ b = np.array([1,10,3])
 c = np.array([2,11, 2])
 d = np.array([1,7,9])
 test_array = np.stack((a,b,d,a,b,c,b,c))
-test_array = np.stack((a,b,c))
+bids = np.stack((a,b,d,c))
 
 demand =27
 
@@ -72,7 +72,7 @@ def market_clearing(demand, bids):
     #print(market_price)
     return market_price,bids
 
-#market_clearing(_,27,test_array)
+#market_clearing(27,test_array)
 
 ''' 
 Possible Testcases:

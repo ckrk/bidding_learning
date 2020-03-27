@@ -105,19 +105,19 @@ class EnMarketEnv07(gym.Env):
         q = obs[0]
         
 
-        #Sup0 = np.array([0, self.CAP[0], action[0], self.costs, self.CAP[0]])
+        Sup0 = np.array([0, self.CAP[0], action[0], self.costs, self.CAP[0]])
         Sup1 = np.array([1, self.CAP[1], action[1], self.costs, self.CAP[1]])
         Sup2 = np.array([2, self.CAP[2], action[2], self.costs, self.CAP[2]])
 
         
         
         #Decision on Strategic or Fringe Player 0
-        Sup0 = self.fringe
+        #Sup0 = self.fringe
         #Sup0 = np.array([[0, self.CAP[0], action[0]]])
         
         #Strategic Players
-        Sup1 = np.array([[1, self.CAP[1], action[1]]])
-        Sup2 = np.array([[2, self.CAP[2], action[2]]])
+        #Sup1 = np.array([[1, self.CAP[1], action[1]]])
+        #Sup2 = np.array([[2, self.CAP[2], action[2]]])
         
         All = np.concatenate((Sup0, Sup1, Sup2))
         

@@ -56,6 +56,15 @@ class EnMarketEnv07(gym.Env):
         #self.observation_space = spaces.Box(low=np.array([0, 0]), high=np.array([5000, 5000]), dtype=np.float16)
         self.observation_space = spaces.Box(low=0, high=10000, shape=(7,1), dtype=np.float16)
 
+        #Fringe or Strategic Player
+        #        # Test move to init
+        #Readout fringe players from other.csv (m)
+        #Readout fringe players from other.csv (m)
+        read_out = np.genfromtxt("others.csv",delimiter=";",autostrip=True,comments="#",skip_header=1,usecols=(0,1))
+        #Readout fringe switched to conform with format; finge[0]=quantity fringe[1]=bid
+        self.fringe = np.fliplr(read_out)
+        self.fringe = np.pad(self.fringe,((0,0),(1,0)),mode='constant')
+
 
         self.reward_range = (0, 1)
 
@@ -95,16 +104,31 @@ class EnMarketEnv07(gym.Env):
         Demand = obs[0]
         q = obs[0]
         
+
         Sup0 = np.array([0, self.CAP[0], action[0], self.costs, self.CAP[0]])
         Sup1 = np.array([1, self.CAP[1], action[1], self.costs, self.CAP[1]])
         Sup2 = np.array([2, self.CAP[2], action[2], self.costs, self.CAP[2]])
+
         
-        All = np.stack((Sup0, Sup1, Sup2))
+        
+        #Decision on Strategic or Fringe Player 0
+        Sup0 = self.fringe
+        #Sup0 = np.array([[0, self.CAP[0], action[0]]])
+        
+        #Strategic Players
+        Sup1 = np.array([[1, self.CAP[1], action[1]]])
+        Sup2 = np.array([[2, self.CAP[2], action[2]]])
+        
+        All = np.concatenate((Sup0, Sup1, Sup2))
         
         market = market_clearing(q, All)
         
+        #Naming the results of the Market Clearing
+        p = market[0]
         allorderd = market[1]
-        
+
+        sold_quantities = market[2]
+
         
         minSup = allorderd[0]
         medSup = allorderd[1]
@@ -184,7 +208,11 @@ class EnMarketEnv07(gym.Env):
         #reward0 = reward0 / (p * Sup0[1])
         #reward1 = reward1 / (p * Sup1[1])
         #reward2 = reward2 / (p * Sup2[1])
-        
+        '''
+
+        reward0 = sold_quantities[0]*p
+        reward1 = sold_quantities[1]*p
+        reward2 = sold_quantities[2]*p
 
         reward = np.append(reward0, reward1)
         reward = np.append(reward, reward2)

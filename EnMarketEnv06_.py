@@ -1,21 +1,12 @@
 <<<<<<< HEAD
-<<<<<<< HEAD
 # -*- coding: utf-8 -*-
 """
 Created on Wed Mar  4 10:05:34 2020
-=======
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Mar 24 11:42:22 2020
->>>>>>> development
+
 
 @author: Viktor
 """
 
-<<<<<<< HEAD
-=======
-
->>>>>>> development
 #### Environment für 2 Player#####
 
 
@@ -76,6 +67,13 @@ class EnMarketEnv06(gym.Env):
 
         q = self._next_observation()
         Demand = q
+        
+        
+        # Test move to init
+        #Readout fringe players from other.csv (m)
+        #fringe = np.genfromtxt("others.csv",delimiter=";",autostrip=True,comments="#",skip_header=1,usecols=(0,1))
+        #Readout fringe switched to conform wiht format; finge[0]=quantity fringe[1]=bid
+        #Sup0 = np.array([0, fringe[1], fringe[0]])
         
         Sup0 = np.array([0, self.CAP[0], action[0]])
         Sup1 = np.array([1, self.CAP[1], action[1]])

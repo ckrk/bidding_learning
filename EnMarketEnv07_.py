@@ -41,12 +41,12 @@ class EnMarketEnv07(gym.Env):
     """
     metadata = {'render.modes': ['human']}   ### ?
 
-    def __init__(self, CAP, costs, Fringe = 0):              ##### mit df ?
+    def __init__(self, CAP, costs, Fringe=0):              ##### mit df ?
         super(EnMarketEnv07, self).__init__()
         
         self.CAP = CAP
         self.costs = costs
-        
+        self.Fringe = Fringe
         
         # Continous action space for bids
         self.action_space = spaces.Box(low=np.array([0]), high=np.array([10000]), dtype=np.float16)
@@ -113,6 +113,7 @@ class EnMarketEnv07(gym.Env):
         Demand = obs[0]
         q = obs[0]
         
+        
 
         
         #Decision on Strategic or Fringe Player 0
@@ -126,7 +127,7 @@ class EnMarketEnv07(gym.Env):
         Sup1 = np.array([1, self.CAP[1], action[1], self.costs, self.CAP[1]])
         Sup2 = np.array([2, self.CAP[2], action[2], self.costs, self.CAP[2]])
         
-        All = np.concatenate((Sup0, Sup1, Sup2))
+        All = np.stack((Sup0, Sup1, Sup2))
         
         market = market_clearing(q, All)
         

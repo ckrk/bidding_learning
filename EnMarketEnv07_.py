@@ -41,7 +41,7 @@ class EnMarketEnv07(gym.Env):
     """
     metadata = {'render.modes': ['human']}   ### ?
 
-    def __init__(self, CAP, costs):              ##### mit df ?
+    def __init__(self, CAP, costs, Fringe = 0):              ##### mit df ?
         super(EnMarketEnv07, self).__init__()
         
         self.CAP = CAP
@@ -50,10 +50,8 @@ class EnMarketEnv07(gym.Env):
         
         # Continous action space for bids
         self.action_space = spaces.Box(low=np.array([0]), high=np.array([10000]), dtype=np.float16)
-        #self.action_space = spaces.Box(low=np.array([-10, -10]), high=np.array([10000, 10000]), dtype=np.float16)
 
         # Discrete Demand opportunities
-        #self.observation_space = spaces.Box(low=np.array([0, 0]), high=np.array([5000, 5000]), dtype=np.float16)
         self.observation_space = spaces.Box(low=0, high=10000, shape=(7,1), dtype=np.float16)
 
         #Fringe or Strategic Player
@@ -71,15 +69,27 @@ class EnMarketEnv07(gym.Env):
         
     def _next_observation(self, last_action):
         
+        """
+        Get State:
+            includes the current Demand  -> Q
+            - the Capacitys of all Players -> self.CAP[], (Maybe will change to: sold Capcitys from the Round before)
+            - Memory of the Bids from the round before of all Players -> last_action[]
+            (Consideration: of including Memory from more played rounds)
+        
+        Output:
+            State as np.array of shape [7,1] 
+    
+        """
+        
         if self.current_step == 0:
             last_action = self.start_action
         else:
             last_action = last_action
         
         #Q = np.array([500, 1000, 1500])
-
         #Q = np.array([800])
         #Q = random.choice(Q)
+        
         Q = np.random.randint(900, 1100, 1)
       
         obs = np.array([Q[0], self.CAP[0], self.CAP[1], self.CAP[2], last_action[0], last_action[1], last_action[2]])
@@ -88,11 +98,10 @@ class EnMarketEnv07(gym.Env):
         return obs
 
     def step(self, action, last_action):
-        # market clearing
         
         
-        z = action
         
+        # get current state, which includes Memory of the bids from the round before
         if self.current_step == 0:
             last_action = self.start_action
             obs = self._next_observation(last_action)
@@ -105,19 +114,17 @@ class EnMarketEnv07(gym.Env):
         q = obs[0]
         
 
-        Sup0 = np.array([0, self.CAP[0], action[0], self.costs, self.CAP[0]])
-        Sup1 = np.array([1, self.CAP[1], action[1], self.costs, self.CAP[1]])
-        Sup2 = np.array([2, self.CAP[2], action[2], self.costs, self.CAP[2]])
-
-        
         
         #Decision on Strategic or Fringe Player 0
-        #Sup0 = self.fringe
-        #Sup0 = np.array([[0, self.CAP[0], action[0]]])
+        if self.Fringe == 1:
+            Sup0 = self.fringe
+        else:
+            Sup0 = np.array([0, self.CAP[0], action[0], self.costs, self.CAP[0]])
+       
         
         #Strategic Players
-        #Sup1 = np.array([[1, self.CAP[1], action[1]]])
-        #Sup2 = np.array([[2, self.CAP[2], action[2]]])
+        Sup1 = np.array([1, self.CAP[1], action[1], self.costs, self.CAP[1]])
+        Sup2 = np.array([2, self.CAP[2], action[2], self.costs, self.CAP[2]])
         
         All = np.concatenate((Sup0, Sup1, Sup2))
         
@@ -129,14 +136,10 @@ class EnMarketEnv07(gym.Env):
 
         sold_quantities = market[2]
 
-        
         minSup = allorderd[0]
         medSup = allorderd[1]
         maxSup = allorderd[2]
     
-        
-        p = market[0]
-        
     
         
         # rewards
@@ -199,20 +202,18 @@ class EnMarketEnv07(gym.Env):
     
 
         
-        #reward0 = np.clip(reward0, 0, Demand)
-        #reward1 = np.clip(reward1, 0, Demand)
-        #reward2 = np.clip(reward2, 0, Demand)
+        # Idea of setting reward in relation to their Max reward
         #E:\Master_E\Workspace\Bidding-Learning\EnMarketEnv07_.py:181: 
         #RuntimeWarning: invalid value encountered in double_scalars
-        
         #reward0 = reward0 / (p * Sup0[1])
         #reward1 = reward1 / (p * Sup1[1])
         #reward2 = reward2 / (p * Sup2[1])
         
-
-        reward0 = sold_quantities[0]*p # - (cost * unsold Capacity) # and instead of p: (p-costs)
-        reward1 = sold_quantities[1]*p
-        reward2 = sold_quantities[2]*p
+        #Maybe the Order could already be redone in the market clearing, 
+        #than we woudn't need the "find your partner again" - part anymore
+        #reward0 = sold_quantities[0]*p 
+        #reward1 = sold_quantities[1]*p
+        #reward2 = sold_quantities[2]*p
 
         reward = np.append(reward0, reward1)
         reward = np.append(reward, reward2)
@@ -221,15 +222,15 @@ class EnMarketEnv07(gym.Env):
       
         
         ## Render Commands 
-        self.safe(z, self.current_step)
+        self.safe(action, self.current_step)
         
         self.sum_q += Demand
         self.avg_q = self.sum_q/self.current_step
-        self.sum_z += z
-        self.avg_z = self.sum_z/self.current_step
+        self.sum_action += action
+        self.avg_action = self.sum_action/self.current_step
         self.current_q = Demand
         self.last_rewards = reward
-        self.last_bids = z
+        self.last_bids = action
         self.sum_rewards += reward
         self.avg_rewards = self.sum_rewards/self.current_step
         
@@ -258,8 +259,8 @@ class EnMarketEnv07(gym.Env):
     def reset(self):
         # Reset the state of the environment to an initial state
         self.current_step = 0
-        self.avg_z = 0
-        self.sum_z = 0
+        self.avg_action = 0
+        self.sum_action = 0
         self.sum_q = 0
         self.sum_rewards = 0
         self.AllAktionen = deque(maxlen=500)
@@ -275,7 +276,7 @@ class EnMarketEnv07(gym.Env):
         print(f'Last Bid of this Episode: {self.last_bids}')
         print(f'Last Reward of this Episode: {self.last_rewards}')
         print(f'Average Demand: {self.avg_q}')
-        print(f'Average Bid: {self.avg_z}')
+        print(f'Average Bid: {self.avg_action}')
         print(f'Average Reward: {self.avg_rewards}')
         
         

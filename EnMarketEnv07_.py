@@ -33,7 +33,11 @@ class EnMarketEnv07(gym.Env):
     market_clearing included
     
 
-    Changes: observation_space with additional Dimensons: shape(7,1): 1 demand, 3 Capcitys, 3 actions
+    Changes: observation_space with additional Dimensons: shape(7,1): 1 demand, 3 Capcitys, 3 actions (maybe add costs)
+    Rewards = 0: Default, Reward is (price-costs)*acceptedCAP 
+    Rewards = 1: Default, Reward is (price-costs)*acceptedCAP - (price*unsoldCAP)
+    Rewards = 2: Default, Reward is ((price-costs)*acceptedCAP)/(cost*maxCAP)
+    Rewards = 3: Default, Reward is ((price-costs)*acceptedCAP - (price*unsoldCAP))/(cost*maxCAP)
 
     
     only works with test03 and DDPG03_
@@ -41,18 +45,21 @@ class EnMarketEnv07(gym.Env):
     """
     metadata = {'render.modes': ['human']}   ### ?
 
-    def __init__(self, CAP, costs, Fringe=0):              ##### mit df ?
+    def __init__(self, CAP, costs, Fringe=0, Rewards=0):              ##### mit df ?
         super(EnMarketEnv07, self).__init__()
         
         self.CAP = CAP
         self.costs = costs
         self.Fringe = Fringe
+        self.Rewards = Rewards
         
         # Continous action space for bids
         self.action_space = spaces.Box(low=np.array([0]), high=np.array([10000]), dtype=np.float16)
 
         # Discrete Demand opportunities
         self.observation_space = spaces.Box(low=0, high=10000, shape=(7,1), dtype=np.float16)
+        
+
 
         #Fringe or Strategic Player
         #        # Test move to init
@@ -82,9 +89,10 @@ class EnMarketEnv07(gym.Env):
         """
         
         if self.current_step == 0:
-            last_action = self.start_action
+            last_action = self.start_action           
         else:
             last_action = last_action
+            
         
         #Q = np.array([500, 1000, 1500])
         #Q = np.array([800])
@@ -93,7 +101,7 @@ class EnMarketEnv07(gym.Env):
         Q = np.random.randint(900, 1100, 1)
       
         obs = np.array([Q[0], self.CAP[0], self.CAP[1], self.CAP[2], last_action[0], last_action[1], last_action[2]])
-
+        
         
         return obs
 
@@ -103,7 +111,7 @@ class EnMarketEnv07(gym.Env):
         
         # get current state, which includes Memory of the bids from the round before
         if self.current_step == 0:
-            last_action = self.start_action
+            last_action = self.start_action            
             obs = self._next_observation(last_action)
         else:
             obs = self._next_observation(last_action)
@@ -121,12 +129,13 @@ class EnMarketEnv07(gym.Env):
             Sup0 = self.fringe
         else:
             Sup0 = np.array([0, self.CAP[0], action[0], self.costs, self.CAP[0]])
+            
        
-        
         #Strategic Players
         Sup1 = np.array([1, self.CAP[1], action[1], self.costs, self.CAP[1]])
         Sup2 = np.array([2, self.CAP[2], action[2], self.costs, self.CAP[2]])
         
+
         All = np.stack((Sup0, Sup1, Sup2))
         
         market = market_clearing(q, All)
@@ -135,7 +144,7 @@ class EnMarketEnv07(gym.Env):
         p = market[0]
         allorderd = market[1]
 
-        sold_quantities = market[2]
+        #sold_quantities = market[2]
 
         minSup = allorderd[0]
         medSup = allorderd[1]
@@ -145,15 +154,48 @@ class EnMarketEnv07(gym.Env):
         
         # rewards
         qmin = np.clip(minSup[1], 0, q)
-        reward_min = (p - minSup[3]) * qmin - (minSup[3] * (minSup[4] - minSup[1]))
-        
+        reward_min = (p - minSup[3]) * qmin 
+                
         q = q - qmin
         qmed = np.clip(medSup[1], 0, q)
-        reward_med = (p - medSup[3]) * qmed - (medSup[3] * (medSup[4] - medSup[1]))
+        reward_med = (p - medSup[3]) * qmed 
            
         q = q - qmed
         qmax = np.clip(maxSup[1], 0, q)
-        reward_max = (p - maxSup[3]) * qmax - (maxSup[3] * (maxSup[4] - maxSup[1]))
+        reward_max = (p - maxSup[3]) * qmax 
+        
+        
+        if self.Rewards == 1:
+            reward_min = reward_min - (minSup[3] * (minSup[4] - minSup[1]))
+            reward_med = reward_med - (medSup[3] * (medSup[4] - medSup[1]))
+            reward_max = reward_max - (maxSup[3] * (maxSup[4] - maxSup[1]))
+        
+        if self.Rewards == 2:
+            reward_min = reward_min / (minSup[3] * minSup[4])
+            reward_med = reward_med / (medSup[3] * medSup[4])
+            reward_max = reward_max / (maxSup[3] * maxSup[4])
+            
+        if self.Rewards == 3:           
+            reward_min = reward_min - (minSup[3] * (minSup[4] - minSup[1]))
+            reward_med = reward_med - (medSup[3] * (medSup[4] - medSup[1]))
+            reward_max = reward_max - (maxSup[3] * (maxSup[4] - maxSup[1]))
+            
+            reward_min = reward_min / (minSup[3] * minSup[4])
+            reward_med = reward_med / (medSup[3] * medSup[4])
+            reward_max = reward_max / (maxSup[3] * maxSup[4])
+        
+        if self.Rewards == 4:           
+            #reward_min = reward_min - (minSup[3] * (minSup[4] - minSup[1]))
+            #reward_med = reward_med - (medSup[3] * (medSup[4] - medSup[1]))
+            #reward_max = reward_max - (maxSup[3] * (maxSup[4] - maxSup[1]))
+            
+            minWin = np.clip((minSup[2]-minSup[3]), 0.0001, minSup[2])
+            medWin = np.clip((medSup[2]-medSup[3]), 0.0001, medSup[2])
+            maxWin = np.clip((maxSup[2]-maxSup[3]), 0.0001, maxSup[2])
+            reward_min = reward_min / (minWin * minSup[4])
+            reward_med = reward_med / (medWin* medSup[4])
+            reward_max = reward_max / (maxWin * maxSup[4])
+        
         
         
         
@@ -206,9 +248,11 @@ class EnMarketEnv07(gym.Env):
         # Idea of setting reward in relation to their Max reward
         #E:\Master_E\Workspace\Bidding-Learning\EnMarketEnv07_.py:181: 
         #RuntimeWarning: invalid value encountered in double_scalars
-        #reward0 = reward0 / (p * Sup0[1])
-        #reward1 = reward1 / (p * Sup1[1])
-        #reward2 = reward2 / (p * Sup2[1])
+        #reward0 = reward0/(Sup0[3] * Sup0[1])
+        #reward1 = reward1/(Sup1[3] * Sup1[1])
+        #reward2 = reward2/(Sup2[3] * Sup2[1])
+        
+        
         
         #Maybe the Order could already be redone in the market clearing, 
         #than we woudn't need the "find your partner again" - part anymore
@@ -241,11 +285,11 @@ class EnMarketEnv07(gym.Env):
         ##### Next Obs
         
         obs = self._next_observation(action)
-        last_action = action
+        last_action = action        
 
        
 
-        return obs, reward, done, last_action, {}
+        return obs, reward, done, {}
     
     def safe(self, action, current_step):
         
@@ -272,7 +316,7 @@ class EnMarketEnv07(gym.Env):
     def render(self, mode='human', close=False):
         # Render the environment to the screen
         print(f'Step: {self.current_step}')
-        #print(f'AllAktionen: {self.AllAktionen}')
+        print(f'AllAktionen: {self.AllAktionen}')
         print(f'Last Demand of this Episode: {self.current_q}')
         print(f'Last Bid of this Episode: {self.last_bids}')
         print(f'Last Reward of this Episode: {self.last_rewards}')

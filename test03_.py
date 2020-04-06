@@ -24,7 +24,7 @@ from EnMarketEnv07_ import EnMarketEnv07
 
 
 
-env = EnMarketEnv07(CAP = np.array([500,500,500]), costs = np.array([20,20,20]), Rewards = 4)
+env = EnMarketEnv07(CAP = np.array([500,500,500]), costs = np.array([20,20,20]), Fringe=0, Rewards = 4)
 
 
 
@@ -53,6 +53,7 @@ for episode in range(50):
         action2 = noise.get_action(action2, step)
         
         action = np.concatenate([action0, action1, action2])
+        #action = np.concatenate([action0, action1]) #if trying with fringe Player !!!
         new_state, reward, done, _ = env.step(action, last_action)   
         
         agent0.memory.push(state, np.array([action[0]]), np.array([reward[0]]), new_state, done)
@@ -61,7 +62,7 @@ for episode in range(50):
 
 
         
-        if len(agent0.memory) > batch_size:            
+        if len(agent1.memory) > batch_size:            
             agent0.update(batch_size)
             agent1.update(batch_size)
             agent2.update(batch_size) 

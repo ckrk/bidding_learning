@@ -5,6 +5,10 @@ Created on Wed Mar  4 10:05:17 2020
 
 @author: Viktor
 works only for EnMarketEnv07_ and DDPG03_
+supposed for the 3 Player Games
+
+
+
 """
 
 ###### Versuch mit 2 agents ########################
@@ -20,7 +24,7 @@ from EnMarketEnv07_ import EnMarketEnv07
 
 
 
-env = EnMarketEnv07(CAP = np.array([400,500,600]), costs = np.array([50,40,30]))
+env = EnMarketEnv07(CAP = np.array([500,500,500]), costs = np.array([20,20,20]), Rewards = 4)
 
 
 
@@ -32,6 +36,7 @@ batch_size = 128
 rewards = []
 avg_rewards = []
 last_action = np.array([0,0,0])
+
 
 for episode in range(50):
     state = env.reset()
@@ -48,7 +53,7 @@ for episode in range(50):
         action2 = noise.get_action(action2, step)
         
         action = np.concatenate([action0, action1, action2])
-        new_state, reward, done, last_action, _ = env.step(action, last_action)   
+        new_state, reward, done, _ = env.step(action, last_action)   
         
         agent0.memory.push(state, np.array([action[0]]), np.array([reward[0]]), new_state, done)
         agent1.memory.push(state, np.array([action[1]]), np.array([reward[1]]), new_state, done)
@@ -65,7 +70,7 @@ for episode in range(50):
         episode_reward += reward
 
         if done:
-            sys.stdout.write("episode: {}, reward: {}, average _reward: {} \n".format(episode, np.round(episode_reward, decimals=2), np.mean(rewards[-10:])))
+            sys.stdout.write("***episode: {}, reward: {}, average _reward: {} \n".format(episode, np.round(episode_reward, decimals=2), np.mean(rewards[-10:])))
             env.render()
             break
 

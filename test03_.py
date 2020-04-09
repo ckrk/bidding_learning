@@ -24,7 +24,7 @@ from EnMarketEnv07_ import EnMarketEnv07
 
 
 
-env = EnMarketEnv07(CAP = np.array([500,500,500]), costs = np.array([20,20,20]), Fringe=0, Rewards = 4)
+env = EnMarketEnv07(CAP = np.array([500,500,500]), costs = np.array([20,20,20]), Fringe=0, Rewards = 3)
 
 
 

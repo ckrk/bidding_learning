@@ -23,7 +23,7 @@ from EnMarketEnv_2Player01 import EnMarketEnv_2Player01
 
 
 
-env = EnMarketEnv_2Player01(CAP = np.array([50,50]), costs = np.array([20,20]), Rewards=3)
+env = EnMarketEnv_2Player01(CAP = np.array([50,50]), costs = np.array([20,20]),Fringe=0, Rewards=3)
 
 
 

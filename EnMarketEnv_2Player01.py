@@ -114,134 +114,89 @@ class EnMarketEnv_2Player01(gym.Env):
     def step(self, action, last_action):
         
         
-        obs = self._next_observation(last_action)
-        
         self.current_step += 1
         
+        # get current state, which includes Memory of the bids from the round before        
+        obs = self._next_observation(last_action)
+            
         Demand = obs[0]
         q = obs[0]
+                  
         
-        
-
-        
-        #Decision on Strategic or Fringe Player 0
-        if self.Fringe == 1:
-            Sup0 = self.fringe
-        else:
-            Sup0 = np.array([0, self.CAP[0], action[0], self.costs, self.CAP[0]])
-            
-       
         #Strategic Players
-        Sup1 = np.array([1, self.CAP[1], action[1], self.costs, self.CAP[1]])
-        #Sup2 = np.array([2, self.CAP[2], action[2], self.costs, self.CAP[2]])
+        Sup0 = np.array([int(0), self.CAP[0], action[0], self.costs[0], self.CAP[0]])
         
-
+        #Decision on Strategic or Fringe Player 
+        if self.Fringe == 1:
+            Sup1 = self.fringe
+        else:
+            Sup1 = np.array([int(1), self.CAP[1], action[1], self.costs[1], self.CAP[1]])            
+                 
+        
+                
         All = np.stack((Sup0, Sup1))
         
+        # Returns all Players orderd by lowest bid and assigns to them their quantities they can sell
+        # (Output: [0]= price, [1]= Orderd Player lists, [2]= quantities to sell in original order)
         market = market_clearing(q, All)
         
-        #Naming the results of the Market Clearing
         p = market[0]
-        allorderd = market[1]
+        sold_quantities = market[2]
 
-        #sold_quantities = market[2]
-
-        minSup = allorderd[0]
-        medSup = allorderd[1]
-        #maxSup = allorderd[2]
+     
+        #### rewards
         
-        #if minSup[2] == medSup[2]:
-         #   minSup[1] = q*0.5
-          #  medSup[1] = q*0.5
-    
-    
-        
-        # rewards
-        qmin = np.clip(minSup[1], 0, q)
-        reward_min = (p - minSup[3]) * qmin 
-                
-        q = q - qmin
-        qmed = np.clip(medSup[1], 0, q)
-        reward_med = (p - medSup[3]) * qmed 
-           
-        #q = q - qmed
-        #qmax = np.clip(maxSup[1], 0, q)
-        #reward_max = (p - maxSup[3]) * qmax 
+        reward0 = (p - Sup0[3]) * sold_quantities[0]                        
+        reward1 = (p - Sup1[3]) * sold_quantities[1]
         
         
         if self.Rewards == 1:
-            reward_min = reward_min - (minSup[3] * (minSup[4] - minSup[1]))
-            reward_med = reward_med - (medSup[3] * (medSup[4] - medSup[1]))
-            #reward_max = reward_max - (maxSup[3] * (maxSup[4] - maxSup[1]))
+            reward0 = reward0 - (Sup0[3] * (Sup0[4] - sold_quantities[0]))
+            reward1 = reward1 - (Sup1[3] * (Sup1[4] - sold_quantities[1]))
         
         if self.Rewards == 2:
-            reward_min = reward_min / (minSup[3] * minSup[4])
-            reward_med = reward_med / (medSup[3] * medSup[4])
-            #reward_max = reward_max / (maxSup[3] * maxSup[4])
+            reward0 = reward0 / (Sup0[3] * Sup0[4])
+            reward1 = reward1 / (Sup1[3] * Sup1[4])
             
-        if self.Rewards == 3:           
-            reward_min = reward_min - (minSup[3] * (minSup[4] - minSup[1]))
-            reward_med = reward_med - (medSup[3] * (medSup[4] - medSup[1]))
-            #reward_max = reward_max - (maxSup[3] * (maxSup[4] - maxSup[1]))
+        if self.Rewards == 3: 
+            reward0 = reward0 - (Sup0[3] * (Sup0[4] - sold_quantities[0]))
+            reward1 = reward1 - (Sup1[3] * (Sup1[4] - sold_quantities[1]))
             
-            reward_min = reward_min / (minSup[3] * minSup[4])
-            reward_med = reward_med / (medSup[3] * medSup[4])
-            #reward_max = reward_max / (maxSup[3] * maxSup[4])
+            reward0 = reward0 / (Sup0[3] * Sup0[4])
+            reward1 = reward1 / (Sup1[3] * Sup1[4])           
         
-        if self.Rewards == 4: 
-            #4or4a with X
-            #reward_min = reward_min - (minSup[3] * (minSup[4] - minSup[1]))
-            #reward_med = reward_med - (medSup[3] * (medSup[4] - medSup[1]))
-            #reward_max = reward_max - (maxSup[3] * (maxSup[4] - maxSup[1]))
+        if self.Rewards == 4:  
+            reward0 = reward0 - (Sup0[3] * (Sup0[4] - sold_quantities[0]))
+            reward1 = reward1 - (Sup1[3] * (Sup1[4] - sold_quantities[1]))
             
-            #4
-            minWin = np.clip((minSup[2]-minSup[3]), 0.0001, minSup[2])
-            medWin = np.clip((medSup[2]-medSup[3]), 0.0001, medSup[2])
-            #maxWin = np.clip((maxSup[2]-maxSup[3]), 0.0001, maxSup[2])
-            #4a (not useful)
-            #minWin = np.clip(minSup[2], 0.0001, minSup[2])
-            #medWin = np.clip(medSup[2], 0.0001, medSup[2])
-            #maxWin = np.clip(maxSup[2], 0.0001, maxSup[2])
             
-            reward_min = reward_min / (minWin * minSup[4])
-            reward_med = reward_med / (medWin* medSup[4])
-            #reward_max = reward_max / (maxWin * maxSup[4])
-        
-        
-        
-        
-        #reward_min = reward_min - (qmin * minSup[3])
-        #reward_med = reward_med - (qmed * medSup[3])
-        #reward_max = reward_max - (qmax * maxSup[3])
-        
-        
-        ### get information back ###
-        reward_min = np.append(minSup[0], reward_min)
-        reward_med = np.append(medSup[0], reward_med)
-        #reward_max = np.append(maxSup[0], reward_max)
+            # 4a            
+            expWin0 = (Sup0[2]-Sup0[3]) * sold_quantities[0]
+            expWin1 = (Sup1[2]-Sup1[3]) * sold_quantities[1]           
+            expWin0 = np.clip(expWin0, 0.000001, 10000)
+            expWin1 = np.clip(expWin1, 0.000001, 10000)
             
-        ### find your partner again ###
+            '''
             
-        if reward_min[0] == 0:
-            reward0 = reward_min[1]
-            reward1 = reward_med[1]
-           
+            expWin0 = (Sup0[2]) * sold_quantities[0]
+            expWin1 = (Sup1[2]) * sold_quantities[1]
+            
+            # is this a correct way to avoid producig nan
+            if expWin0 == 0:
+                expWin0 = 0.0000000000001
+            if expWin1 == 0:
+                expWin1 = 0.0000000000001
+            
+            '''
+            reward0 = reward0 / expWin0
+            reward1 = reward1 / expWin1
+            
+            
+        
+        if self.Fringe == 1:
+            reward = np.array([reward0]) #??
         else:
-            reward0 = reward_med[1]
-            reward1 = reward_min[1]  
-           
-       
-        
-        
-        
-        #Maybe the Order could already be redone in the market clearing, 
-        #than we woudn't need the "find your partner again" - part anymore
-        #reward0 = sold_quantities[0]*p 
-        #reward1 = sold_quantities[1]*p
-        #reward2 = sold_quantities[2]*p
-
-        reward = np.append(reward0, reward1)
-        #reward = np.append(reward, reward2)
+            reward = np.append(reward0, reward1)
 
         
       

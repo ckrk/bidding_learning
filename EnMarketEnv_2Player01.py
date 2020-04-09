@@ -98,8 +98,7 @@ class EnMarketEnv_2Player01(gym.Env):
         
         #Q = np.array([500, 1000, 1500])
         Q = np.array([70])
-        #Q = random.choice(Q)
-        
+        #Q = random.choice(Q)        
         #Q = np.random.randint(900, 1100, 1)
       
         obs = np.array([Q[0], self.CAP[0], self.CAP[1], last_action[0], last_action[1]])

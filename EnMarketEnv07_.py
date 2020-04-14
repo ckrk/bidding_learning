@@ -58,20 +58,14 @@ class EnMarketEnv07(gym.Env):
         self.action_space = spaces.Box(low=np.array([0]), high=np.array([10000]), dtype=np.float16)
 
         # Discrete Demand opportunities
-        self.observation_space = spaces.Box(low=0, high=10000, shape=(7,1), dtype=np.float16)
+        if self.Fringe == 1:
+            self.observation_space = spaces.Box(low=0, high=10000, shape=(6,1), dtype=np.float16)
+        else:
+            self.observation_space = spaces.Box(low=0, high=10000, shape=(7,1), dtype=np.float16)
         
 
-        #Fringe or Strategic Player
-        #        # Test move to init
-        #Readout fringe players from other.csv (m)
-        #Readout fringe players from other.csv (m)
-        read_out = np.genfromtxt("others.csv",delimiter=";",autostrip=True,comments="#",skip_header=1,usecols=(0,1))
-        #Readout fringe switched to conform with format; finge[0]=quantity fringe[1]=bid
-        self.fringe = np.fliplr(read_out)
-        self.fringe = np.pad(self.fringe,((0,0),(1,0)),mode='constant')
 
-
-        self.reward_range = (0, 10000)
+        self.reward_range = (0, 1000000)
 
         
     def _next_observation(self, last_action):
@@ -88,19 +82,18 @@ class EnMarketEnv07(gym.Env):
     
         """
         
-        if self.current_step == 0:
-            last_action = self.start_action           
-        else:
-            last_action = last_action
-            
-        
         #Q = np.array([500, 1000, 1500])
         #Q = np.array([800])
         #Q = random.choice(Q)
         
         Q = np.random.randint(900, 1100, 1)
-      
-        obs = np.array([Q[0], self.CAP[0], self.CAP[1], self.CAP[2], last_action[0], last_action[1], last_action[2]])
+        
+        
+        
+        if self.Fringe == 1:
+            obs = np.array([Q[0], self.CAP[0], self.CAP[1], last_action[0], last_action[1], last_action[2]])
+        else:
+            obs = np.array([Q[0], self.CAP[0], self.CAP[1], self.CAP[2], last_action[0], last_action[1], last_action[2]])
         
         
         return obs
@@ -122,7 +115,8 @@ class EnMarketEnv07(gym.Env):
         
         #Decision on Strategic or Fringe Player 
         if self.Fringe == 1:
-            Sup2 = self.fringe
+            Sup2 = self.fringe[0,:]
+            self.fringe = self.fringe[1:,:]
         else:
             Sup2 = np.array([int(2), self.CAP[2], action[2], self.costs[2], self.CAP[2]])            
                  
@@ -169,9 +163,20 @@ class EnMarketEnv07(gym.Env):
             reward1 = reward1 - (Sup1[3] * (Sup1[4] - sold_quantities[1]))
             reward2 = reward2 - (Sup2[3] * (Sup2[4] - sold_quantities[2]))
             
-            expWin0 = (Sup0[2] - Sup0[3]) * sold_quantities[0]
-            expWin1 = (Sup1[2] - Sup1[3]) * sold_quantities[1]
-            expWin2 = (Sup2[2] - Sup2[3]) * sold_quantities[2]
+            
+            # 4a            
+            expWin0 = (Sup0[2]-Sup0[3]) * sold_quantities[0] # oder * maxCAP
+            expWin1 = (Sup1[2]-Sup1[3]) * sold_quantities[1]
+            expWin2 = (Sup2[2]-Sup2[3]) * sold_quantities[2]            
+            expWin0 = np.clip(expWin0, 0.000001, 10000)
+            expWin1 = np.clip(expWin1, 0.000001, 10000)
+            expWin2 = np.clip(expWin2, 0.000001, 10000)
+            
+            '''
+            
+            expWin0 = (Sup0[2]) * sold_quantities[0]
+            expWin1 = (Sup1[2]) * sold_quantities[1]
+            expWin2 = (Sup2[2]) * sold_quantities[2]
             
             # is this a correct way to avoid producig nan
             if expWin0 == 0:
@@ -181,6 +186,7 @@ class EnMarketEnv07(gym.Env):
             if expWin2 == 0:
                 expWin2 = 0.0000000000001
             
+            '''
             reward0 = reward0 / expWin0
             reward1 = reward1 / expWin1
             reward2 = reward2 / expWin2
@@ -218,15 +224,20 @@ class EnMarketEnv07(gym.Env):
         self.sum_rewards += reward
         self.avg_rewards = self.sum_rewards/self.current_step
         
-        #### DONE
-        done = self.current_step == 128#256#128 
+        #### DONE and new_State
+        if self.Fringe == 1:
+            done = self.fringe.size == 0
+            
+            last_action = np.append(action, Sup2[2])            
+            obs = self._next_observation(last_action)
+            
+        else:
+            done = self.current_step == 128#256#128 
+             
+            last_action = action 
+            obs = self._next_observation(last_action)
         
-        ##### Next Obs
-        
-        obs = self._next_observation(action)
-        last_action = action        
 
-       
 
         return obs, reward, done, {}
     
@@ -250,6 +261,16 @@ class EnMarketEnv07(gym.Env):
         self.AllAktionen = deque(maxlen=500)
         self.start_action = np.array([0, 0, 0])
         
+        #Fringe or Strategic Player
+        #        # Test move to init
+        #Readout fringe players from other.csv (m)
+        #Readout fringe players from other.csv (m)
+        read_out = np.genfromtxt("others.csv",delimiter=";",autostrip=True,comments="#",skip_header=1,usecols=(0,1))
+        #Readout fringe switched to conform with format; finge[0]=quantity fringe[1]=bid
+        self.fringe = np.fliplr(read_out)
+        self.fringe = np.pad(self.fringe,((0,0),(1,2)),mode='constant', constant_values=(2, 0))
+        #self.fringe = np.pad(self.fringe,((0,0),(1,0)),mode='constant')
+        
         return self._next_observation(self.start_action)
     
     def render(self, mode='human', close=False):
@@ -264,6 +285,3 @@ class EnMarketEnv07(gym.Env):
         print(f'Average Reward: {self.avg_rewards}')
         
         
-  
-
-

@@ -16,7 +16,7 @@ import numpy as np
 
 
 from collections import deque
-from market_clearing import market_clearing
+from market_clearing import market_clearing, converter
 
 
 #C = 30
@@ -26,7 +26,7 @@ from market_clearing import market_clearing
 #env.observation_space.shape[:]
 #env.action_space.shape[0]-1
 
-class EnMarketEnv07(gym.Env):
+class EnMarketEnv07_Split2_(gym.Env):
     
     """
     Energy Market environment for OpenAI gym
@@ -47,7 +47,7 @@ class EnMarketEnv07(gym.Env):
     metadata = {'render.modes': ['human']}   ### ?
 
     def __init__(self, CAP, costs, Fringe=0, Rewards=0):              ##### mit df ?
-        super(EnMarketEnv07, self).__init__()
+        super(EnMarketEnv07_Split2_, self).__init__()
         
         self.CAP = CAP
         self.costs = costs
@@ -55,7 +55,7 @@ class EnMarketEnv07(gym.Env):
         self.Rewards = Rewards
         
         # Continous action space for bids
-        self.action_space = spaces.Box(low=np.array([0]), high=np.array([10000]), dtype=np.float16)
+        self.action_space = spaces.Box(low=np.array([0,0,0]), high=np.array([10000,10000,1]), dtype=np.float16)
 
         # Discrete Demand opportunities
         if self.Fringe == 1:
@@ -110,17 +110,18 @@ class EnMarketEnv07(gym.Env):
                   
         
         #Strategic Players
-        Sup0 = np.array([int(0), self.CAP[0], action[0], self.costs[0], self.CAP[0]])
-        Sup1 = np.array([int(1), self.CAP[1], action[1], self.costs[1], self.CAP[1]])
+        Sup0 = np.array([int(0), self.CAP[0], action[0], action[1], action[2], self.costs[0], self.CAP[0]])
+        Sup1 = np.array([int(1), self.CAP[1], action[3], action[4], action[5], self.costs[1], self.CAP[1]])
         
         #Decision on Strategic or Fringe Player 
         if self.Fringe == 1:
             Sup2 = self.fringe[0,:]
             self.fringe = self.fringe[1:,:]
         else:
-            Sup2 = np.array([int(2), self.CAP[2], action[2], self.costs[2], self.CAP[2]])            
+            Sup2 = np.array([int(2), self.CAP[2], action[6], action[7], action[8], self.costs[2], self.CAP[2]])            
                  
         
+        Sup0a, Sup0b, Sup1a, Sup1b, Sup2a, Sup2b = converter(Sup0, Sup1, Sup2)
                 
         All = np.stack((Sup0, Sup1, Sup2))
         

@@ -19,12 +19,12 @@ import numpy as np
 #import pandas as pd
 import matplotlib.pyplot as plt
 from DDPG03_ import DDPGagent03
-from utils_ import OUNoise, Memory
-from EnMarketEnv07_ import EnMarketEnv07 
+from utils_Split2_ import OUNoise, Memory
+from EnMarketEnv07_Split2_ import EnMarketEnv07_Split2_ 
 
 
 
-env = EnMarketEnv07(CAP = np.array([500,500,500]), costs = np.array([20,20,20]), Fringe=0, Rewards = 3)
+env = EnMarketEnv07_Split2_(CAP = np.array([500,500,500]), costs = np.array([20,20,20]), Fringe=0, Rewards = 3)
 
 
 

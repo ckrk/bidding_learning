@@ -4,8 +4,11 @@
 Created on Wed Mar  4 10:05:17 2020
 
 @author: Viktor
-works only for EnMarketEnv07_ and DDPG03_
-supposed for the 3 Player Games
+
+Supposed for 2 Agents (with or without Split) OR for 2 Agents vs Fringe (Splits not included yet for learning against Fringe)
+if played with Fringe Player Agents has to be 3 (Agents = 3)
+if playing with Split Bids comment out the marked part below
+Split Bids with Fringe aren't included yet
 
 
 
@@ -18,24 +21,26 @@ import sys
 import numpy as np
 #import pandas as pd
 import matplotlib.pyplot as plt
-from DDPG03_ import DDPGagent03
-from utils_Split2_ import OUNoise, Memory
-from EnMarketEnv07_Split2_ import EnMarketEnv07_Split2_ 
+#from DDPG03_ import DDPGagent03
+from DDPG_main import DDPGagent_main
+
+from utils_main import OUNoise, Memory
+from BiddingMarket_energy import BiddingMarket_energy
 
 
 
-env = EnMarketEnv07_Split2_(CAP = np.array([500,500,500]), costs = np.array([20,20,20]), Fringe=0, Rewards = 3)
+env = BiddingMarket_energy(CAP = np.array([500,500,500]), costs = np.array([20,20,20]), Fringe = 1, Rewards = 3, Split = 1, Agents = 2)
 
 
 
-agent0 = DDPGagent03(env)
-agent1 = DDPGagent03(env)
-agent2 = DDPGagent03(env)
+agent0 = DDPGagent_main(env)
+agent1 = DDPGagent_main(env)
+#agent2 = DDPGagent03(env)
 noise = OUNoise(env.action_space)
 batch_size = 128
 rewards = []
 avg_rewards = []
-last_action = np.array([0,0,0])
+last_action = np.zeros(9)
 
 
 for episode in range(50):
@@ -49,23 +54,24 @@ for episode in range(50):
         action0 = noise.get_action(action0, step)
         action1 = agent1.get_action(state)
         action1 = noise.get_action(action1, step)
-        action2 = agent2.get_action(state)
-        action2 = noise.get_action(action2, step)
         
-        action = np.concatenate([action0, action1, action2])
-        #action = np.concatenate([action0, action1]) #if trying with fringe Player !!!
+        action = np.concatenate([action0, action1]) 
         new_state, reward, done, _ = env.step(action, last_action)   
         
+        # comment out if trying with Split !!!!!!!!!
         agent0.memory.push(state, np.array([action[0]]), np.array([reward[0]]), new_state, done)
         agent1.memory.push(state, np.array([action[1]]), np.array([reward[1]]), new_state, done)
-        agent2.memory.push(state, np.array([action[2]]), np.array([reward[2]]), new_state, done)
+        
+        # use if you want Split Bids
+        #agent0.memory.push(state, action[0:3], np.array([reward[0]]), new_state, done)
+        #agent1.memory.push(state, action[3:6], np.array([reward[1]]), new_state, done)
 
 
         
         if len(agent1.memory) > batch_size:            
             agent0.update(batch_size)
             agent1.update(batch_size)
-            agent2.update(batch_size) 
+            #agent2.update(batch_size) 
         
         state = new_state
         episode_reward += reward

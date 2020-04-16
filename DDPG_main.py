@@ -10,11 +10,11 @@ import torch.autograd
 import torch.optim as optim
 import torch.nn as nn
 #from model_ import *
-from model_ import Actor, Critic
-from utils_ import OUNoise, Memory
+from model_main import Actor, Critic
+from utils_main import OUNoise, Memory
 from torch.autograd import Variable
 # original leraning rate criticer: 1e-3, actor:1e-4
-class DDPGagent03:
+class DDPGagent_main:
     def __init__(self, env, hidden_size=256, actor_learning_rate=1e-4, critic_learning_rate=1e-3, gamma=0.99, tau=1e-2, max_memory_size=50000):
         # Params
         self.num_states = env.observation_space.shape[0]
@@ -43,7 +43,8 @@ class DDPGagent03:
     def get_action(self, state):
         state = Variable(torch.from_numpy(state).float().unsqueeze(0))
         action = self.actor.forward(state)
-        action = action.detach().numpy()[0,0]  ### [0] statt [0,0]
+        #action = action.detach().numpy()[0,0]  ##[0,0]
+        action = action.detach().numpy()[0,:]  ##[0,0]
         return action
     
     def update(self, batch_size):

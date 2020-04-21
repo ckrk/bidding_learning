@@ -5,31 +5,21 @@ Created on Wed Mar  4 10:05:17 2020
 
 @author: Viktor
 
-Supposed for 2 Agents (with or without Split) OR for 2 Agents vs Fringe (Splits not included yet for learning against Fringe)
-if played with Fringe Player Agents has to be 3 (Agents = 3)
-if playing with Split Bids comment out the marked part below
-Split Bids with Fringe aren't included yet
-
-
 
 """
 
-###### Versuch mit 2 agents ########################
 
 import sys
 #import gym
 import numpy as np
-#import pandas as pd
 import matplotlib.pyplot as plt
-#from DDPG03_ import DDPGagent03
 from DDPG_main import DDPGagent_main
-
 from utils_main import OUNoise, Memory
-from BiddingMarket_energy import BiddingMarket_energy
+from BiddingMarket_energy_Environment import BiddingMarket_energy_Environment
 
 
 
-env = BiddingMarket_energy(CAP = np.array([500,500,500]), costs = np.array([20,20,20]), Fringe = 0, Rewards = 3, Split = 1, Agents = 2)
+env = BiddingMarket_energy_Environment(CAP = np.array([500,500,500]), costs = np.array([20,20,20]), Fringe = 0, Rewards = 3, Split = 1, Agents = 2)
 
 
 

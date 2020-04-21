@@ -12,8 +12,6 @@ Created on Wed Mar  4 10:05:34 2020
 import gym
 from gym import spaces
 import numpy as np
-
-
 from collections import deque
 from market_clearing import market_clearing, converter, combine_sold_quantities
 
@@ -45,22 +43,29 @@ class BiddingMarket_energy_Environment(gym.Env):
         self.Agents = Agents
         
         # Continous action space for bids
-        
         self.action_space = spaces.Box(low=np.array([0]), high=np.array([10000]), dtype=np.float16)
         
+        # fit observation_space size to choosen environment settings
         x = 1 + self.Agents*2
+        if self.Fringe == 1:
+            x = x + self.fringe.shape[0]
         if past_action == 0:
             x = 1 + self.Agents
         
         if self.Split == 1:
             self.action_space = spaces.Box(low=np.array([0,0,0]), high=np.array([10000,10000,10000]), dtype=np.float16)
             x = 1+ self.Agents*3 + self.Agents
+            if self.Fringe == 1:
+                x = x + self.fringe.shape[0]
             if self.past_action == 0:
                 x = 1+ self.Agents*3
-            
+        
+        # set observation space   
         self.observation_space = spaces.Box(low=0, high=10000, shape=(x,1), dtype=np.float16)
         
-        # Discrete Demand opportunities
+        # Discrete Demand opportunities are missing yet
+        
+        # Reward Range
         self.reward_range = (0, 1000000)
 
     
@@ -101,21 +106,17 @@ class BiddingMarket_energy_Environment(gym.Env):
         #Q = np.random.choice(Q)
         
         Q = np.random.randint(900, 1100, 1)
+        obs = np.array([Q[0]])
         
         for n in range(nmb_agents):
-            obs = np.array([Q[0]])
-            obs = np.insert(obs,n+1, self.CAP[n])
+            obs = np.append(obs, self.CAP[n])
             
-            if self.past_action == 1:
-                la1 = last_action[n]
-                obs = np.insert(obs, n+2, last_action[la1])
-                if self.Split == 1: 
-                    la1,la2 = last_action[n]
-                    obs = np.insert(obs, n+2, last_action[la1])
-                    obs = np.insert(obs, n+3, last_action[la2])
-                if self.Fringe == 1:
-                    obs = np.concatenate([obs, self.fringe[:,2]])   ## last actions fringe
-
+        if self.past_action == 1:
+            la1 = last_action.flatten()
+            obs = np.insert(obs, nmb_agents+1, la1)
+                
+            if self.Fringe == 1:
+                obs = np.concatenate([obs, self.fringe[:,2]])   ## last actions fringe
 
         return  obs
 
@@ -246,21 +247,24 @@ class BiddingMarket_energy_Environment(gym.Env):
         self.sum_rewards = 0
         self.AllAktionen = deque(maxlen=500)
         self.start_action = np.zeros(self.Agents)
-       
-        #Fringe or Strategic Player
-        #        # Test move to init
-        #Readout fringe players from other.csv (m)
-        #Readout fringe players from other.csv (m)
-        read_out = np.genfromtxt("others.csv",delimiter=";",autostrip=True,comments="#",skip_header=1,usecols=(0,1))
-        
-        #Readout fringe switched to conform with format; finge[0]=quantity fringe[1]=bid
-        self.fringe = np.fliplr(read_out)
-        self.fringe = np.pad(self.fringe,((0,0),(1,2)),mode='constant', constant_values=(2, 0))
         
         if self.Split == 1:
-            self.fringe = np.pad(self.fringe,((0,0),(1,3)),mode='constant', constant_values=(2, 0))
             self.start_action = np.zeros(self.Agents*3)
-        #self.fringe = np.pad(self.fringe,((0,0),(1,0)),mode='constant')
+       
+        if self.Fringe == 1:
+            #Fringe or Strategic Player
+            #        # Test move to init
+            #Readout fringe players from other.csv (m)
+            #Readout fringe players from other.csv (m)
+            read_out = np.genfromtxt("others.csv",delimiter=";",autostrip=True,comments="#",skip_header=1,usecols=(0,1))
+            
+            #Readout fringe switched to conform with format; finge[0]=quantity fringe[1]=bid
+            self.fringe = np.fliplr(read_out)
+            self.fringe = np.pad(self.fringe,((0,0),(1,2)),mode='constant', constant_values=(2, 0))
+            
+            if self.Split == 1:
+                self.fringe = np.pad(self.fringe,((0,0),(1,3)),mode='constant', constant_values=(2, 0)) 
+            #self.fringe = np.pad(self.fringe,((0,0),(1,0)),mode='constant')
         
         return self._next_observation(self.start_action, self.Agents)
     

@@ -16,7 +16,7 @@ import numpy as np
 
 
 from collections import deque
-from market_clearing import market_clearing, converter
+from market_clearing import market_clearing, converter_old
 
 
 #C = 30
@@ -61,7 +61,7 @@ class BiddingMarket_energy(gym.Env):
         if self.Agents == 2:
             self.observation_space = spaces.Box(low=0, high=10000, shape=(5,1), dtype=np.float16)
             if self.Fringe == 1:
-                return print("2 Agents doesn't work with Fringe player (yet)")
+                return print("2 Agents doesn't work with Fringe player (yet)") # in reset
         
         # if Split Bids are allowed
         if self.Split == 1:
@@ -105,7 +105,7 @@ class BiddingMarket_energy(gym.Env):
         Q = np.random.randint(900, 1100, 1)
         
         if self.Fringe == 1:
-            #self.CAP[2] = self.fringe[0,2]
+            #self.CAP[2] = self.fringe[0,2] ### ausbessern!!!!
             self.CAP[2] = 500
         
         
@@ -177,7 +177,7 @@ class BiddingMarket_energy(gym.Env):
             pos_cap = 6
             # Converts the additional Bid/Split actions of the Suppliers 
             # into the required form for the market clearing
-            All = converter(Sup0, Sup1, Sup2)
+            All = converter_old(Sup0, Sup1, Sup2)
             
             # Decision on Strategic or Fringe Player 
             if self.Fringe == 1:

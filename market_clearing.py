@@ -96,8 +96,33 @@ def market_clearing(demand,bids):
     
     return market_price, bids, quantities
 
-
 #market_clearing(37,test_array)
+
+def converter_new(suppliers, nmb_agents):
+    
+    sup_split = [0]*nmb_agents*2
+    
+    for n in range(nmb_agents):
+        sup_split[n] = np.array([int(n), (suppliers[n,1]*suppliers[n,4]), suppliers[n,2], suppliers[n,5], suppliers[n,6]])
+        sup_split[n+1] = np.array([int(n), (suppliers[n,1] - suppliers[n,1]*suppliers[n,4]), suppliers[n,2], suppliers[n,5], suppliers[n,6]])
+        n += 1 # check if next n starts now at 3!!!!
+    
+    all_together = np.asarray(sup_split)
+    
+    return all_together
+
+def combine_sold_quantities(split_quantities, nmb_agents):
+    
+    sold_quantities = [0]*nmb_agents
+    
+    for n in range(nmb_agents):
+        sold_quantities[n] = spilt_quantities[n]+split_quantities[n+1]
+        n += 1
+    np.asarray(sold_quantities)
+    
+    return sold_quantities
+        
+    
 
 def converter(Sup0, Sup1, Sup2):
     

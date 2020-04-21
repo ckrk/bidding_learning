@@ -19,7 +19,7 @@ from BiddingMarket_energy_Environment import BiddingMarket_energy_Environment
 
 
 
-env = BiddingMarket_energy_Environment(CAP = np.array([500,500,500]), costs = np.array([20,20,20]), Fringe = 0, Rewards = 3, Split = 1, Agents = 2)
+env = BiddingMarket_energy_Environment(CAP = np.array([500,500,500]), costs = np.array([20,20,20]), Fringe = 0, Rewards = 0, Split = 1, past_action= 0, Agents = 2)
 
 
 
@@ -30,7 +30,14 @@ noise = OUNoise(env.action_space)
 batch_size = 128
 rewards = []
 avg_rewards = []
-last_action = np.zeros(9)
+'''
+calculate last_action(with past_action /without it's not needed):
+if no fringe and no split: last_action = number of agents
+if split: number of agent * 2
+if fringe: + 60
+zB 3 agents with split and fringe: 3*2+60=66
+'''
+last_action = np.zeros(6)
 
 
 for episode in range(50):
@@ -45,11 +52,11 @@ for episode in range(50):
         action1 = agent1.get_action(state)
         action1 = noise.get_action(action1, step)
         
-        action = np.stack((action0, action1)) for new envi
+        action = np.stack((action0, action1)) #for new envi
         new_state, reward, done, _ = env.step(action, last_action)   
         
 
-        agent0.memory.push(state, action[0], reward[0], new_state, done)
+        agent0.memory.push(state, action[0], np.array([reward[0]]), new_state, done)
         agent1.memory.push(state, action[1], np.array([reward[1]]), new_state, done)
 
 

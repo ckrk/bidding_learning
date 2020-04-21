@@ -29,7 +29,7 @@ d = np.array([3,7,9])
 #fringe = np.pad(fringe,((0,0),(1,0)),mode='constant')
 
 #test_array = np.stack((a,b,d,a,b,c,b,c))
-#test_array = np.stack((a,b,c,a,d,c))
+#test.array = np.stack((a,b,c,a,d,c))
 #test_array = fringe
 
 
@@ -98,33 +98,36 @@ def market_clearing(demand,bids):
 
 #market_clearing(37,test_array)
 
-def converter_new(suppliers, nmb_agents):
+def converter(suppliers, nmb_agents):
     
-    sup_split = [0]*nmb_agents*2
-    
+    sup_split = []
+    i = 0
     for n in range(nmb_agents):
-        sup_split[n] = np.array([int(n), (suppliers[n,1]*suppliers[n,4]), suppliers[n,2], suppliers[n,5], suppliers[n,6]])
-        sup_split[n+1] = np.array([int(n), (suppliers[n,1] - suppliers[n,1]*suppliers[n,4]), suppliers[n,2], suppliers[n,5], suppliers[n,6]])
-        n += 1 # check if next n starts now at 3!!!!
-    
+        sup_splitA = [int(i), (suppliers[n,1]*suppliers[n,4]), suppliers[n,2], suppliers[n,5], suppliers[n,6]]
+        sup_splitB = [int(i+1), (suppliers[n,1] - suppliers[n,1]*suppliers[n,4]), suppliers[n,3], suppliers[n,5], suppliers[n,6]]
+        sup_split.append(sup_splitA)
+        sup_split.append(sup_splitB)
+        i +=2
+       
     all_together = np.asarray(sup_split)
-    
+
     return all_together
 
 def combine_sold_quantities(split_quantities, nmb_agents):
     
     sold_quantities = [0]*nmb_agents
-    
+    i = 0
     for n in range(nmb_agents):
-        sold_quantities[n] = spilt_quantities[n]+split_quantities[n+1]
-        n += 1
-    np.asarray(sold_quantities)
+        sold_quantities[n] = split_quantities[i]+split_quantities[i+1]
+        i += 2
+    
+    sold_quantities = np.asarray(sold_quantities)
     
     return sold_quantities
         
     
 
-def converter(Sup0, Sup1, Sup2):
+def converter_old(Sup0, Sup1, Sup2):
     
     Sup0a = np.array([int(0), (Sup0[1]*Sup0[4]), Sup0[2], Sup0[5], Sup0[6]])
     Sup0b = np.array([int(1), (Sup0[1]-(Sup0[1]*Sup0[4])), Sup0[3], Sup0[5], Sup0[6]])

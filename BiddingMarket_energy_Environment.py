@@ -41,6 +41,7 @@ class BiddingMarket_energy_Environment(gym.Env):
         self.Split = Split
         self.past_action = past_action
         self.Agents = Agents
+        #self.last_action = np.zeros(self.Agents)
         
         # Continous action space for bids
         self.action_space = spaces.Box(low=np.array([0]), high=np.array([10000]), dtype=np.float16)
@@ -49,16 +50,15 @@ class BiddingMarket_energy_Environment(gym.Env):
         x = 1 + self.Agents*2
         if self.Fringe == 1:
             x = x + self.fringe.shape[0]
-        if past_action == 0:
-            x = 1 + self.Agents
         
         if self.Split == 1:
             self.action_space = spaces.Box(low=np.array([0,0,0]), high=np.array([10000,10000,10000]), dtype=np.float16)
-            x = 1+ self.Agents*3 + self.Agents
+            x = 1+ self.Agents*2 + self.Agents
             if self.Fringe == 1:
-                x = x + self.fringe.shape[0]
-            if self.past_action == 0:
-                x = 1+ self.Agents*3
+                x = x + self.fringe.shape[0] 
+                
+        if past_action == 0:
+            x = 1 + self.Agents
         
         # set observation space   
         self.observation_space = spaces.Box(low=0, high=10000, shape=(x,1), dtype=np.float16)
@@ -87,8 +87,7 @@ class BiddingMarket_energy_Environment(gym.Env):
                 a1,a2,a3 = action[n]
                 suppliers[n] = [int(n), self.CAP[n], a1, a2, a3, self.costs[n], self.CAP[n]]
                 
-        
-        np.asarray(suppliers)
+        suppliers = np.asarray(suppliers)
         
         if self.Fringe == 1:
             suppliers = np.concatenate([suppliers, self.fringe])
@@ -112,9 +111,8 @@ class BiddingMarket_energy_Environment(gym.Env):
             obs = np.append(obs, self.CAP[n])
             
         if self.past_action == 1:
-            la1 = last_action.flatten()
-            obs = np.insert(obs, nmb_agents+1, la1)
-                
+            #la1 = last_action.flatten()
+            obs = np.insert(obs, nmb_agents+1, last_action)    
             if self.Fringe == 1:
                 obs = np.concatenate([obs, self.fringe[:,2]])   ## last actions fringe
 
@@ -151,7 +149,6 @@ class BiddingMarket_energy_Environment(gym.Env):
         # caluclate rewards
         reward = self.reward_function(all_suppliers, sold_quantities, market_price, self.Agents, self.Rewards)
         
-     
 
         # Render Commands 
         self.safe(action, self.current_step)
@@ -170,20 +167,16 @@ class BiddingMarket_energy_Environment(gym.Env):
         
         # save last actions for next state (= next obeservation)
         last_action = action
-        np.sort(last_action)
+        last_action = np.sort(last_action, axis = None)
         
-        if self.Split == 1:            ### needs to skip evry third argument ## evtl. nach oben zu if schreiben
-            last_action = [0]*self.Agents
-            for n in range(self.Agents):
-                last_action[n] = action[n,0:2]
-            np.asarray(last_action)
-            np.sort(last_action)  ## not True, should sort by lowest of row and than by lowest column
+        if self.Split == 1:
+            last_action= action[:,0:2]
+            last_action = np.sort(last_action, axis = None)  ## not True, should sort by lowest of row and than by lowest column
 
         #### DONE and next_state
         done = self.current_step == 128 
-        obs = self._next_observation(last_action, self.Agent)
+        obs = self._next_observation(last_action, self.Agents)
         
-
 
         return obs, reward, done, {}
     
@@ -200,7 +193,7 @@ class BiddingMarket_energy_Environment(gym.Env):
         Rewards = 1: Reward is (price-costs)*acceptedCAP - (price*unsoldCAP)
         Rewards = 2: Reward is ((price-costs)*acceptedCAP)/(cost*maxCAP)
         Rewards = 3 (= combination of 1 and 2): Reward is ((price-costs)*acceptedCAP - (price*unsoldCAP))/(cost*maxCAP)
-        # Reward 4 only works without Splits
+        #Reward 4 only works without Splits#
         Rewards = 4: Reward is (Reward 1)/((ownBid-cost)*maxCAP)
         
         '''
@@ -208,7 +201,7 @@ class BiddingMarket_energy_Environment(gym.Env):
         
         for n in range(nmb_agents):
             reward[n] = (p - suppliers[n,3]) * sold_quantities[n]
-        np.asarray(reward)
+        reward = np.asarray(reward)
 
 
         if Penalty == 1:
@@ -246,10 +239,10 @@ class BiddingMarket_energy_Environment(gym.Env):
         self.sum_q = 0
         self.sum_rewards = 0
         self.AllAktionen = deque(maxlen=500)
-        self.start_action = np.zeros(self.Agents)
+        self.last_action = np.zeros(self.Agents)
         
         if self.Split == 1:
-            self.start_action = np.zeros(self.Agents*3)
+            self.last_action = np.zeros(self.Agents*2)
        
         if self.Fringe == 1:
             #Fringe or Strategic Player
@@ -261,12 +254,14 @@ class BiddingMarket_energy_Environment(gym.Env):
             #Readout fringe switched to conform with format; finge[0]=quantity fringe[1]=bid
             self.fringe = np.fliplr(read_out)
             self.fringe = np.pad(self.fringe,((0,0),(1,2)),mode='constant', constant_values=(2, 0))
+            self.last_action = np.zeros(self.Agents + self.fringe.shape[0])
             
             if self.Split == 1:
-                self.fringe = np.pad(self.fringe,((0,0),(1,3)),mode='constant', constant_values=(2, 0)) 
+                self.fringe = np.pad(self.fringe,((0,0),(1,3)),mode='constant', constant_values=(2, 0))
+                self.last_action = np.zeros(self.Agents*2 + self.fringe.shape[0])
             #self.fringe = np.pad(self.fringe,((0,0),(1,0)),mode='constant')
         
-        return self._next_observation(self.start_action, self.Agents)
+        return self._next_observation(self.last_action, self.Agents)
     
     def render(self, mode='human', close=False):
         # Render the environment to the screen
@@ -278,5 +273,4 @@ class BiddingMarket_energy_Environment(gym.Env):
         print(f'Average Demand: {self.avg_q}')
         print(f'Average Bid: {self.avg_action}')
         print(f'Average Reward: {self.avg_rewards}')
-        
         

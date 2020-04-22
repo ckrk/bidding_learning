@@ -20,7 +20,7 @@ from BiddingMarket_energy_Environment import BiddingMarket_energy_Environment
 
 
 env = BiddingMarket_energy_Environment(CAP = np.array([500,500,500]), costs = np.array([20,20,20]), 
-                                       Fringe = 1, Rewards = 1, Split = 0, past_action= 0, Agents = 3)
+                                       Fringe = 0, Rewards = 1, Split = 0, past_action= 0, Agents = 2)
 
 agents = env.create_agents(env)
 noise = OUNoise(env.action_space)

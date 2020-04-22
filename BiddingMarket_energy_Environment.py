@@ -42,7 +42,6 @@ class BiddingMarket_energy_Environment(gym.Env):
         self.Split = Split
         self.past_action = past_action
         self.Agents = Agents
-        #self.last_action = np.zeros(self.Agents)
         
         # Continous action space for bids
         self.action_space = spaces.Box(low=np.array([0]), high=np.array([10000]), dtype=np.float16)
@@ -53,7 +52,7 @@ class BiddingMarket_energy_Environment(gym.Env):
             x = x + 60 #self.fringe.shape[0]
         
         if self.Split == 1:
-            self.action_space = spaces.Box(low=np.array([0,0,0]), high=np.array([10000,10000,10000]), dtype=np.float16)
+            self.action_space = spaces.Box(low=np.array([0,0,0]), high=np.array([10000,10000,1]), dtype=np.float16)
             x = 1+ self.Agents*2 + self.Agents
             if self.Fringe == 1:
                 x = x + 60 #self.fringe.shape[0]
@@ -147,11 +146,16 @@ class BiddingMarket_energy_Environment(gym.Env):
         if self.Split == 0:
             market = market_clearing(q, all_suppliers)
             sold_quantities = market[2]
+            self.last_action= action
         else:
             all_suppliers_split = converter(all_suppliers, self.Agents)
             market = market_clearing(q, all_suppliers_split)
             sold_quantities = market[2]
             sold_quantities = combine_sold_quantities(sold_quantities, self.Agents)
+            self.last_action = action[:,0:2]
+        
+        # save last actions for next state (= next obeservation)
+        self.last_action = np.sort(self.last_action, axis = None)
 
         market_price = market[0]
         
@@ -174,14 +178,7 @@ class BiddingMarket_energy_Environment(gym.Env):
         self.sum_rewards += reward
         self.avg_rewards = self.sum_rewards/self.current_step
         
-        # save last actions for next state (= next obeservation)
-        self.last_action = action
-        self.last_action = np.sort(self.last_action, axis = None)
         
-        if self.Split == 1:
-            self.last_action= action[:,0:2]
-            self.last_action = np.sort(self.last_action, axis = None)  ## not True, should sort by lowest of row and than by lowest column
-
         #### DONE and next_state
         done = self.current_step == 128 
         obs = self._next_observation(self.Agents)

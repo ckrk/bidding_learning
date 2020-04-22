@@ -14,6 +14,7 @@ from gym import spaces
 import numpy as np
 from collections import deque
 from market_clearing import market_clearing, converter, combine_sold_quantities
+from DDPG_main import DDPGagent_main
 
 
 #C = 30
@@ -67,9 +68,17 @@ class BiddingMarket_energy_Environment(gym.Env):
         
         # Reward Range
         self.reward_range = (0, 1000000)
-
     
-    def set_up_agents(self, action, nmb_agents):
+    def create_agents(self, env):
+        
+        agents_list = []
+        
+        for n in range(self.Agents):
+            agents_list.append(DDPGagent_main(env))
+            
+        return agents_list
+    
+    def set_up_suppliers(self, action, nmb_agents):
         """
         Sets Up all the Agents to act as Suppliers on Energy Market
         Supplier: Agent Number (int), their own Capacity, their Action, their cost, again their Capacity
@@ -129,7 +138,7 @@ class BiddingMarket_energy_Environment(gym.Env):
         q = obs[0]
         
         # set up all the agents as suppliers in the market
-        all_suppliers = self.set_up_agents(action, self.Agents)
+        all_suppliers = self.set_up_suppliers(action, self.Agents)
         
         # market_clearing: orders all suppliers from lowest to highest bid, 
         # last bid of cumsum offerd capacitys determines the price; also the real sold quantities are derived
@@ -252,12 +261,14 @@ class BiddingMarket_energy_Environment(gym.Env):
             
             #Readout fringe switched to conform with format; finge[0]=quantity fringe[1]=bid
             self.fringe = np.fliplr(read_out)
-            self.fringe = np.pad(self.fringe,((0,0),(1,2)),mode='constant', constant_values=(2, 0))
             self.last_action = np.zeros(self.Agents)
             
             if self.Split == 1:
-                self.fringe = np.pad(self.fringe,((0,0),(1,3)),mode='constant', constant_values=(2, 0))
+                self.fringe = np.pad(self.fringe,((0,0),(1,4)),mode='constant', constant_values=(2, 0))
                 self.last_action = np.zeros(self.Agents*2)
+            else:
+                self.fringe = np.pad(self.fringe,((0,0),(1,2)),mode='constant', constant_values=(2, 0))
+
 
         
         return self._next_observation(self.Agents)

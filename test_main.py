@@ -19,13 +19,10 @@ from BiddingMarket_energy_Environment import BiddingMarket_energy_Environment
 
 
 
-env = BiddingMarket_energy_Environment(CAP = np.array([500,500,500]), costs = np.array([20,20,20]), Fringe = 1, Rewards = 1, Split = 0, past_action= 1, Agents = 2)
+env = BiddingMarket_energy_Environment(CAP = np.array([500,500,500]), costs = np.array([20,20,20]), 
+                                       Fringe = 1, Rewards = 1, Split = 0, past_action= 0, Agents = 3)
 
-
-
-agent0 = DDPGagent_main(env)
-agent1 = DDPGagent_main(env)
-#agent2 = DDPGagent03(env)
+agents = env.create_agents(env)
 noise = OUNoise(env.action_space)
 batch_size = 128
 rewards = []
@@ -38,25 +35,23 @@ for episode in range(50):
     episode_reward = 0
     
     for step in range(500):
+        actions = []
+        for n in range(len(agents)):
+            action_temp = agents[n].get_action(state)
+            action_temp = noise.get_action(action_temp, step)
+            actions.append(action_temp[:])
         
-        action0 = agent0.get_action(state)
-        action0 = noise.get_action(action0, step)
-        action1 = agent1.get_action(state)
-        action1 = noise.get_action(action1, step)
+        actions = np.asarray(actions)
+        new_state, reward, done, _ = env.step(actions)   
         
-        action = np.stack((action0, action1)) 
-        new_state, reward, done, _ = env.step(action)   
+        for n in range(len(agents)):
+            agents[n].memory.push(state, actions[n], np.array([reward[n]]), new_state, done)
+       
         
-
-        agent0.memory.push(state, action[0], np.array([reward[0]]), new_state, done)
-        agent1.memory.push(state, action[1], np.array([reward[1]]), new_state, done)
-
-
-        
-        if len(agent1.memory) > batch_size:            
-            agent0.update(batch_size)
-            agent1.update(batch_size)
-            #agent2.update(batch_size) 
+        if len(agents[0].memory) > batch_size:
+            for n in range(len(agents)):
+                agents[n].update(batch_size)
+                
         
         state = new_state
         episode_reward += reward

@@ -49,13 +49,13 @@ class BiddingMarket_energy_Environment(gym.Env):
         # fit observation_space size to choosen environment settings
         x = 1 + self.Agents*2
         if self.Fringe == 1:
-            x = x + self.fringe.shape[0]
+            x = x + 60 #self.fringe.shape[0]
         
         if self.Split == 1:
             self.action_space = spaces.Box(low=np.array([0,0,0]), high=np.array([10000,10000,10000]), dtype=np.float16)
             x = 1+ self.Agents*2 + self.Agents
             if self.Fringe == 1:
-                x = x + self.fringe.shape[0] 
+                x = x + 60 #self.fringe.shape[0]
                 
         if past_action == 0:
             x = 1 + self.Agents
@@ -69,7 +69,7 @@ class BiddingMarket_energy_Environment(gym.Env):
         self.reward_range = (0, 1000000)
 
     
-    def set_up_agents(self, action, last_action, nmb_agents):
+    def set_up_agents(self, action, nmb_agents):
         """
         Sets Up all the Agents to act as Suppliers on Energy Market
         Supplier: Agent Number (int), their own Capacity, their Action, their cost, again their Capacity
@@ -94,7 +94,7 @@ class BiddingMarket_energy_Environment(gym.Env):
         
         return suppliers
         
-    def _next_observation(self, last_action, nmb_agents):
+    def _next_observation(self, nmb_agents):
         
         """
         Set Up State
@@ -112,24 +112,24 @@ class BiddingMarket_energy_Environment(gym.Env):
             
         if self.past_action == 1:
             #la1 = last_action.flatten()
-            obs = np.insert(obs, nmb_agents+1, last_action)    
+            obs = np.insert(obs, nmb_agents+1, self.last_action)    
             if self.Fringe == 1:
                 obs = np.concatenate([obs, self.fringe[:,2]])   ## last actions fringe
 
         return  obs
 
 
-    def step(self, action, last_action):
+    def step(self, action):
         
         self.current_step += 1
         
         # get current state        
-        obs = self._next_observation(last_action, self.Agents)
+        obs = self._next_observation(self.Agents)
         Demand = obs[0]
         q = obs[0]
         
         # set up all the agents as suppliers in the market
-        all_suppliers = self.set_up_agents(action, last_action, self.Agents)
+        all_suppliers = self.set_up_agents(action, self.Agents)
         
         # market_clearing: orders all suppliers from lowest to highest bid, 
         # last bid of cumsum offerd capacitys determines the price; also the real sold quantities are derived
@@ -166,16 +166,16 @@ class BiddingMarket_energy_Environment(gym.Env):
         self.avg_rewards = self.sum_rewards/self.current_step
         
         # save last actions for next state (= next obeservation)
-        last_action = action
-        last_action = np.sort(last_action, axis = None)
+        self.last_action = action
+        self.last_action = np.sort(self.last_action, axis = None)
         
         if self.Split == 1:
-            last_action= action[:,0:2]
-            last_action = np.sort(last_action, axis = None)  ## not True, should sort by lowest of row and than by lowest column
+            self.last_action= action[:,0:2]
+            self.last_action = np.sort(self.last_action, axis = None)  ## not True, should sort by lowest of row and than by lowest column
 
         #### DONE and next_state
         done = self.current_step == 128 
-        obs = self._next_observation(last_action, self.Agents)
+        obs = self._next_observation(self.Agents)
         
 
         return obs, reward, done, {}
@@ -239,38 +239,38 @@ class BiddingMarket_energy_Environment(gym.Env):
         self.sum_q = 0
         self.sum_rewards = 0
         self.AllAktionen = deque(maxlen=500)
+        
         self.last_action = np.zeros(self.Agents)
         
         if self.Split == 1:
             self.last_action = np.zeros(self.Agents*2)
        
         if self.Fringe == 1:
-            #Fringe or Strategic Player
-            #        # Test move to init
-            #Readout fringe players from other.csv (m)
+            #Fringe Player
             #Readout fringe players from other.csv (m)
             read_out = np.genfromtxt("others.csv",delimiter=";",autostrip=True,comments="#",skip_header=1,usecols=(0,1))
             
             #Readout fringe switched to conform with format; finge[0]=quantity fringe[1]=bid
             self.fringe = np.fliplr(read_out)
             self.fringe = np.pad(self.fringe,((0,0),(1,2)),mode='constant', constant_values=(2, 0))
-            self.last_action = np.zeros(self.Agents + self.fringe.shape[0])
+            self.last_action = np.zeros(self.Agents)
             
             if self.Split == 1:
                 self.fringe = np.pad(self.fringe,((0,0),(1,3)),mode='constant', constant_values=(2, 0))
-                self.last_action = np.zeros(self.Agents*2 + self.fringe.shape[0])
-            #self.fringe = np.pad(self.fringe,((0,0),(1,0)),mode='constant')
+                self.last_action = np.zeros(self.Agents*2)
+
         
-        return self._next_observation(self.last_action, self.Agents)
+        return self._next_observation(self.Agents)
     
     def render(self, mode='human', close=False):
         # Render the environment to the screen
         print(f'Step: {self.current_step}')
-        print(f'AllAktionen: {self.AllAktionen}')
+        #print(f'AllAktionen: {self.AllAktionen}')
         print(f'Last Demand of this Episode: {self.last_q}')
         print(f'Last Bid of this Episode: {self.last_bids}')
         print(f'Last Reward of this Episode: {self.last_rewards}')
         print(f'Average Demand: {self.avg_q}')
         print(f'Average Bid: {self.avg_action}')
         print(f'Average Reward: {self.avg_rewards}')
+        print(f'Last_action: {self.last_action}')
         

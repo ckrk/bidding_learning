@@ -24,7 +24,7 @@ costs = [20,20]
 
 env = BiddingMarket_energy_Environment(CAP = capacitys, costs = costs, Demand =[900,901], Agents = 2, 
                                        Fringe = 0, Rewards = 1, Split = 0, past_action= 0,
-                                       lr_actor = 1e-6, lr_critic = 1e-4, Discrete = 1)
+                                       lr_actor = 1e-6, lr_critic = 1e-4, Discrete = 0)
 
 agents = env.create_agents(env)
 noise = OUNoise(env.action_space)

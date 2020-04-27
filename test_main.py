@@ -18,16 +18,16 @@ from utils_main import OUNoise, Memory
 from BiddingMarket_energy_Environment import BiddingMarket_energy_Environment
 
 # length of lists has to correspond to the number of Agents
-# if you wanna have a fixed Demand write: the preferred [Number, Number +1] (e.g. Demand = 100 -> [100,101])
+# if you wanna have a fixed Demand, write: the preferred [Number, Number +1] (e.g. Demand = 100 -> [100,101])
 capacitys = [500,500]
 costs = [20,20]
 
 env = BiddingMarket_energy_Environment(CAP = capacitys, costs = costs, Demand =[900,901], Agents = 2, 
-                                       Fringe = 0, Rewards = 1, Split = 0, past_action= 0,
-                                       lr_actor = 1e-6, lr_critic = 1e-4, Discrete = 0)
+                                       Fringe = 0, Rewards = 1, Split = 0, past_action= 1,
+                                       lr_actor = 1e-6, lr_critic = 1e-4, Discrete = 1)
 
 agents = env.create_agents(env)
-noise = OUNoise(env.action_space)
+noise = OUNoise(env.action_space, max_sigma=0.3, discrete = env.Discrete, discrete_split = env.Split)
 batch_size = 128
 rewards = []
 avg_rewards = []

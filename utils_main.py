@@ -14,16 +14,28 @@ import random
 # Taken from #https://github.com/vitchyr/rlkit/blob/master/rlkit/exploration_strategies/ou_strategy.py
 # starting max_sigma = 0.3
 class OUNoise(object):
-    def __init__(self, action_space, mu=0.0, theta=0.15, max_sigma=0.3, min_sigma=0.3, decay_period=100000):
+    def __init__(self, action_space, mu=0.0, theta=0.15, max_sigma=0.3, min_sigma=0.3, decay_period=100000, discrete = 0, discrete_split = 0):
         self.mu           = mu
         self.theta        = theta
         self.sigma        = max_sigma
         self.max_sigma    = max_sigma
         self.min_sigma    = min_sigma
         self.decay_period = decay_period
-        self.action_dim   = action_space.shape[0]
-        self.low          = action_space.low
-        self.high         = action_space.high
+        ##############
+        #BiddingMarket_energy_Environment Params
+        self.discrete = discrete
+        self.discrete_split = discrete_split
+        if discrete == 1:
+            self.action_dim   = 1
+            self.low          = 0
+            self.high         = 10000
+            if self.discrete_split == 1:
+                self.action_dim   = 3
+        else:      
+            self.action_dim   = action_space.shape[0]
+            self.low          = action_space.low
+            self.high         = action_space.high
+        ##################
         self.reset()
         
     def reset(self):

@@ -72,7 +72,7 @@ class BiddingMarket_energy_Environment(gym.Env):
         
         # Discrete Action space
         if self.Discrete == 1:
-            self.action_space = spaces.Discrete(10)
+            self.action_space = spaces.Discrete(9)
             
         # Reward Range
         self.reward_range = (0, 1000000)
@@ -145,7 +145,7 @@ class BiddingMarket_energy_Environment(gym.Env):
         q = obs[0]
         
         if self.Discrete == 1:
-            action = action * 100
+            action = action #* 100
         
         # set up all the agents as suppliers in the market
         all_suppliers = self.set_up_suppliers(action, self.Agents)
@@ -288,7 +288,7 @@ class BiddingMarket_energy_Environment(gym.Env):
     def render(self, mode='human', close=False):
         # Render the environment to the screen
         print(f'Step: {self.current_step}')
-        #print(f'AllAktionen: {self.AllAktionen}')
+        print(f'AllAktionen: {self.AllAktionen}')
         print(f'Last Demand of this Episode: {self.last_q}')
         print(f'Last Bid of this Episode: {self.last_bids}')
         print(f'Last Reward of this Episode: {self.last_rewards}')

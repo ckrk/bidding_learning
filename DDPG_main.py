@@ -13,7 +13,8 @@ import torch.nn as nn
 from model_main import Actor, Critic
 from utils_main import OUNoise, Memory
 from torch.autograd import Variable
-# original leraning rate criticer: 1e-3, actor:1e-4
+
+
 class DDPGagent_main:
     def __init__(self, env, hidden_size=256, actor_learning_rate=1e-6, critic_learning_rate=1e-4, gamma=0.99, tau=1e-2, max_memory_size=50000, discrete = 0, discrete_split = 0):
         
@@ -28,7 +29,7 @@ class DDPGagent_main:
         if self.discrete == 1:
             self.num_actions = 1
             if self.discrete_split == 1:
-                self.num_actions = 2
+                self.num_actions = 3
         else:
             self.num_actions = env.action_space.shape[0]
         ################

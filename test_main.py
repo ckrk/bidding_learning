@@ -17,10 +17,14 @@ from DDPG_main import DDPGagent_main
 from utils_main import OUNoise, Memory
 from BiddingMarket_energy_Environment import BiddingMarket_energy_Environment
 
+# length of lists has to correspond to the number of Agents
+# if you wanna have a fixed Demand write: the preferred [Number, Number +1] (e.g. Demand = 100 -> [100,101])
+capacitys = [500,500]
+costs = [20,20]
 
-
-env = BiddingMarket_energy_Environment(CAP = np.array([500,500,500]), costs = np.array([20,20,20]), 
-                                       Fringe = 0, Rewards = 1, Split = 0, past_action= 0, Agents = 2)
+env = BiddingMarket_energy_Environment(CAP = capacitys, costs = costs, Demand =[900,901], Agents = 2, 
+                                       Fringe = 0, Rewards = 1, Split = 0, past_action= 0,
+                                       lr_actor = 1e-6, lr_critic = 1e-4, Discrete = 1)
 
 agents = env.create_agents(env)
 noise = OUNoise(env.action_space)
@@ -70,5 +74,6 @@ plt.plot()
 plt.xlabel('Episode')
 plt.ylabel('Reward')
 plt.show()
+
 
 

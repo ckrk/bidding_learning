@@ -32,39 +32,48 @@ class BiddingMarket_energy_Environment(gym.Env):
     """
     metadata = {'render.modes': ['human']}   ### ?
 
-    def __init__(self, CAP, costs, Fringe=0, Rewards=0, Split=0, past_action = 1, Agents = 3):              
+    def __init__(self, CAP, costs, Demand =[900, 1100], Agents = 3, Fringe=0, Rewards=0, Split=0, past_action = 1, lr_actor = 1e-4, lr_critic = 1e-3, Discrete = 0):              
         super(BiddingMarket_energy_Environment, self).__init__()
         
+        # basic game parameters
         self.CAP = CAP
         self.costs = costs
+        self.Demand = Demand
+        self.Agents = Agents
+        # additional opptions
         self.Fringe = Fringe
         self.Rewards = Rewards
         self.Split = Split
         self.past_action = past_action
-        self.Agents = Agents
+        self.Discrete = Discrete
+        # learning rate parameters for (DDPG)Agents (for the Neuronal Networks)
+        self.lr_actor = lr_actor
+        self.lr_critic = lr_critic
         
         # Continous action space for bids
         self.action_space = spaces.Box(low=np.array([0]), high=np.array([10000]), dtype=np.float16)
         
         # fit observation_space size to choosen environment settings
-        x = 1 + self.Agents*2
+        observation_space_size = 1 + self.Agents*2
         if self.Fringe == 1:
-            x = x + 60 #self.fringe.shape[0]
+            observation_space_size = observation_space_size + 60 #self.fringe.shape[0]
         
         if self.Split == 1:
             self.action_space = spaces.Box(low=np.array([0,0,0]), high=np.array([10000,10000,1]), dtype=np.float16)
-            x = 1+ self.Agents*2 + self.Agents
+            observation_space_size = 1+ self.Agents*2 + self.Agents
             if self.Fringe == 1:
-                x = x + 60 #self.fringe.shape[0]
+                observation_space_size = observation_space_size + 60 #self.fringe.shape[0]
                 
         if past_action == 0:
-            x = 1 + self.Agents
+            observation_space_size = 1 + self.Agents
         
         # set observation space   
-        self.observation_space = spaces.Box(low=0, high=10000, shape=(x,1), dtype=np.float16)
+        self.observation_space = spaces.Box(low=0, high=10000, shape=(observation_space_size,1), dtype=np.float16)
         
-        # Discrete Demand opportunities are missing yet
-        
+        # Discrete Action space
+        if self.Discrete == 1:
+            self.action_space = spaces.Discrete(10)
+            
         # Reward Range
         self.reward_range = (0, 1000000)
     
@@ -73,7 +82,8 @@ class BiddingMarket_energy_Environment(gym.Env):
         agents_list = []
         
         for n in range(self.Agents):
-            agents_list.append(DDPGagent_main(env))
+            agents_list.append(DDPGagent_main(env, actor_learning_rate=self.lr_actor, critic_learning_rate=self.lr_critic,
+                                              discrete = self.Discrete, discrete_split = self.Split))
             
         return agents_list
     
@@ -111,13 +121,11 @@ class BiddingMarket_energy_Environment(gym.Env):
         """
         #Q = np.array([500, 1000, 1500])
         #Q = np.random.choice(Q)
+        #Q = np.array([Q])
         
-        Q = np.random.randint(900, 1100, 1)
-        obs = np.array([Q[0]])
+        Q = np.random.randint(self.Demand[0], self.Demand[1], 1)
+        obs = np.append(Q, self.CAP)
         
-        for n in range(nmb_agents):
-            obs = np.append(obs, self.CAP[n])
-            
         if self.past_action == 1:
             #la1 = last_action.flatten()
             obs = np.insert(obs, nmb_agents+1, self.last_action)    
@@ -135,6 +143,9 @@ class BiddingMarket_energy_Environment(gym.Env):
         obs = self._next_observation(self.Agents)
         Demand = obs[0]
         q = obs[0]
+        
+        if self.Discrete == 1:
+            action = action * 100
         
         # set up all the agents as suppliers in the market
         all_suppliers = self.set_up_suppliers(action, self.Agents)
@@ -154,7 +165,7 @@ class BiddingMarket_energy_Environment(gym.Env):
             sold_quantities = combine_sold_quantities(sold_quantities, self.Agents)
             self.last_action = action[:,0:2]
         
-        # save last actions for next state (= next obeservation)
+        # save last actions for next state (= next obeservation) and sort them by lowest bids
         self.last_action = np.sort(self.last_action, axis = None)
 
         market_price = market[0]
@@ -265,6 +276,10 @@ class BiddingMarket_energy_Environment(gym.Env):
                 self.last_action = np.zeros(self.Agents*2)
             else:
                 self.fringe = np.pad(self.fringe,((0,0),(1,2)),mode='constant', constant_values=(2, 0))
+        
+        # Errors
+        if len(self.CAP) != self.Agents or len(self.costs) != self.Agents or len(self.CAP) != len(self.costs):
+            print('ERROR: length of CAP and costs has to correspond to the number of Agents')
 
 
         

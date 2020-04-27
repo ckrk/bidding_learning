@@ -15,10 +15,23 @@ from utils_main import OUNoise, Memory
 from torch.autograd import Variable
 # original leraning rate criticer: 1e-3, actor:1e-4
 class DDPGagent_main:
-    def __init__(self, env, hidden_size=256, actor_learning_rate=1e-4, critic_learning_rate=1e-3, gamma=0.99, tau=1e-2, max_memory_size=50000):
+    def __init__(self, env, hidden_size=256, actor_learning_rate=1e-6, critic_learning_rate=1e-4, gamma=0.99, tau=1e-2, max_memory_size=50000, discrete = 0, discrete_split = 0):
+        
+        #BiddingMarket_energy_Environment Params
+        self.discrete = discrete
+        self.discrete_split = discrete_split
+        
         # Params
         self.num_states = env.observation_space.shape[0]
-        self.num_actions = env.action_space.shape[0] 
+        #self.num_actions = env.action_space.shape[0]
+        ###############
+        if self.discrete == 1:
+            self.num_actions = 1
+            if self.discrete_split == 1:
+                self.num_actions = 2
+        else:
+            self.num_actions = env.action_space.shape[0]
+        ################
         self.gamma = gamma
         self.tau = tau
 

@@ -214,16 +214,17 @@ class BiddingMarket_energy_Environment(gym.Env):
         Rewards = 4: Reward is (Reward 1)/((ownBid-cost)*maxCAP)
         
         '''
-        reward = [0]*nmb_agents
-        
-        for n in range(nmb_agents):
-            reward[n] = (p - suppliers[n,3]) * sold_quantities[n]
-        reward = np.asarray(reward)
-        
         # Position of costs is diffrent between suppliers with and without Split
         cost_position = 3
         if self.Split == 1:
             cost_position = 5
+            
+        reward = [0]*nmb_agents
+        
+        for n in range(nmb_agents):
+            reward[n] = (p - suppliers[n,cost_position]) * sold_quantities[n]
+        reward = np.asarray(reward)
+        
 
         if Penalty == 1:
             for n in range(nmb_agents):

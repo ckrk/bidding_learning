@@ -99,11 +99,11 @@ class BiddingMarket_energy_Environment(gym.Env):
         
         for n in range(nmb_agents):
             a1 = action[n,0]
-            suppliers[n] = [int(n), self.CAP[n], a1, self.costs[n], self.CAP[n]]
+            suppliers[n] = [int(n), self.CAP[n], a1, self.costs[n]]
             
             if self.Split == 1:
                 a1,a2,a3 = action[n]
-                suppliers[n] = [int(n), self.CAP[n], a1, a2, a3, self.costs[n], self.CAP[n]]
+                suppliers[n] = [int(n), self.CAP[n], a1, a2, a3, self.costs[n]]
                 
         suppliers = np.asarray(suppliers)
         
@@ -188,7 +188,7 @@ class BiddingMarket_energy_Environment(gym.Env):
         self.last_rewards = reward
         self.sum_rewards += reward
         self.avg_rewards = self.sum_rewards/self.current_step
-        
+        #self.Suppliers = all_suppliers
         
         #### DONE and next_state
         done = self.current_step == 128 
@@ -219,26 +219,30 @@ class BiddingMarket_energy_Environment(gym.Env):
         for n in range(nmb_agents):
             reward[n] = (p - suppliers[n,3]) * sold_quantities[n]
         reward = np.asarray(reward)
-
+        
+        # Position of costs is diffrent between suppliers with and without Split
+        cost_position = 3
+        if self.Split == 1:
+            cost_position = 5
 
         if Penalty == 1:
             for n in range(nmb_agents):
-                reward[n] = reward[n] - (suppliers[n,3]*(suppliers[n,4] - sold_quantities[n]))       
+                reward[n] = reward[n] - (suppliers[n,cost_position]*(suppliers[n,1] - sold_quantities[n]))       
         
         if Penalty == 2:
             for n in range(nmb_agents):
-                reward[n] = reward[n] / (suppliers[n,3] * suppliers[n,4])       
+                reward[n] = reward[n] / (suppliers[n,cost_position] * suppliers[n,1])       
             
         if Penalty == 3:
             for n in range(nmb_agents):
-                reward[n] = reward[n] - (suppliers[n,3]*(suppliers[n,4] - sold_quantities[n]))
-                reward[n] = reward[n] / (suppliers[n,3] * suppliers[n,4]) 
+                reward[n] = reward[n] - (suppliers[n,cost_position]*(suppliers[n,1] - sold_quantities[n]))
+                reward[n] = reward[n] / (suppliers[n,cost_position] * suppliers[n,1]) 
           
         if Penalty == 4:
             for n in range(nmb_agents):
-                reward[n] = reward[n] - (suppliers[n,3]*(suppliers[n,4] - sold_quantities[n]))
+                reward[n] = reward[n] - (suppliers[n,cost_position]*(suppliers[n,1] - sold_quantities[n]))
                 #expWin = Suppliers[n,2]  * sold_quantities[n] # Alternative!!
-                expWin = (suppliers[n,2] - suppliers[n,3]) * sold_quantities[n] #auskommentiern wenn mit alternative
+                expWin = (suppliers[n,2] - suppliers[n,cost_position]) * sold_quantities[n] #auskommentiern wenn mit alternative
                 expWin = np.clip(expWin, 0.0000001, 10000000)
                 reward[n] = reward [n] /expWin
                 if self.Split == 1:
@@ -272,10 +276,10 @@ class BiddingMarket_energy_Environment(gym.Env):
             self.last_action = np.zeros(self.Agents)
             
             if self.Split == 1:
-                self.fringe = np.pad(self.fringe,((0,0),(1,4)),mode='constant', constant_values=(2, 0))
+                self.fringe = np.pad(self.fringe,((0,0),(1,3)),mode='constant', constant_values=(2, 0))
                 self.last_action = np.zeros(self.Agents*2)
             else:
-                self.fringe = np.pad(self.fringe,((0,0),(1,2)),mode='constant', constant_values=(2, 0))
+                self.fringe = np.pad(self.fringe,((0,0),(1,1)),mode='constant', constant_values=(2, 0))
         
         # Errors
         if len(self.CAP) != self.Agents or len(self.costs) != self.Agents or len(self.CAP) != len(self.costs):
@@ -296,4 +300,5 @@ class BiddingMarket_energy_Environment(gym.Env):
         print(f'Average Bid: {self.avg_action}')
         print(f'Average Reward: {self.avg_rewards}')
         print(f'Last_action: {self.last_action}')
+        #print(f'Suppliers: {self.Suppliers}')
         

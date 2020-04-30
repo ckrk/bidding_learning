@@ -13,7 +13,7 @@ import gym
 from gym import spaces
 import numpy as np
 from collections import deque
-from market_clearing import market_clearing, converter, combine_sold_quantities
+from market_clearing import market_clearing, converter
 from DDPG_main import DDPGagent_main
 
 
@@ -127,7 +127,6 @@ class BiddingMarket_energy_Environment(gym.Env):
         obs = np.append(Q, self.CAP)
         
         if self.past_action == 1:
-            #la1 = last_action.flatten()
             obs = np.insert(obs, nmb_agents+1, self.last_action)    
             if self.Fringe == 1:
                 obs = np.concatenate([obs, self.fringe[:,2]])   ## last actions fringe
@@ -162,7 +161,6 @@ class BiddingMarket_energy_Environment(gym.Env):
             all_suppliers_split = converter(all_suppliers, self.Agents)
             market = market_clearing(q, all_suppliers_split)
             sold_quantities = market[2]
-            sold_quantities = combine_sold_quantities(sold_quantities, self.Agents)
             self.last_action = action[:,0:2]
         
         # save last actions for next state (= next obeservation) and sort them by lowest bids
@@ -188,7 +186,7 @@ class BiddingMarket_energy_Environment(gym.Env):
         self.last_rewards = reward
         self.sum_rewards += reward
         self.avg_rewards = self.sum_rewards/self.current_step
-        #self.Suppliers = all_suppliers
+        #self.Suppliers = all_suppliers 
         
         #### DONE and next_state
         done = self.current_step == 128 
@@ -293,7 +291,7 @@ class BiddingMarket_energy_Environment(gym.Env):
     def render(self, mode='human', close=False):
         # Render the environment to the screen
         print(f'Step: {self.current_step}')
-        print(f'AllAktionen: {self.AllAktionen}')
+        #print(f'AllAktionen: {self.AllAktionen}')
         print(f'Last Demand of this Episode: {self.last_q}')
         print(f'Last Bid of this Episode: {self.last_bids}')
         print(f'Last Reward of this Episode: {self.last_rewards}')
@@ -302,4 +300,5 @@ class BiddingMarket_energy_Environment(gym.Env):
         print(f'Average Reward: {self.avg_rewards}')
         print(f'Last_action: {self.last_action}')
         #print(f'Suppliers: {self.Suppliers}')
+        
         

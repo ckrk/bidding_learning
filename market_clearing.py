@@ -28,14 +28,14 @@ d = np.array([3,7,9])
 #fringe = np.fliplr(read_out)
 #fringe = np.pad(fringe,((0,0),(1,0)),mode='constant')
 
-#test_array = np.stack((a,b,d,a,b,c,b,c))
-#bids = np.stack((a,b,c,a,d,b))
+test_array = np.stack((a,b,d,a,b,c,b,c))
+bids = np.stack((a,b,c,a,d,b))
 #test_array = fringe
 
 
 
 
-#demand =39
+demand =39
 
 
 #print(test_array)
@@ -96,7 +96,7 @@ def market_clearing(demand,bids):
     
     return market_price, bids, quantities
 
-#market_clearing(37,test_array)
+market_clearing(37,test_array)
 
 def converter(suppliers, nmb_agents):
     
@@ -104,7 +104,7 @@ def converter(suppliers, nmb_agents):
     i = 0
     for n in range(nmb_agents):
         sup_splitA = [int(i), (suppliers[n,1]*suppliers[n,4]), suppliers[n,2], suppliers[n,5]]
-        sup_splitB = [int(i+1), (suppliers[n,1] - suppliers[n,1]*suppliers[n,4]), suppliers[n,3], suppliers[n,5]]
+        sup_splitB = [int(i), (suppliers[n,1] - suppliers[n,1]*suppliers[n,4]), suppliers[n,3], suppliers[n,5]]
         sup_split.append(sup_splitA)
         sup_split.append(sup_splitB)
         i +=2
@@ -113,19 +113,6 @@ def converter(suppliers, nmb_agents):
 
     return all_together
 
-def combine_sold_quantities(split_quantities, nmb_agents):
-    
-    sold_quantities = [0]*nmb_agents
-    i = 0
-    for n in range(nmb_agents):
-        sold_quantities[n] = split_quantities[i]+split_quantities[i+1]
-        i += 2
-    
-    sold_quantities = np.asarray(sold_quantities)
-    
-    return sold_quantities
-        
-    
 
 def converter_old(Sup0, Sup1, Sup2):
     
@@ -147,22 +134,4 @@ Possible Testcases:
     Check if sales \leq supply
     Check if sales \geq demand
     Check 3 cases low demand, equal demanl and high demand
-'''
-'''
-############ test
-same = []
-for n in range(len(bids)):
-    if bids[n,2] == bids[n-1,2] or bids[n,2] == bids[n+1,2]:
-        same.append(n)
-
-selbe = np.argwhere(np.diff(bids[:,2]) != 0)
-selbe2 = selbe[:,0]+1
-all =  np.arange(len(bids))
-rest = np.delete(all, selbe, 0)
-np.sum()
-
-##############
-starts = np.argwhere(np.diff(bids[:,2]) == 0)
-ends = np.argwhere(np.diff(bids[:,2]) != 0)
-bids[starts[0,0] : selbe2[0],2]
 '''

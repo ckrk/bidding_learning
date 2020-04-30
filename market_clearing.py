@@ -114,20 +114,7 @@ def converter(suppliers, nmb_agents):
     return all_together
 
 
-def converter_old(Sup0, Sup1, Sup2):
-    
-    Sup0a = np.array([int(0), (Sup0[1]*Sup0[4]), Sup0[2], Sup0[5], Sup0[6]])
-    Sup0b = np.array([int(1), (Sup0[1]-(Sup0[1]*Sup0[4])), Sup0[3], Sup0[5], Sup0[6]])
-    
-    Sup1a = np.array([int(2), (Sup1[1]*Sup1[4]), Sup1[2], Sup1[5], Sup1[6]])
-    Sup1b = np.array([int(3), (Sup1[1]-(Sup1[1]*Sup1[4])), Sup1[3], Sup1[5], Sup1[6]])
-    
-    Sup2a = np.array([int(4), (Sup2[1]*Sup2[4]), Sup2[2], Sup2[5], Sup2[6]])
-    Sup2b = np.array([int(5), (Sup2[1]-(Sup2[1]*Sup2[4])), Sup2[3], Sup2[5], Sup2[6]])
-    
-    All_together = np.stack((Sup0a, Sup0b, Sup1a, Sup1b, Sup2a, Sup2b))
 
-    return All_together
 
 ''' 
 Possible Testcases:

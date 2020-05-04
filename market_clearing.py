@@ -14,10 +14,10 @@ from numpy_groupies import aggregate_numpy as anp
 #d = np.array([1,9,7])
 
 #Flip
-a = np.array([0,10, 2])
-b = np.array([1,10,3])
-c = np.array([2,11, 2])
-d = np.array([3,7,9])
+#a = np.array([0,10, 2])
+#b = np.array([1,10,3])
+#c = np.array([2,11, 2])
+#d = np.array([3,7,9])
 
 
 #Fringe Readout for Testing
@@ -28,14 +28,14 @@ d = np.array([3,7,9])
 #fringe = np.fliplr(read_out)
 #fringe = np.pad(fringe,((0,0),(1,0)),mode='constant')
 
-test_array = np.stack((a,b,d,a,b,c,b,c))
-bids = np.stack((a,b,c,a,d,b))
+#test_array = np.stack((a,b,d,a,b,c,b,c))
+#bids = np.stack((a,b,c,a,d,b))
 #test_array = fringe
 
 
 
 
-demand =39
+#demand =39
 
 
 #print(test_array)
@@ -96,18 +96,18 @@ def market_clearing(demand,bids):
     
     return market_price, bids, quantities
 
-market_clearing(37,test_array)
+#market_clearing(37,test_array)
 
 def converter(suppliers, nmb_agents):
     
     sup_split = []
-    i = 0
+
     for n in range(nmb_agents):
-        sup_splitA = [int(i), (suppliers[n,1]*suppliers[n,4]), suppliers[n,2], suppliers[n,5]]
-        sup_splitB = [int(i), (suppliers[n,1] - suppliers[n,1]*suppliers[n,4]), suppliers[n,3], suppliers[n,5]]
+        sup_splitA = [int(n), (suppliers[n,1]*suppliers[n,4]), suppliers[n,2], suppliers[n,5]]
+        sup_splitB = [int(n), (suppliers[n,1] - suppliers[n,1]*suppliers[n,4]), suppliers[n,3], suppliers[n,5]]
         sup_split.append(sup_splitA)
         sup_split.append(sup_splitB)
-        i +=2
+        
        
     all_together = np.asarray(sup_split)
 

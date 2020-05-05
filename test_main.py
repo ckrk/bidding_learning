@@ -14,26 +14,31 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 from DDPG_main import DDPGagent_main
-from utils_main import OUNoise, Memory
+from utils_main import OUNoise, Memory, GaussianNoise
 from BiddingMarket_energy_Environment import BiddingMarket_energy_Environment
 
 # length of lists has to correspond to the number of Agents
-# if you wanna have a fixed Demand, write: the preferred [Number, Number +1] (e.g. Demand = 100 -> [100,101])
-capacitys = [500,500]
-costs = [20,20]
+# if you wanna have a fixed Demand, write: the preferred [Number, Number +1] (e.g. Demand = 99 -> [99,100])
+capacitys = [5]
+costs = [19]
 
-env = BiddingMarket_energy_Environment(CAP = capacitys, costs = costs, Demand =[900,901], Agents = 2, 
-                                       Fringe = 0, Rewards = 1, Split = 0, past_action= 1,
-                                       lr_actor = 1e-6, lr_critic = 1e-4, Discrete = 1)
+env = BiddingMarket_energy_Environment(CAP = capacitys, costs = costs, Demand =[15,16], Agents = 1, 
+                                       Fringe = 1, Rewards = 1, Split = 0, past_action= 1,
+                                       lr_actor = 1e-4, lr_critic = 1e-3, Discrete = 0)
 
 agents = env.create_agents(env)
-noise = OUNoise(env.action_space, max_sigma=0.3, discrete = env.Discrete, discrete_split = env.Split)
+# Ohrenstein Ullenbck Noise
+#noise = OUNoise(env.action_space, max_sigma=0.3, discrete = env.Discrete, discrete_split = env.Split)
+
+# Gaussian Noise (default: (mean = 0, sigma = 0.1) * actio_space_distance)
+noise = GaussianNoise(env.action_space, mu= 0, sigma = 0.01, regulation_coef= 0.1)
+
 batch_size = 128
 rewards = []
 avg_rewards = []
 
 
-for episode in range(50):
+for episode in range(150):
     state = env.reset()
     noise.reset()
     episode_reward = 0

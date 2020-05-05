@@ -155,18 +155,18 @@ class BiddingMarket_energy_Environment(gym.Env):
         # and after that combine sold quantities of the same supplier again
         if self.Split == 0:
             market = market_clearing(q, all_suppliers)
-            sold_quantities = market[2]
             self.last_action= action
         else:
             all_suppliers_split = converter(all_suppliers, self.Agents)
             market = market_clearing(q, all_suppliers_split)
-            sold_quantities = market[2]
             self.last_action = action[:,0:2]
         
         # save last actions for next state (= next obeservation) and sort them by lowest bids
         self.last_action = np.sort(self.last_action, axis = None)
-
+        
+        #market price and sold quantities determined through market clearing
         market_price = market[0]
+        sold_quantities = market[2]
         
         # caluclate rewards
         reward = self.reward_function(all_suppliers, sold_quantities, market_price, self.Agents, self.Rewards)
@@ -174,6 +174,9 @@ class BiddingMarket_energy_Environment(gym.Env):
 
         # Render Commands 
         self.safe(action, self.current_step)
+        self.sold_quantities = sold_quantities
+        self.last_market_price = market_price
+        self.Suppliers = all_suppliers 
         
         self.last_q = Demand
         self.sum_q += Demand
@@ -186,7 +189,7 @@ class BiddingMarket_energy_Environment(gym.Env):
         self.last_rewards = reward
         self.sum_rewards += reward
         self.avg_rewards = self.sum_rewards/self.current_step
-        #self.Suppliers = all_suppliers 
+        
         
         #### DONE and next_state
         done = self.current_step == 128 
@@ -258,6 +261,7 @@ class BiddingMarket_energy_Environment(gym.Env):
         self.sum_action = 0
         self.sum_q = 0
         self.sum_rewards = 0
+        self.avg_rewards = 0
         self.AllAktionen = deque(maxlen=500)
         
         self.last_action = np.zeros(self.Agents)
@@ -275,14 +279,14 @@ class BiddingMarket_energy_Environment(gym.Env):
             self.last_action = np.zeros(self.Agents)
             
             if self.Split == 1:
-                self.fringe = np.pad(self.fringe,((0,0),(1,3)),mode='constant', constant_values=(2, 0))
+                self.fringe = np.pad(self.fringe,((0,0),(1,3)),mode='constant', constant_values=(self.Agents, 1))
                 self.last_action = np.zeros(self.Agents*2)
             else:
-                self.fringe = np.pad(self.fringe,((0,0),(1,1)),mode='constant', constant_values=(2, 0))
+                self.fringe = np.pad(self.fringe,((0,0),(1,1)),mode='constant', constant_values=(self.Agents, 1))
         
         # Errors
         if len(self.CAP) != self.Agents or len(self.costs) != self.Agents or len(self.CAP) != len(self.costs):
-            print('ERROR: length of CAP and costs has to correspond to the number of Agents')
+            return print('******************************\n ERROR: length of CAP and costs has to correspond to the number of Agents \n******************************')
 
 
         
@@ -291,7 +295,7 @@ class BiddingMarket_energy_Environment(gym.Env):
     def render(self, mode='human', close=False):
         # Render the environment to the screen
         print(f'Step: {self.current_step}')
-        #print(f'AllAktionen: {self.AllAktionen}')
+        print(f'AllAktionen: {self.AllAktionen}')
         print(f'Last Demand of this Episode: {self.last_q}')
         print(f'Last Bid of this Episode: {self.last_bids}')
         print(f'Last Reward of this Episode: {self.last_rewards}')
@@ -300,5 +304,7 @@ class BiddingMarket_energy_Environment(gym.Env):
         print(f'Average Reward: {self.avg_rewards}')
         print(f'Last_action: {self.last_action}')
         #print(f'Suppliers: {self.Suppliers}')
+        print(f'sold Qs:{self.sold_quantities}')
+        print(f'Last Market Price: {self.last_market_price}')
         
         

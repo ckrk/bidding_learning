@@ -109,9 +109,9 @@ def converter(suppliers, nmb_agents):
         sup_split.append(sup_splitB)
         
        
-    all_together = np.asarray(sup_split)
+    all_combined = np.asarray(sup_split)
 
-    return all_together
+    return all_combined
 
 
 

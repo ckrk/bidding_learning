@@ -272,7 +272,11 @@ class BiddingMarket_energy_Environment(gym.Env):
         if self.Fringe == 1:
             #Fringe Player
             #Readout fringe players from other.csv (m)
-            read_out = np.genfromtxt("others.csv",delimiter=";",autostrip=True,comments="#",skip_header=1,usecols=(0,1))
+            #read_out = np.genfromtxt("others.csv",delimiter=";",autostrip=True,comments="#",skip_header=1,usecols=(0,1))
+            
+            #Readout fringe players from simple_fringe.csv (m)
+            read_out = np.genfromtxt("simple_fringe.csv",delimiter=";",autostrip=True,comments="#",skip_header=1,usecols=(0,1))
+            
             
             #Readout fringe switched to conform with format; finge[0]=quantity fringe[1]=bid
             self.fringe = np.fliplr(read_out)

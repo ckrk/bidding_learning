@@ -23,7 +23,7 @@ capacitys = [5]
 costs = [19]
 
 env = BiddingMarket_energy_Environment(CAP = capacitys, costs = costs, Demand =[15,16], Agents = 1, 
-                                       Fringe = 1, Rewards = 1, Split = 0, past_action= 1,
+                                       Fringe = 1, Rewards = 0, Split = 0, past_action= 1,
                                        lr_actor = 1e-4, lr_critic = 1e-3, Discrete = 0)
 
 agents = env.create_agents(env)

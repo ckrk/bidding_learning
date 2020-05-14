@@ -107,13 +107,14 @@ class Memory:
 
 
 class GaussianNoise(object):
-    def __init__(self, action_space, mu = 0.0, sigma = 0.1, regulation_coef = 1, decay_period=10):
+    def __init__(self, action_space, mu = 0.0, sigma = 0.1, regulation_coef = 1, decay_rate = 0.1):
         
         self.action_dim      = action_space.shape[0]
         self.low             = action_space.low
         self.high            = action_space.high
         self.distance        = abs(self.low - self.high)
         
+        self.decay_rate = decay_rate 
         self.regulation_coef = regulation_coef
         self.mu              = mu
         self.sigma           = sigma
@@ -128,20 +129,12 @@ class GaussianNoise(object):
     def get_action(self, action, step = 0):
          
         noise_list = np.random.normal(self.mu, self.sigma, self.action_dim)* (self.distance *self.regulation_coef)
+        noise_list = noise_list *(1 - self.decay_rate)**step
         
         noisy_action = np.clip(action + noise_list, self.low, self.high)
 
         return noisy_action 
     
     
-    def get_action2(self, action, step = 0):
-        
-        noise_list = [0]*self.action_dim
-        
-        for n in range(self.action_dim):
-            noise_list[n] = np.random.normal(self.mu, self.distance[n] * self.sigma, 1)[0] #*(1/decay_period)**step
-        
-        noisy_action = np.clip(action + noise_list, self.low, self.high)
 
-        return noisy_action
       

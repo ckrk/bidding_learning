@@ -51,7 +51,7 @@ class BiddingMarket_energy_Environment(gym.Env):
         self.lr_critic = lr_critic
         
         # Continous action space for bids
-        self.action_space = spaces.Box(low=np.array([0]), high=np.array([10000]), dtype=np.float16)
+        self.action_space = spaces.Box(low=np.array([-100]), high=np.array([10000]), dtype=np.float16)
         
         # fit observation_space size to choosen environment settings
         observation_space_size = 1 + self.Agents*2
@@ -127,7 +127,8 @@ class BiddingMarket_energy_Environment(gym.Env):
         obs = np.append(Q, self.CAP)
         
         if self.past_action == 1:
-            obs = np.insert(obs, nmb_agents+1, self.last_action)    
+            #obs = np.insert(obs, nmb_agents+1, self.last_action)
+            obs = np.concatenate([obs, self.last_action])
             if self.Fringe == 1:
                 obs = np.concatenate([obs, self.fringe[:,2]])   ## last actions fringe
 
@@ -169,7 +170,7 @@ class BiddingMarket_energy_Environment(gym.Env):
         sold_quantities = market[2]
         
         # caluclate rewards
-        reward = self.reward_function(all_suppliers, sold_quantities, market_price, self.Agents, self.Rewards)
+        reward = self.reward_function(all_suppliers, sold_quantities, market_price, self.Agents, self.Rewards, action)
         
 
         # Render Commands 
@@ -204,7 +205,7 @@ class BiddingMarket_energy_Environment(gym.Env):
         Aktionen = (action, current_step)
         self.AllAktionen.append(Aktionen)
         
-    def reward_function(self, suppliers, sold_quantities, p, nmb_agents, Penalty):
+    def reward_function(self, suppliers, sold_quantities, p, nmb_agents, Penalty, action):
         '''
         Different Options of calculating the Reward
         Rewards = 0: Default, Reward is (price-costs)*acceptedCAP 
@@ -215,6 +216,13 @@ class BiddingMarket_energy_Environment(gym.Env):
         Rewards = 4: Reward is (Reward 1)/((ownBid-cost)*maxCAP)
         
         '''
+        # rescaling the rewards to avoid hard weight Updates of the Criticer 
+        rescale = 0.00001
+        maxreward = 10
+        if self.Fringe == 1:
+            rescale = 0.01
+            maxreward = 10000
+            
         # Position of costs is diffrent between suppliers with and without Split
         cost_position = 3
         if self.Split == 1:
@@ -223,7 +231,7 @@ class BiddingMarket_energy_Environment(gym.Env):
         reward = [0]*nmb_agents
         
         for n in range(nmb_agents):
-            reward[n] = (p - suppliers[n,cost_position]) * sold_quantities[n]
+            reward[n] = (p - suppliers[n,cost_position]) * sold_quantities[n] * rescale # "clipping/rescaling rewards"
         reward = np.asarray(reward)
         
 
@@ -250,7 +258,13 @@ class BiddingMarket_energy_Environment(gym.Env):
                 if self.Split == 1:
                     break
                 print('ERROR: only works without Split')
-                
+        
+        # TIPP
+        for n in range(nmb_agents):
+            if action[n] <= 0:
+                reward[n] = 0 
+        
+        #reward = np.clip(reward,-10, maxreward) ## limit und scaling bei "MITfringe" deutlich höher (dafür rescaling niedriger)        
 
         return reward
     
@@ -272,7 +286,7 @@ class BiddingMarket_energy_Environment(gym.Env):
         if self.Fringe == 1:
             #Fringe Player
             #Readout fringe players from other.csv (m)
-            read_out = np.genfromtxt("others.csv",delimiter=";",autostrip=True,comments="#",skip_header=1,usecols=(0,1))
+            read_out = np.genfromtxt("test_fringe02.csv",delimiter=";",autostrip=True,comments="#",skip_header=1,usecols=(0,1))
             
             #Readout fringe switched to conform with format; finge[0]=quantity fringe[1]=bid
             self.fringe = np.fliplr(read_out)
@@ -297,14 +311,15 @@ class BiddingMarket_energy_Environment(gym.Env):
         print(f'Step: {self.current_step}')
         print(f'AllAktionen: {self.AllAktionen}')
         print(f'Last Demand of this Episode: {self.last_q}')
-        print(f'Last Bid of this Episode: {self.last_bids}')
+        print(f'Last Bid of this Episode:\n {self.last_bids}')
+        print(f'Average Bid:\n {self.avg_action}')
         print(f'Last Reward of this Episode: {self.last_rewards}')
-        print(f'Average Demand: {self.avg_q}')
-        print(f'Average Bid: {self.avg_action}')
         print(f'Average Reward: {self.avg_rewards}')
-        print(f'Last_action: {self.last_action}')
+        #print(f'Last_action: {self.last_action}')
         #print(f'Suppliers: {self.Suppliers}')
+        print(f'Average Demand: {self.avg_q}')
         print(f'sold Qs:{self.sold_quantities}')
         print(f'Last Market Price: {self.last_market_price}')
+        
         
         

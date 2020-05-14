@@ -32,7 +32,7 @@ class BiddingMarket_energy_Environment(gym.Env):
     """
     metadata = {'render.modes': ['human']}   ### ?
 
-    def __init__(self, CAP, costs, Demand =[900, 1100], Agents = 3, Fringe=0, Rewards=0, Split=0, past_action = 1, lr_actor = 1e-4, lr_critic = 1e-3, Discrete = 0):              
+    def __init__(self, CAP, costs, Demand =[5, 6], Agents = 1, Fringe=1, Rewards=0, Split=0, past_action = 1, lr_actor = 1e-4, lr_critic = 1e-3, Discrete = 0):              
         super(BiddingMarket_energy_Environment, self).__init__()
         
         # basic game parameters
@@ -259,11 +259,12 @@ class BiddingMarket_energy_Environment(gym.Env):
                     break
                 print('ERROR: only works without Split')
         
-        # TIPP
+        # TIPP (especially for games vs Fringe Player needed)
         for n in range(nmb_agents):
             if action[n] <= 0:
                 reward[n] = 0 
         
+        # unsure yet, if clipping is needed
         #reward = np.clip(reward,-10, maxreward) ## limit und scaling bei "MITfringe" deutlich höher (dafür rescaling niedriger)        
 
         return reward

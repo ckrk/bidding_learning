@@ -107,7 +107,7 @@ class Memory:
 
 
 class GaussianNoise(object):
-    def __init__(self, action_space, mu = 0.0, sigma = 0.1, regulation_coef = 1, decay_rate = 0.1):
+    def __init__(self, action_space, mu = 0.0, sigma = 0.1, regulation_coef = 1, decay_rate = 0):
         
         self.action_dim      = action_space.shape[0]
         self.low             = action_space.low

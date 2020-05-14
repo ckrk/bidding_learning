@@ -17,6 +17,8 @@ Implementations of the Deep Q-Learning Algorithms for Auctions
 
 ### How to customize a run of the algorithm?
 
+#### Environment Parameters
+
 The following parameters can be defined by the user by specifying them as inputs to the Environment in BiddingMarket_energy_Environment.py. This is usually done via test_main.py but can be done directly.
 
 BiddingMarket_energy_Environment(CAP = capacitys, costs = costs, Demand =[5,6], Agents = 1,                                       Fringe = 1, Rewards = 0, Split = 0, past_action= 1, lr_actor = 1e-4, lr_critic = 1e-3, Discrete = 0)
@@ -32,6 +34,16 @@ BiddingMarket_energy_Environment(CAP = capacitys, costs = costs, Demand =[5,6], 
 - lr_actor: float < 1 .... learning rate actor network, weighs relevance of new and old experiences
 - lr_critic: float < 1 .... learning rate critic network, weighs relevance of new and old experiences
 - Discrete: binary ... discrete state space on/off (not ready yet)
+
+The output mode is hardcoded in the function render belonging to BiddingMarket_energy_Environment
+
+#### Test Parameters
+
+The noise model and its variants is hard-coded in test_main.py.
+There is:
+- OU-Noise
+- Gaussian Noise (Standard): sigma defines variance
+
 ## Dependency Structure:
 
   - test_main.py                                                            (High-level interface thaht accepts user input)

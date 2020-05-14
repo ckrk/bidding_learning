@@ -1,5 +1,26 @@
 # Bidding-Learning
-Implementations of the Deep Q-Learning Algorithms for Auctions
+Implementations of the Deep Q-Learning Algorithms for Auctions.
+
+## What should it do?
+
+- Generally, the algorithm sets up a reinforcement learning algorithm in an user defined environment,
+that represents energy market auctions. The user defines number of players, their production costs & capacities as well as learning related hyper parameters of specifities of the bidding rules. Then the algorithm trains the players and outputs statistics about their behavior during training.
+
+- Specifically, if run in the standard settings the algorithm learns in a simple predefined environment that is a minimal working example. It is chosen to be easy to understand and for comparability while debbuging.
+
+## What is the Minimum Working Example? What do the standard settings implement?
+
+The Minimal Working Example implements an easy market situation. Specifically:
+- There is only a single learning player, while the remaining market is represented as non-learning "fringe player".
+- The learning player always bids his whole capacity and is aware of the bids in the last round.
+- The fringe player always submits the bids specified in the simple_fringe.csv file.
+- Essentially, the first unit of energy is sold for free. Every extra unit of energy is sold for an extra 1000 price.
+- The demand is predefined to equal to 5.
+- The strategic player has 0 costs and 1 unit capaciy.
+- The market price without the players participation is 4000. If the player bids all capacity at 0, this reduces the price to 3000. We would expect that the player can gain by becoming the price setting player and offering between 3001-3999.
+- Tie breaking may be relevant. Currently the in case of tie the player with lower number gets everything.
+
+Unfortunately, the learning player always learns to play 0. We would expect him to bid 3001-3999 but can not achieve it in this setting. This is the current main problem.
 
 ## Requirements
 

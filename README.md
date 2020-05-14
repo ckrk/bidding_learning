@@ -37,6 +37,15 @@ BiddingMarket_energy_Environment(CAP = capacitys, costs = costs, Demand =[5,6], 
 
 The output mode is hardcoded in the function render belonging to BiddingMarket_energy_Environment
 
+#### Fringe Player
+
+The fringe player reads his bids from a csv-file. The name of the file is hardcoded in the reset function from BiddingMarket_energy_Environment.py. Currently, we provide two standard test csv:
+
+- others.csv (non-trivial, Test Case by Christoph Graf, for comparision with optimization solver, 60 bids)
+- simple_fringe.csv (easy file, price_bids increase by 1000, quantity_bids increase by 1, 60 bids)
+
+Attention, only csv with 60 bids are compatible!
+
 #### Test Parameters
 
 The noise model and its variants is hard-coded in test_main.py.

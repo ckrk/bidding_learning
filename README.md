@@ -44,6 +44,10 @@ There is:
 - OU-Noise
 - Gaussian Noise (Standard): sigma defines variance
 
+#### Network Architecture
+
+The architecture of the actor and critic netowrks are hardcoded in model_main.py
+
 ## Dependency Structure:
 
   - test_main.py                                                            (High-level interface thaht accepts user input)

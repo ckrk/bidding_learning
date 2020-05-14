@@ -18,7 +18,7 @@ The Minimal Working Example implements an easy market situation. Specifically:
 - The demand is predefined to equal to 5.
 - The strategic player has 0 costs and 1 unit capaciy.
 - The market price without the players participation is 4000. If the player bids all capacity at 0, this reduces the price to 3000. We would expect that the player can gain by becoming the price setting player and offering between 3001-3999.
-- Tie breaking may be relevant. Currently the in case of tie the player with lower number gets everything.
+- Tie breaking may be relevant. Currently the in case of tie the player with lower number gets everything. Proper tie breaking is involved to program.
 
 Unfortunately, the learning player always learns to play 0. We would expect him to bid 3001-3999 but can not achieve it in this setting. This is the current main problem.
 

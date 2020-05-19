@@ -50,8 +50,8 @@ Enables Discrete Spaces (Not yet functional)
 capacitys = [1]
 costs = [0]
 
-env = BiddingMarket_energy_Environment(CAP = capacitys, costs = costs, Demand =[5,6], Agents = 1, 
-                                       Fringe = 1, Rewards = 0, Split = 0, past_action= 1,
+env = BiddingMarket_energy_Environment(CAP = capacitys, costs = costs, Demand =[5,6], Agents = 2, 
+                                       Fringe = 0, Rewards = 0, Split = 0, past_action= 1,
                                        lr_actor = 1e-4, lr_critic = 1e-3, Discrete = 0)
 agents = env.create_agents(env)
 rewards = []
@@ -67,7 +67,8 @@ avg_rewards = []
 # Gaussian Noise 
 # The standard normal distributed noise with variance sigma scaled to the action spaces size
 #(default: (mean = 0, sigma = 0.1) * actio_space_distance)
-noise = GaussianNoise(env.action_space, mu= 0, sigma = 0.01, regulation_coef= 0.1)
+noise = GaussianNoise(env.action_space, mu= 0, sigma = 0.01, regulation_coef= 0.1, decay_rate = 0)
+
 
 
 # Learning continues for a number of episodes, 
@@ -90,7 +91,7 @@ for episode in range(total_episodes):
         for n in range(len(agents)):
             #Neural Network Chooses Action and Adds Noise
             action_temp = agents[n].get_action(state)
-            action_temp = noise.get_action(action_temp, step)
+            action_temp = noise.get_action(action_temp, step+episode) ## episode statt step!!
             actions.append(action_temp[:])
         
         actions = np.asarray(actions)
@@ -108,7 +109,7 @@ for episode in range(total_episodes):
                 
         
         state = new_state
-        episode_reward += reward
+        episode_reward = reward
 
         if done:
             sys.stdout.write("***episode: {}, reward: {}, average _reward: {} \n".format(episode, np.round(episode_reward, decimals=2), np.mean(rewards[-10:])))

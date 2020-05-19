@@ -1,34 +1,20 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Mar  4 10:05:34 2020
-
-@author: Viktor
-"""
-
-#### Environment für 2 Player#####
-
-
+import numpy as np
 
 import gym
 from gym import spaces
-import numpy as np
 from collections import deque
+
 from market_clearing import market_clearing, converter
 from DDPG_main import DDPGagent_main
-
-
-#C = 30
-#CAP = 300
-#env = EnMarketEnv02(CAP = np.array([100,100]), costs = 30)
-
-#env.observation_space.shape[:]
-#env.action_space.shape[0]-1
 
 class BiddingMarket_energy_Environment(gym.Env):
     
     """
     Energy Market environment for OpenAI gym
     
+    Sets_up an envrionment from several static parameters
+    Once set_up it receives actions from players, 
+    then outputs rewards and determines next state of environment
     """
     metadata = {'render.modes': ['human']}   ### ?
 
@@ -49,6 +35,7 @@ class BiddingMarket_energy_Environment(gym.Env):
         # learning rate parameters for (DDPG)Agents (for the Neuronal Networks)
         self.lr_actor = lr_actor
         self.lr_critic = lr_critic
+        self.price_cap = 10000
         
         # Continous action space for bids
         self.action_space = spaces.Box(low=np.array([0]), high=np.array([10000]), dtype=np.float16)
@@ -67,7 +54,7 @@ class BiddingMarket_energy_Environment(gym.Env):
         if past_action == 0:
             observation_space_size = 1 + self.Agents
         
-        # set observation space   
+        # Set observation space continious   
         self.observation_space = spaces.Box(low=0, high=10000, shape=(observation_space_size,1), dtype=np.float16)
         
         # Discrete Action space

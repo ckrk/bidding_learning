@@ -1,3 +1,5 @@
 __pycache__/
 .pylint.d/
 results/
+*.pdf
+radam.py

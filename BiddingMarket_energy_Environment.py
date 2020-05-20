@@ -220,8 +220,8 @@ class BiddingMarket_energy_Environment(gym.Env):
         rescale = 0.00001
         maxreward = 10
         if self.Fringe == 1:
-            rescale = 0.01
-            maxreward = 10000
+            rescale = 0.001 #0.01 #(fürCAP 100 bid 100)
+            maxreward = 35
             
         # Position of costs is diffrent between suppliers with and without Split
         cost_position = 3
@@ -291,7 +291,7 @@ class BiddingMarket_energy_Environment(gym.Env):
             #read_out = np.genfromtxt("others.csv",delimiter=";",autostrip=True,comments="#",skip_header=1,usecols=(0,1))
             
             #Readout fringe players from simple_fringe.csv (m)
-            read_out = np.genfromtxt("simple_fringe.csv",delimiter=";",autostrip=True,comments="#",skip_header=1,usecols=(0,1))
+            read_out = np.genfromtxt("test_fringe02.csv",delimiter=";",autostrip=True,comments="#",skip_header=1,usecols=(0,1))
             
             
             #Readout fringe switched to conform with format; finge[0]=quantity fringe[1]=bid

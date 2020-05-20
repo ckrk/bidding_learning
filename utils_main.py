@@ -1,14 +1,8 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Jan 23 15:42:44 2020
-
-@author: Viktor
-"""
-
 import numpy as np
+import random
+
 import gym
 from collections import deque
-import random
 
 # Ornstein-Ulhenbeck Process
 # Taken from #https://github.com/vitchyr/rlkit/blob/master/rlkit/exploration_strategies/ou_strategy.py

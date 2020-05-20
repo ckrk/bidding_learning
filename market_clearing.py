@@ -1,9 +1,5 @@
-"""
-Created on Wed Mar 18 18:03:36 2020
-
-@author: Claude
-"""
 import numpy as np
+
 import numpy_groupies as npg
 from numpy_groupies import aggregate_numpy as anp
 

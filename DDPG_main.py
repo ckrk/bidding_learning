@@ -1,18 +1,12 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Mar 24 11:40:26 2020
-
-@author: Viktor
-"""
-
 import torch
 import torch.autograd
 import torch.optim as optim
 import torch.nn as nn
+from torch.autograd import Variable
+
 #from model_ import *
 from model_main import Actor, Critic
 from utils_main import OUNoise, Memory
-from torch.autograd import Variable
 #from radam import RAdam
 #from torch.optim.optimizer import Optimizer, required
 

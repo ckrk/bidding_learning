@@ -1,34 +1,20 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Mar  4 10:05:34 2020
-
-@author: Viktor
-"""
-
-#### Environment für 2 Player#####
-
-
+import numpy as np
 
 import gym
 from gym import spaces
-import numpy as np
 from collections import deque
+
 from market_clearing import market_clearing, converter
 from DDPG_main import DDPGagent_main
-
-
-#C = 30
-#CAP = 300
-#env = EnMarketEnv02(CAP = np.array([100,100]), costs = 30)
-
-#env.observation_space.shape[:]
-#env.action_space.shape[0]-1
 
 class BiddingMarket_energy_Environment(gym.Env):
     
     """
     Energy Market environment for OpenAI gym
     
+    Sets_up an envrionment from several static parameters
+    Once set_up it receives actions from players, 
+    then outputs rewards and determines next state of environment
     """
     metadata = {'render.modes': ['human']}   ### ?
 
@@ -49,9 +35,10 @@ class BiddingMarket_energy_Environment(gym.Env):
         # learning rate parameters for (DDPG)Agents (for the Neuronal Networks)
         self.lr_actor = lr_actor
         self.lr_critic = lr_critic
+        self.price_cap = 10000
         
         # Continous action space for bids
-        self.action_space = spaces.Box(low=np.array([-100]), high=np.array([10000]), dtype=np.float16)
+        self.action_space = spaces.Box(low=np.array([0]), high=np.array([self.price_cap]), dtype=np.float16)
         
         # fit observation_space size to choosen environment settings
         observation_space_size = 1 + self.Agents*2
@@ -59,7 +46,7 @@ class BiddingMarket_energy_Environment(gym.Env):
             observation_space_size = observation_space_size + 60 #self.fringe.shape[0]
         
         if self.Split == 1:
-            self.action_space = spaces.Box(low=np.array([0,0,0]), high=np.array([10000,10000,1]), dtype=np.float16)
+            self.action_space = spaces.Box(low=np.array([0,0,0]), high=np.array([self.price_cap,self.price_cap,1]), dtype=np.float16)
             observation_space_size = 1+ self.Agents*2 + self.Agents
             if self.Fringe == 1:
                 observation_space_size = observation_space_size + 60 #self.fringe.shape[0]
@@ -67,14 +54,15 @@ class BiddingMarket_energy_Environment(gym.Env):
         if past_action == 0:
             observation_space_size = 1 + self.Agents
         
-        # set observation space   
-        self.observation_space = spaces.Box(low=0, high=10000, shape=(observation_space_size,1), dtype=np.float16)
+        # Set observation space continious   
+        self.observation_space = spaces.Box(low=0, high=self.price_cap, shape=(observation_space_size,1), dtype=np.float16)
         
         # Discrete Action space
         if self.Discrete == 1:
             self.action_space = spaces.Discrete(9)
             
         # Reward Range
+        # This cant be fixed!
         self.reward_range = (0, 1000000)
     
     def create_agents(self, env):
@@ -220,9 +208,9 @@ class BiddingMarket_energy_Environment(gym.Env):
         rescale = 0.00001
         maxreward = 10
         if self.Fringe == 1:
-            rescale = 0.001 #0.01 #(fürCAP 100 bid 100)
-            maxreward = 35
-            
+            rescale = 0.01
+            maxreward = self.price_cap
+
         # Position of costs is diffrent between suppliers with and without Split
         cost_position = 3
         if self.Split == 1:
@@ -313,7 +301,8 @@ class BiddingMarket_energy_Environment(gym.Env):
         return self._next_observation(self.Agents)
     
     def render(self, mode='human', close=False):
-        # Render the environment to the screen
+        # Calls an output of several important parameters during the learning
+        # This defines the content of the output
         print(f'Step: {self.current_step}')
         print(f'AllAktionen: {self.AllAktionen}')
         print(f'Last Demand of this Episode: {self.last_q}')

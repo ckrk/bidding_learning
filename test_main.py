@@ -20,12 +20,12 @@ from BiddingMarket_energy_Environment import BiddingMarket_energy_Environment
 # length of lists(CAP, costs) has to correspond to the number of Agents
 # if you wanna have a fixed Demand, write: the preferred [Number, Number +1] (e.g. Demand = 99 -> [99,100])
 
-capacitys = [1]
+capacitys = [100]
 costs = [0]
 
-env = BiddingMarket_energy_Environment(CAP = capacitys, costs = costs, Demand =[5,6], Agents = 2, 
-                                       Fringe = 0, Rewards = 0, Split = 0, past_action= 1,
-                                       lr_actor = 1e-4, lr_critic = 1e-3, Discrete = 0)
+env = BiddingMarket_energy_Environment(CAP = capacitys, costs = costs, Demand =[500,501], Agents = 1, 
+                                       Fringe = 1, Rewards = 0, Split = 0, past_action= 1,
+                                       lr_actor = 1e-6, lr_critic = 1e-4, Discrete = 0)
 
 agents = env.create_agents(env)
 
@@ -40,7 +40,7 @@ agents = env.create_agents(env)
 # Gaussian Noise 
 # The standard normal distributed noise with variance sigma scaled to the action spaces size
 #(default: (mean = 0, sigma = 0.1) * actio_space_distance)
-noise = GaussianNoise(env.action_space, mu= 0, sigma = 0.01, regulation_coef= 0.1, decay_rate = 0)
+noise = GaussianNoise(env.action_space, mu= 0, sigma = 0.1, regulation_coef= 0.01, decay_rate = 0)
 
 
 batch_size = 128

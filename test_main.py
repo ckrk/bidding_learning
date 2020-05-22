@@ -47,7 +47,7 @@ Enables Discrete Spaces (Not yet functional)
 
 
 
-capacitys = [1]
+capacitys = [100]
 costs = [0]
 
 env = BiddingMarket_energy_Environment(CAP = capacitys, costs = costs, Demand =[500,501], Agents = 1, 

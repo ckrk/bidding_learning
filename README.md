@@ -8,6 +8,11 @@ that represents energy market auctions. The user defines number of players, thei
 
 - Specifically, if run in the standard settings the algorithm learns in a simple predefined environment that is a minimal working example. It is chosen to be easy to understand and for comparability while debbuging.
 
+## Pay attention that the algorithm involves randomness
+
+This is bad for reproducibility but the algorithm intrinsically uses random steps.
+Sometimes you will get strange results. Hence, try to rerun the algorithm 2-3 times in the same settings if you feel you get non-sensical values to be sure it repeatedly fails. Sometimes you just get unlucky.
+
 ## What is the Minimum Working Example? What do the standard settings implement?
 
 The Minimal Working Example implements an easy market situation. Specifically:

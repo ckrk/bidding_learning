@@ -47,10 +47,10 @@ Enables Discrete Spaces (Not yet functional)
 
 
 
-capacitys = [100]
+capacitys = [1]
 costs = [0]
 
-env = BiddingMarket_energy_Environment(CAP = capacitys, costs = costs, Demand =[5,6], Agents = 1, 
+env = BiddingMarket_energy_Environment(CAP = capacitys, costs = costs, Demand =[500,501], Agents = 1, 
                                        Fringe = 1, Rewards = 0, Split = 0, past_action= 1,
                                        lr_actor = 1e-4, lr_critic = 1e-3, Discrete = 0)
 
@@ -67,7 +67,7 @@ avg_rewards = []
 
 # Gaussian Noise 
 # The standard normal distributed noise with variance sigma scaled to the action spaces size
-#(default: (mean = 0, sigma = 0.1) * actio_space_distance)
+#(default: (mean = 0, sigma = 0.1) * action_space_distance)
 noise = GaussianNoise(env.action_space, mu= 0, sigma = 0.1, regulation_coef= 0.01, decay_rate = 0)
 
 
@@ -76,7 +76,7 @@ noise = GaussianNoise(env.action_space, mu= 0, sigma = 0.1, regulation_coef= 0.0
 # divided into batches consisting of rounds
 # Each episode resets the environment, it consits of rounds
 # After a number of rounds equal to the batch size, the neural networks are updated
-total_episodes = 20
+total_episodes = 100
 rounds_per_episode = 500
 batch_size = 128
 

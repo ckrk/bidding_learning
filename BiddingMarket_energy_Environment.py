@@ -18,7 +18,7 @@ class BiddingMarket_energy_Environment(gym.Env):
     """
     metadata = {'render.modes': ['human']}   ### ?
 
-    def __init__(self, CAP, costs, Demand =[5, 6], Agents = 1, Fringe=1, Rewards=0, Split=0, past_action = 1, lr_actor = 1e-4, lr_critic = 1e-3, Discrete = 0):              
+    def __init__(self, CAP, costs, Demand =[500, 501], Agents = 1, Fringe=1, Rewards=0, Split=0, past_action = 1, lr_actor = 1e-4, lr_critic = 1e-3, Discrete = 0):              
         super(BiddingMarket_energy_Environment, self).__init__()
         
         # basic game parameters
@@ -38,7 +38,7 @@ class BiddingMarket_energy_Environment(gym.Env):
         self.price_cap = 10000
         
         # Continous action space for bids
-        self.action_space = spaces.Box(low=np.array([0]), high=np.array([self.price_cap]), dtype=np.float16)
+        self.action_space = spaces.Box(low=np.array([-100]), high=np.array([self.price_cap]), dtype=np.float16)
         
         # fit observation_space size to choosen environment settings
         observation_space_size = 1 + self.Agents*2
@@ -208,7 +208,7 @@ class BiddingMarket_energy_Environment(gym.Env):
         rescale = 0.00001
         maxreward = 10
         if self.Fringe == 1:
-            rescale = 0.01
+            rescale = 0.01 
             maxreward = self.price_cap
 
         # Position of costs is diffrent between suppliers with and without Split

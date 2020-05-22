@@ -12,6 +12,7 @@ that represents energy market auctions. The user defines number of players, thei
 
 This is bad for reproducibility but the algorithm intrinsically uses random steps.
 Sometimes you will get strange results. Hence, try to rerun the algorithm 2-3 times in the same settings if you feel you get non-sensical values to be sure it repeatedly fails. Sometimes you just get unlucky.
+We get strange results in a significant number of times, if the final graphic just outputs a flat line, try a simple restart.
 
 ## What is the Minimum Working Example? What do the standard settings implement?
 

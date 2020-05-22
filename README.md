@@ -21,8 +21,9 @@ The Minimal Working Example implements an easy market situation. Specifically:
 - The fringe player always submits the bids specified in a coresponding csv file.
 - Please check "test_fringe02.csv" to understand the behavior of the fringe player. It shows the bids that are submitted each round by the fringe player in our standard setting.
 - Essentially, the first unit of energy is sold for free. Every extra unit of energy is sold for an extra 100 price.
-- The demand is predefined to equal to 5.
+- The demand is predefined to equal to 500.
 - The strategic player has 0 costs and 1 unit capaciy.
+- However, we rescale the parameters to 1/100, in order to scale the rewards into a range that exhibits good learning. This seems necessary, but we do not understand entirely why.
 - The market price without the players participation is 400. If the player bids all capacity at 0, this reduces the price to 300. We would expect that the player can gain by becoming the price setting player and offering between 301-399.
 - Tie breaking may be relevant. Currently the in case of tie the player with lower number gets everything. Proper tie breaking is involved to program.
 

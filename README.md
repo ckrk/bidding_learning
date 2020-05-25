@@ -20,7 +20,7 @@ The Minimal Working Example implements an easy market situation. Specifically:
 - There is only a single learning player, while the remaining market is represented as non-learning "fringe player".
 - The learning player always bids his whole capacity and is aware of the bids in the last round.
 - The fringe player always submits the bids specified in a coresponding csv file.
-- Please check "test_fringe02.csv" to understand the behavior of the fringe player. It shows the bids that are submitted each round by the fringe player in our standard setting.
+- Please check "data/fringe-players/test_fringe02.csv" to understand the behavior of the fringe player. It shows the bids that are submitted each round by the fringe player in our standard setting.
 - Essentially, the first unit of energy is sold for free. Every extra unit of energy is sold for an extra 100 price.
 - The demand is predefined to equal to 500.
 - The strategic player has 0 costs and 1 unit capaciy.
@@ -66,7 +66,8 @@ The output mode is hardcoded in the function render belonging to BiddingMarket_e
 
 #### Fringe Player
 
-The fringe player reads his bids from a csv-file. The name of the file is hardcoded in the reset function from BiddingMarket_energy_Environment.py. Currently, we provide two standard test csv:
+The fringe player reads his bids from a csv-file. The name of the file is hardcoded in the reset function from BiddingMarket_energy_Environment.py. All csv's are stored in ./data/fringe-players.
+Currently, we provide following standard test csv:
 - test_fringe02.csv (Standard choice, 100 price steps, quantity steps 100)
 - test_fringe03.csv (100 price steps, quantity steps 1)
 - others.csv (non-trivial, Test Case by Christoph Graf, for comparision with optimization solver, 60 bids)

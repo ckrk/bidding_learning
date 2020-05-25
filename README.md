@@ -40,7 +40,7 @@ The Minimal Working Example implements an easy market situation. Specifically:
 ## How to run?
 
 - Clone to local repository
-- run test_main.py in standard settings (or with appropriate parameters)
+- run ./bin/test_main.py in standard settings (or with appropriate parameters)
 
 ### How to customize a run of the algorithm?
 

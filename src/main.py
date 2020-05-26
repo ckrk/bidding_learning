@@ -1,7 +1,9 @@
 import sys
+sys.path.append('../bin/')
 #import gym
 import numpy as np
 import matplotlib.pyplot as plt
+
 
 from DDPG_main import DDPGagent_main
 from utils_main import OUNoise, Memory, GaussianNoise

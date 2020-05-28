@@ -4,10 +4,9 @@ sys.path.append('../bin/')
 import numpy as np
 import matplotlib.pyplot as plt
 
-
-from DDPG_main import DDPGagent_main
-from utils_main import OUNoise, Memory, GaussianNoise
-from BiddingMarket_energy_Environment import BiddingMarket_energy_Environment
+from agent_ddpg import agent_ddpg
+from utils import OUNoise, Memory, GaussianNoise
+from environment_bid_market import EnvironmentBidMarket
 
 
 
@@ -51,12 +50,12 @@ Enables Discrete Spaces (Not yet functional)
 
 
 
-capacitys = [100, 100]
-costs = [10, 10]
+capacitys = [100]
+costs = [0]
 
-env = BiddingMarket_energy_Environment(CAP = capacitys, costs = costs, Demand =[150,151], Agents = 2, 
-                                       Fringe = 0, Rewards = 0, Split = 0, past_action= 1,
-                                       lr_actor = 1e-6, lr_critic = 1e-4, Discrete = 0)
+env = EnvironmentBidMarket(CAP = capacitys, costs = costs, Demand =[500,501], Agents = 1, 
+                           Fringe = 1, Rewards = 0, Split = 0, past_action= 1, 
+                           lr_actor = 1e-6, lr_critic = 1e-4, Discrete = 0)
 
 agents = env.create_agents(env)
 rewards = []

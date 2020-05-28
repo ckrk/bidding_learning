@@ -3,9 +3,11 @@ import numpy as np
 import gym
 from gym import spaces
 from collections import deque
+import logging
 
 from market_clearing import market_clearing, converter
 from DDPG_main import DDPGagent_main
+
 
 class BiddingMarket_energy_Environment(gym.Env):
     
@@ -205,7 +207,7 @@ class BiddingMarket_energy_Environment(gym.Env):
         
         '''
         # rescaling the rewards to avoid hard weight Updates of the Criticer 
-        rescale = 0.00001
+        rescale = 0.0001
         maxreward = 10
         if self.Fringe == 1:
             rescale = 0.01 
@@ -248,9 +250,10 @@ class BiddingMarket_energy_Environment(gym.Env):
                 print('ERROR: only works without Split')
         
         # TIPP (especially for games vs Fringe Player needed)
-        for n in range(nmb_agents):
-            if action[n] <= 0:
-                reward[n] = 0 
+        #for n in range(nmb_agents):
+         #   if action[n] <= 0:
+                #reward[n] = 0
+           #     reward[n] = np.clip(reward[n], reward[n], 0) 
         
         # unsure yet, if clipping is needed
         #reward = np.clip(reward,-10, maxreward) ## limit und scaling bei "MITfringe" deutlich höher (dafür rescaling niedriger)        
@@ -315,6 +318,16 @@ class BiddingMarket_energy_Environment(gym.Env):
         print(f'Average Demand: {self.avg_q}')
         print(f'sold Qs:{self.sold_quantities}')
         print(f'Last Market Price: {self.last_market_price}')
+
+    def logger(self, episode, test_round):        
+        ####Logger
+        logging.basicConfig(filename = 'lr6_4_1-vs-1_costs_rescaling00001_wTipp_00.log', level= logging.INFO, format='%(levelname)s:%(asctime)s:%(message)s')
+        
+        logging.info(f'Test Round: {test_round}')
+        logging.info(f'Episode: {episode}')
+        logging.info(f'AllAktionen: {self.AllAktionen}')
+        logging.info(f'Average Reward: {self.avg_rewards}')
+        #logging.info(f'Last Market Price: {self.last_market_price}')
         
         
         

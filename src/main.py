@@ -113,7 +113,7 @@ for episode in range(total_episodes):
                 
         
         state = new_state
-        episode_reward += reward
+        episode_reward = reward
 
         if done:
             sys.stdout.write("***episode: {}, reward: {}, average _reward: {} \n".format(episode, np.round(episode_reward, decimals=2), np.mean(rewards[-10:])))

@@ -21,7 +21,7 @@ class EnvironmentBidMarket(gym.Env):
     """
     metadata = {'render.modes': ['human']}   ### ?
 
-    def __init__(self, CAP, costs, Demand =[500, 501], Agents = 1, Fringe=1, Rewards=0, Split=0, past_action = 1, lr_actor = 1e-4, lr_critic = 1e-3, Discrete = 0):              
+    def __init__(self, CAP, costs, Demand =[500, 501], Agents = 1, Fringe=1, Rewards=0, Split=0, past_action = 1, lr_actor = 1e-6, lr_critic = 1e-4, Discrete = 0):              
         super(EnvironmentBidMarket, self).__init__()
         
         # basic game parameters
@@ -325,7 +325,7 @@ class EnvironmentBidMarket(gym.Env):
 
     def logger(self, episode, test_round):        
         ####Logger
-        logging.basicConfig(filename = 'lr6_4_1-vs-1_costs_rescaling00001_wTipp_00.log', level= logging.INFO, format='%(levelname)s:%(asctime)s:%(message)s')
+        logging.basicConfig(filename = 'lr4_3_Fringe02-vs-1_costs0_rescaling01_wTipp_03.log', level= logging.INFO, format='%(levelname)s:%(asctime)s:%(message)s')
         
         logging.info(f'Test Round: {test_round}')
         logging.info(f'Episode: {episode}')

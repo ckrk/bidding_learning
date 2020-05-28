@@ -121,9 +121,10 @@ for episode in range(total_episodes):
             break
 
     rewards.append(episode_reward)
-    avg_rewards.append(np.mean(rewards[-10:]))
+    avg_rewards.append(np.mean(all_rewards[-10:]))
+    
 
-plt.plot(rewards)
+plt.plot(all_rewards)
 plt.plot(avg_rewards)
 plt.plot()
 plt.xlabel('Episode')

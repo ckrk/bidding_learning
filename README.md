@@ -8,19 +8,25 @@ that represents energy market auctions. The user defines number of players, thei
 
 - Specifically, if run in the standard settings the algorithm learns in a simple predefined environment that is a minimal working example. It is chosen to be easy to understand and for comparability while debbuging.
 
+## Pay attention that the algorithm involves randomness
+
+This is bad for reproducibility but the algorithm intrinsically uses random steps.
+Sometimes you will get strange results. Hence, try to rerun the algorithm 2-3 times in the same settings if you feel you get non-sensical values to be sure it repeatedly fails. Sometimes you just get unlucky.
+We get strange results in a significant number of times, if the final graphic just outputs a flat line, try a simple restart.
+
 ## What is the Minimum Working Example? What do the standard settings implement?
 
 The Minimal Working Example implements an easy market situation. Specifically:
 - There is only a single learning player, while the remaining market is represented as non-learning "fringe player".
 - The learning player always bids his whole capacity and is aware of the bids in the last round.
-- The fringe player always submits the bids specified in the simple_fringe.csv file.
-- Essentially, the first unit of energy is sold for free. Every extra unit of energy is sold for an extra 1000 price.
-- The demand is predefined to equal to 5.
+- The fringe player always submits the bids specified in a coresponding csv file.
+- Please check "data/fringe-players/test_fringe02.csv" to understand the behavior of the fringe player. It shows the bids that are submitted each round by the fringe player in our standard setting.
+- Essentially, the first unit of energy is sold for free. Every extra unit of energy is sold for an extra 100 price.
+- The demand is predefined to equal to 500.
 - The strategic player has 0 costs and 1 unit capaciy.
-- The market price without the players participation is 4000. If the player bids all capacity at 0, this reduces the price to 3000. We would expect that the player can gain by becoming the price setting player and offering between 3001-3999.
+- However, we rescale the parameters to 1/100, in order to scale the rewards into a range that exhibits good learning. This seems necessary, but we do not understand entirely why.
+- The market price without the players participation is 400. If the player bids all capacity at 0, this reduces the price to 300. We would expect that the player can gain by becoming the price setting player and offering between 301-399.
 - Tie breaking may be relevant. Currently the in case of tie the player with lower number gets everything. Proper tie breaking is involved to program.
-
-Unfortunately, the learning player always learns to play 0. We would expect him to bid 3001-3999 but can not achieve it in this setting. This is the current main problem.
 
 ## Requirements
 
@@ -34,7 +40,7 @@ Unfortunately, the learning player always learns to play 0. We would expect him 
 ## How to run?
 
 - Clone to local repository
-- run test_main.py in standard settings (or with appropriate parameters)
+- run ./src/main.py in standard settings (or with appropriate parameters)
 
 ### How to customize a run of the algorithm?
 
@@ -60,8 +66,10 @@ The output mode is hardcoded in the function render belonging to BiddingMarket_e
 
 #### Fringe Player
 
-The fringe player reads his bids from a csv-file. The name of the file is hardcoded in the reset function from BiddingMarket_energy_Environment.py. Currently, we provide two standard test csv:
-
+The fringe player reads his bids from a csv-file. The name of the file is hardcoded in the reset function from BiddingMarket_energy_Environment.py. All csv's are stored in ./data/fringe-players.
+Currently, we provide following standard test csv:
+- test_fringe02.csv (Standard choice, 100 price steps, quantity steps 100)
+- test_fringe03.csv (100 price steps, quantity steps 1)
 - others.csv (non-trivial, Test Case by Christoph Graf, for comparision with optimization solver, 60 bids)
 - simple_fringe.csv (easy file, price_bids increase by 1000, quantity_bids increase by 1, 60 bids)
 

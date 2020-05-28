@@ -1,4 +1,5 @@
 import numpy as np
+import os
 
 import gym
 from gym import spaces
@@ -277,12 +278,15 @@ class BiddingMarket_energy_Environment(gym.Env):
        
         if self.Fringe == 1:
             #Fringe Player
-            #Readout fringe players from other.csv (m)
+            #Readout fringe players from others.csv (m)
 
-            #read_out = np.genfromtxt("others.csv",delimiter=";",autostrip=True,comments="#",skip_header=1,usecols=(0,1))
+            #path = os.path.join(os.path.dirname(__file__), '../data/fringe-players/others.csv')            
+            #read_out = np.genfromtxt(path,delimiter=";",autostrip=True,comments="#",skip_header=1,usecols=(0,1))
             
-            #Readout fringe players from simple_fringe.csv (m)
-            read_out = np.genfromtxt("test_fringe02.csv",delimiter=";",autostrip=True,comments="#",skip_header=1,usecols=(0,1))
+            #Readout fringe players from test_fringe02.csv (m)
+            
+            path = os.path.join(os.path.dirname(__file__), '../data/fringe-players/test_fringe02.csv')            
+            read_out = np.genfromtxt(path,delimiter=";",autostrip=True,comments="#",skip_header=1,usecols=(0,1))
             
             
             #Readout fringe switched to conform with format; finge[0]=quantity fringe[1]=bid

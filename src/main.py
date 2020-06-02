@@ -79,7 +79,7 @@ noise = GaussianNoise(env.action_space, mu= 0, sigma = 0.1, regulation_coef= 0.0
 # divided into batches consisting of rounds
 # Each episode resets the environment, it consits of rounds
 # After a number of rounds equal to the batch size, the neural networks are updated
-total_episodes = 100
+total_episodes = 50
 rounds_per_episode = 500
 batch_size = 128
 
@@ -121,10 +121,10 @@ for episode in range(total_episodes):
             break
 
     rewards.append(episode_reward)
-    avg_rewards.append(np.mean(all_rewards[-10:]))
+    avg_rewards.append(np.mean(rewards[-10:]))
     
 
-plt.plot(all_rewards)
+plt.plot(rewards)
 plt.plot(avg_rewards)
 plt.plot()
 plt.xlabel('Episode')

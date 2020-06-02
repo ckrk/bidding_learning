@@ -46,9 +46,9 @@ The Minimal Working Example implements an easy market situation. Specifically:
 
 #### Environment Parameters
 
-The following parameters can be defined by the user by specifying them as inputs to the Environment in BiddingMarket_energy_Environment.py. This is usually done via test_main.py but can be done directly.
+The following parameters can be defined by the user by specifying them as inputs to the Environment in environment_bid_market.py. This is usually done via main.py but can be done directly.
 
-environment_bid_market(CAP = capacitys, costs = costs, Demand =[5,6], Agents = 1,                                       Fringe = 1, Rewards = 0, Split = 0, past_action= 1, lr_actor = 1e-4, lr_critic = 1e-3, Discrete = 0)
+EnvironmentBidMarket(CAP = capacitys, costs = costs, Demand =[5,6], Agents = 1,                                       Fringe = 1, Rewards = 0, Split = 0, past_action= 1, lr_actor = 1e-4, lr_critic = 1e-3, Discrete = 0)
 
 - CAP: np.array [cap1,...,capN]             (requires elements matching number of agents) ... Generation capacity an agent can sell 
 - costs: np.array [costs1,...,costsN]       (requires elements matching number of agents) ... Generation capacity an agent can sell 
@@ -62,11 +62,11 @@ environment_bid_market(CAP = capacitys, costs = costs, Demand =[5,6], Agents = 1
 - lr_critic: float < 1 .... learning rate critic network, weighs relevance of new and old experiences
 - Discrete: binary ... discrete state space on/off (not ready yet)
 
-The output mode is hardcoded in the function render belonging to BiddingMarket_energy_Environment
+The output mode is hardcoded in the function render belonging to EnvironmentBidMarket
 
 #### Fringe Player
 
-The fringe player reads his bids from a csv-file. The name of the file is hardcoded in the reset function from BiddingMarket_energy_Environment.py. All csv's are stored in ./data/fringe-players.
+The fringe player reads his bids from a csv-file. The name of the file is hardcoded in the reset function from environment_bid_market.py. All csv's are stored in ./data/fringe-players.
 Currently, we provide following standard test csv:
 - simple_fringe02.csv (Standard choice, 100 price steps, quantity steps 100)
 - simple_fringe03.csv (100 price steps, quantity steps 1)

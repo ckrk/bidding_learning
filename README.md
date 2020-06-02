@@ -20,7 +20,7 @@ The Minimal Working Example implements an easy market situation. Specifically:
 - There is only a single learning player, while the remaining market is represented as non-learning "fringe player".
 - The learning player always bids his whole capacity and is aware of the bids in the last round.
 - The fringe player always submits the bids specified in a coresponding csv file.
-- Please check "data/fringe-players/test_fringe02.csv" to understand the behavior of the fringe player. It shows the bids that are submitted each round by the fringe player in our standard setting.
+- Please check "data/fringe-players/simple_fringe02.csv" to understand the behavior of the fringe player. It shows the bids that are submitted each round by the fringe player in our standard setting.
 - Essentially, the first unit of energy is sold for free. Every extra unit of energy is sold for an extra 100 price.
 - The demand is predefined to equal to 500.
 - The strategic player has 0 costs and 1 unit capaciy.
@@ -48,7 +48,7 @@ The Minimal Working Example implements an easy market situation. Specifically:
 
 The following parameters can be defined by the user by specifying them as inputs to the Environment in BiddingMarket_energy_Environment.py. This is usually done via test_main.py but can be done directly.
 
-BiddingMarket_energy_Environment(CAP = capacitys, costs = costs, Demand =[5,6], Agents = 1,                                       Fringe = 1, Rewards = 0, Split = 0, past_action= 1, lr_actor = 1e-4, lr_critic = 1e-3, Discrete = 0)
+environment_bid_market(CAP = capacitys, costs = costs, Demand =[5,6], Agents = 1,                                       Fringe = 1, Rewards = 0, Split = 0, past_action= 1, lr_actor = 1e-4, lr_critic = 1e-3, Discrete = 0)
 
 - CAP: np.array [cap1,...,capN]             (requires elements matching number of agents) ... Generation capacity an agent can sell 
 - costs: np.array [costs1,...,costsN]       (requires elements matching number of agents) ... Generation capacity an agent can sell 
@@ -68,31 +68,30 @@ The output mode is hardcoded in the function render belonging to BiddingMarket_e
 
 The fringe player reads his bids from a csv-file. The name of the file is hardcoded in the reset function from BiddingMarket_energy_Environment.py. All csv's are stored in ./data/fringe-players.
 Currently, we provide following standard test csv:
-- test_fringe02.csv (Standard choice, 100 price steps, quantity steps 100)
-- test_fringe03.csv (100 price steps, quantity steps 1)
+- simple_fringe02.csv (Standard choice, 100 price steps, quantity steps 100)
+- simple_fringe03.csv (100 price steps, quantity steps 1)
 - others.csv (non-trivial, Test Case by Christoph Graf, for comparision with optimization solver, 60 bids)
-- simple_fringe.csv (easy file, price_bids increase by 1000, quantity_bids increase by 1, 60 bids)
+- simple_fringe01.csv (easy file, price_bids increase by 1000, quantity_bids increase by 1, 60 bids)
 
 Attention, only csv with 60 bids are compatible!
 
 #### Test Parameters
 
-The noise model and its variants is hard-coded in test_main.py.
+The noise model and its variants is hard-coded in main.py.
 There is:
 - OU-Noise
 - Gaussian Noise (Standard): sigma defines variance
 
 #### Network Architecture
 
-The architecture of the actor and critic netowrks are hardcoded in model_main.py
+The architecture of the actor and critic netowrks are hardcoded in actor_crtic.py
 
 ## Dependency Structure:
 
-  - test_main.py                                                            (High-level interface thaht accepts user input)
-      - DDPG_main.py                                                            (Learning Algorithm,        3rd Party Code)
-          - model_main.py                                      (Provides Neural Networks, Actor and Critic, 3rd Party Code)
-      - BiddingMarket_energy_Environment.py   (Energy Market Envrionment, receives bids from agents and determines outcome)
+  - main.py                                                            (High-level interface thaht accepts user input)
+      - agent_ddpg.py                                                            (Learning Algorithm,        3rd Party Code)
+          - actor_critic.py                                      (Provides Neural Networks, Actor and Critic, 3rd Party Code)
+      - environment_bid_market.py   (Energy Market Envrionment, receives bids from agents and determines outcome)
           - market_clearing.py                                         (Numpy based,Clears bids and demand, outputs reward)
           - other.csv, simple_fringe.csv                                         (Fixed Bidding Patterns for fringe player)
-      - utils_main.py                                              (Provides Noise Models, Learning Memory, 3rd Party Code)
-      - utils_2split.py                                (Provides bid-reshaping, if capacity can be split into several bids)
+      - utils.py                                              (Provides Noise Models, Learning Memory, 3rd Party Code)

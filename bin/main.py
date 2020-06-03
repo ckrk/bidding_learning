@@ -1,5 +1,5 @@
 import sys
-sys.path.append('../bin/')
+sys.path.append('../src/')
 #import gym
 import numpy as np
 import matplotlib.pyplot as plt
@@ -50,12 +50,16 @@ Enables Discrete Spaces (Not yet functional)
 
 
 
-capacitys = [100]
-costs = [0]
+power_capacities = [100]
+production_costs = [0]
+demand = [500,501]
+learning_rate_actor = 1e-6
+learning_rate_critic = 1e-4
+number_of_agents = 1
 
-env = EnvironmentBidMarket(CAP = capacitys, costs = costs, Demand =[500,501], Agents = 1, 
+env = EnvironmentBidMarket(CAP = power_capacities, costs = production_costs, Demand = demand, Agents = number_of_agents, 
                            Fringe = 1, Rewards = 0, Split = 0, past_action= 1, 
-                           lr_actor = 1e-6, lr_critic = 1e-4, Discrete = 0)
+                           lr_actor = learning_rate_actor, lr_critic = learning_rate_critic, Discrete = 0)
 
 agents = env.create_agents(env)
 rewards = []
@@ -66,12 +70,12 @@ avg_rewards = []
 # This is a popular noise in machine learning. 
 # It starts with one distribution and then converges to another.
 # Frequently, this is used to explore more in the beginning than in the end of the algorithm.
-# noise = OUNoise(env.action_space, max_sigma=0.3, discrete = env.Discrete, discrete_split = env.Split)
+noise = OUNoise(env.action_space, max_sigma=0.3, discrete = env.Discrete, discrete_split = env.Split)
 
 # Gaussian Noise 
 # The standard normal distributed noise with variance sigma scaled to the action spaces size
 #(default: (mean = 0, sigma = 0.1) * action_space_distance)
-noise = GaussianNoise(env.action_space, mu= 0, sigma = 0.1, regulation_coef= 0.01, decay_rate = 0)
+#noise = GaussianNoise(env.action_space, mu= 0, sigma = 0.1, regulation_coef= 0.01, decay_rate = 0)
 
 
 

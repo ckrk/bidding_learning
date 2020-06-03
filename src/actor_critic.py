@@ -4,6 +4,8 @@ import torch.nn.functional as F
 import torch.autograd
 from torch.autograd import Variable
 
+#torch.manual_seed(100)
+
 class Critic(nn.Module):
     def __init__(self, input_size, hidden_size, output_size):
         super(Critic, self).__init__()
@@ -36,9 +38,10 @@ class Actor(nn.Module):
         """
         x = F.relu(self.linear1(state))
         x = F.relu(self.linear2(x))
-        x = F.leaky_relu(self.linear3(x), 0.1) # relu with small negative slope
+        #x = F.leaky_relu(self.linear3(x), 0.1) # relu with small negative slope#
         
-        #x = torch.tanh(self.linear3(x)) # from -1 to 1 (eventually as alternative to rescaling)
+        #x = torch.sigmoid(self.linear3(x))
+        x = torch.tanh(self.linear3(x)) # from -1 to 1 (eventually as alternative to rescaling)
         #x = F.relu(self.linear3(x)) # without negative values  
         #x = F.softmax(self.linear3(x), dim=0) # from 0 to 1 (for Discret case)
         

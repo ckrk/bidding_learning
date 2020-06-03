@@ -2,6 +2,8 @@ import numpy as np
 import random
 from collections import deque
 
+np.random.seed(100)
+
 # Ornstein-Ulhenbeck Process
 # Taken from #https://github.com/vitchyr/rlkit/blob/master/rlkit/exploration_strategies/ou_strategy.py
 # starting max_sigma = 0.3

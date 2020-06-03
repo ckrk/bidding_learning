@@ -89,7 +89,7 @@ for episode in range(total_episodes):
     state = env.reset()
     noise.reset()
     episode_reward = 0
-    
+ 
     for step in range(rounds_per_episode):
         actions = []
         for n in range(len(agents)):
@@ -97,21 +97,21 @@ for episode in range(total_episodes):
             action_temp = agents[n].get_action(state)
             action_temp = noise.get_action(action_temp, step+episode) ## episode statt step!!
             actions.append(action_temp[:])
-        
+    
         actions = np.asarray(actions)
         # Environment delivers output
         new_state, reward, done, _ = env.step(actions)   
-        
+    
         # Add new experience to memory
         for n in range(len(agents)):
             agents[n].memory.push(state, actions[n], np.array([reward[n]]), new_state, done)
-       
+   
         #Update Neural Network
         if len(agents[0].memory) > batch_size:
             for n in range(len(agents)):
                 agents[n].update(batch_size)
-                
-        
+            
+    
         state = new_state
         episode_reward = reward
 
@@ -122,7 +122,7 @@ for episode in range(total_episodes):
 
     rewards.append(episode_reward)
     avg_rewards.append(np.mean(rewards[-10:]))
-    
+
 
 plt.plot(rewards)
 plt.plot(avg_rewards)

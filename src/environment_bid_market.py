@@ -110,12 +110,9 @@ class EnvironmentBidMarket(gym.Env):
         State includes: Demand, Capacitys of all Players, sort by from lowest to highest last Actions of all Players (Optional)
     
         """
-        #Q = np.array([500, 1000, 1500])
-        #Q = np.random.choice(Q)
-        #Q = np.array([Q])
         
-        Q = np.random.randint(self.Demand[0], self.Demand[1], 1)
-        obs = np.append(Q, self.CAP)
+        demand = np.random.randint(self.Demand[0], self.Demand[1], 1)
+        obs = np.append(demand, self.CAP)
         
         if self.past_action == 1:
             #obs = np.insert(obs, nmb_agents+1, self.last_action)
@@ -132,11 +129,11 @@ class EnvironmentBidMarket(gym.Env):
         
         # get current state        
         obs = self._next_observation(self.Agents)
-        Demand = obs[0]
-        q = obs[0]
+        demand = obs[0]
         
-        if self.Discrete == 1:
-            action = action #* 100
+        if self.Discrete == 1:  ## not working yet
+            action = action 
+        
         
         # set up all the agents as suppliers in the market
         all_suppliers = self.set_up_suppliers(action, self.Agents)
@@ -146,11 +143,11 @@ class EnvironmentBidMarket(gym.Env):
         # if using splits, convert them in the right shape for market_clearing-function 
         # and after that combine sold quantities of the same supplier again
         if self.Split == 0:
-            market = market_clearing(q, all_suppliers)
+            market = market_clearing(demand, all_suppliers)
             self.last_action= action
         else:
             all_suppliers_split = converter(all_suppliers, self.Agents)
-            market = market_clearing(q, all_suppliers_split)
+            market = market_clearing(demand, all_suppliers_split)
             self.last_action = action[:,0:2]
         
         # save last actions for next state (= next obeservation) and sort them by lowest bids
@@ -170,8 +167,8 @@ class EnvironmentBidMarket(gym.Env):
         self.last_market_price = market_price
         self.Suppliers = all_suppliers 
         
-        self.last_q = Demand
-        self.sum_q += Demand
+        self.last_q = demand
+        self.sum_q += demand
         self.avg_q = self.sum_q/self.current_step
         
         self.last_bids = action
@@ -208,7 +205,7 @@ class EnvironmentBidMarket(gym.Env):
         
         '''
         # rescaling the rewards to avoid hard weight Updates of the Criticer 
-        rescale = 0.0001
+        rescale = 1#0.0001
         maxreward = 10
         if self.Fringe == 1:
             rescale = 0.01 

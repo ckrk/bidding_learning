@@ -10,7 +10,7 @@ from numpy_groupies import aggregate_numpy as anp
 #d = np.array([1,9,7])
 
 #Flip
-#a = np.array([0,10, 2])
+#a = np.array([0,5, 96])
 #b = np.array([1,10,3])
 #c = np.array([2,11, 2])
 #d = np.array([3,7,9])
@@ -24,14 +24,15 @@ from numpy_groupies import aggregate_numpy as anp
 #fringe = np.fliplr(read_out)
 #fringe = np.pad(fringe,((0,0),(1,0)),mode='constant')
 
-#test_array = np.stack((a,b,d,a,b,c,b,c))
+#test_array = np.stack((a,b,c,a,d,c,b))
+#bids = np.vstack([a, fringe])
 #bids = np.stack((a,b,c,a,d,b))
 #test_array = fringe
 
 
 
 
-#demand =39
+demand =15
 
 
 #print(test_array)

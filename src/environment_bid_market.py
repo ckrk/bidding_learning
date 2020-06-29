@@ -30,6 +30,7 @@ class EnvironmentBidMarket(gym.Env):
         self.costs = costs
         self.demand = demand
         self.agents = agents
+        self.price_cap = 40
         # additional opptions
         self.fringe_player = fringe_player
         self.rewards = rewards
@@ -39,7 +40,6 @@ class EnvironmentBidMarket(gym.Env):
         # learning rate parameters for (DDPG)Agents (for the Neuronal Networks)
         self.lr_actor = lr_actor
         self.lr_critic = lr_critic
-        self.price_cap = 10000
         
         # Continous action space for bids
         self.action_space = spaces.Box(low=np.array([-100]), high=np.array([self.price_cap]), dtype=np.float16)
@@ -134,7 +134,7 @@ class EnvironmentBidMarket(gym.Env):
         if self.past_action == 1:
             #obs = np.insert(obs, nmb_agents+1, self.last_action)
             obs = np.concatenate([obs, self.last_action])
-            if self.fringe == 1:
+            if self.fringe_player == 1:
                 obs = np.concatenate([obs, self.fringe[:,2]])   ## last actions fringe
 
         return  obs
@@ -225,7 +225,7 @@ class EnvironmentBidMarket(gym.Env):
         
         '''
         # rescaling the rewards to avoid hard weight Updates of the Criticer 
-        rescale = 1#0.0001
+        rescale = 0.01#0.0001
         maxreward = 10
         if self.fringe_player == 1:
             rescale = 0.01#0.01
@@ -264,13 +264,13 @@ class EnvironmentBidMarket(gym.Env):
                 reward[n] = reward[n] - abs(reward[n] - max(reward))
         
         # Tipp (especially for games vs Fringe Player needed); Split would need an own implementation (if both actions are =0)
-        
+        '''
         if self.split == 0:
             for n in range(nmb_agents):
                 if action[n] <= 0:
                     reward[n] = 0
                     #reward[n] = np.clip(reward[n], reward[n], 0) 
-        
+        '''
         # unsure yet, if clipping is needed
         #reward = np.clip(reward,-10, maxreward) ## limit und scaling bei "MITfringe" deutlich höher (dafür rescaling niedriger)        
 
@@ -340,7 +340,7 @@ class EnvironmentBidMarket(gym.Env):
 
     def logger(self, episode, test_round):        
         ####Logger
-        logging.basicConfig(filename = 'lr4_3_Fringe02-vs-1_costs0_rescaling01_wTipp_03.log', level= logging.INFO, format='%(levelname)s:%(asctime)s:%(message)s')
+        logging.basicConfig(filename = 'lr6_4_1-vs-1_costs20cap50demand70_rescaling01_woTipp_00.log', level= logging.INFO, format='%(levelname)s:%(asctime)s:%(message)s')
         
         logging.info(f'Test Round: {test_round}')
         logging.info(f'Episode: {episode}')

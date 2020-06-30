@@ -30,7 +30,7 @@ class EnvironmentBidMarket(gym.Env):
         self.costs = costs
         self.demand = demand
         self.agents = agents
-        self.price_cap = 40
+        self.price_cap = 1000
         # additional opptions
         self.fringe_player = fringe_player
         self.rewards = rewards
@@ -228,7 +228,7 @@ class EnvironmentBidMarket(gym.Env):
         rescale = 0.01#0.0001
         maxreward = 10
         if self.fringe_player == 1:
-            rescale = 0.01#0.01
+            rescale = 0.01 #0.01
             maxreward = self.price_cap
 
         # Position of costs is diffrent between suppliers with and without Split
@@ -264,13 +264,14 @@ class EnvironmentBidMarket(gym.Env):
                 reward[n] = reward[n] - abs(reward[n] - max(reward))
         
         # Tipp (especially for games vs Fringe Player needed); Split would need an own implementation (if both actions are =0)
-        '''
-        if self.split == 0:
+        
+        if self.split == 0 and self.fringe_player == 1:
+        #if self.split == 0:
             for n in range(nmb_agents):
                 if action[n] <= 0:
                     reward[n] = 0
                     #reward[n] = np.clip(reward[n], reward[n], 0) 
-        '''
+        
         # unsure yet, if clipping is needed
         #reward = np.clip(reward,-10, maxreward) ## limit und scaling bei "MITfringe" deutlich höher (dafür rescaling niedriger)        
 
@@ -300,7 +301,7 @@ class EnvironmentBidMarket(gym.Env):
             
             #Readout fringe players from test_fringe02.csv (m)
             
-            path = os.path.join(os.path.dirname(__file__), '../data/fringe-players/discrete_fringe01.csv')            
+            path = os.path.join(os.path.dirname(__file__), '../data/fringe-players/others.csv')            
             read_out = np.genfromtxt(path,delimiter=";",autostrip=True,comments="#",skip_header=1,usecols=(0,1))
             
             
@@ -340,7 +341,7 @@ class EnvironmentBidMarket(gym.Env):
 
     def logger(self, episode, test_round):        
         ####Logger
-        logging.basicConfig(filename = 'lr6_4_1-vs-1_costs20cap50demand70_rescaling01_woTipp_00.log', level= logging.INFO, format='%(levelname)s:%(asctime)s:%(message)s')
+        logging.basicConfig(filename = 'lr4_3_others-vs-1_costs0cap5demand15_rescaling01_wTippwoPastAction_ouNoise_00.log', level= logging.INFO, format='%(levelname)s:%(asctime)s:%(message)s')
         
         logging.info(f'Test Round: {test_round}')
         logging.info(f'Episode: {episode}')

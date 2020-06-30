@@ -51,16 +51,16 @@ Enables Discrete Spaces (Not yet functional)
 '''
 
 
-POWER_CAPACITIES = [20]
+POWER_CAPACITIES = [5]
 PRODUCTION_COSTS = [0]
-DEMAND = [70,71]
+DEMAND = [15,16]
 LEARNING_RATE_ACTOR = 1e-4
 LEARNING_RATE_CRITIC = 1e-3
 NUMBER_OF_AGENTS = 1
 
 env = EnvironmentBidMarket(capacities = POWER_CAPACITIES, costs = PRODUCTION_COSTS, demand = DEMAND, agents = NUMBER_OF_AGENTS, 
                            fringe_player = 1, rewards = 0, split = 0, past_action= 0, 
-                           lr_actor = LEARNING_RATE_ACTOR, lr_critic = LEARNING_RATE_CRITIC, discrete = [0, 10, 10])
+                           lr_actor = LEARNING_RATE_ACTOR, lr_critic = LEARNING_RATE_CRITIC, discrete = [0, 10, 0])
 
 agents = env.create_agents(env)
 rewards = []
@@ -76,7 +76,7 @@ noise = OUNoise(env.action_space, mu=0.0, theta=0.15, max_sigma=0.3, min_sigma=0
 # Gaussian Noise 
 # The standard normal distributed noise with variance sigma scaled to the action spaces size
 #(default: (mean = 0, sigma = 0.1) * action_space_distance)
-#noise = GaussianNoise(env.action_space, mu= 0, sigma = 0.1, regulation_coef= 0.01, decay_rate = 0.1)
+#noise = GaussianNoise(env.action_space, mu= 0, sigma = 0.1, regulation_coef= 100, decay_rate = 0.1)
 
 
 
@@ -84,7 +84,7 @@ noise = OUNoise(env.action_space, mu=0.0, theta=0.15, max_sigma=0.3, min_sigma=0
 # divided into batches consisting of rounds
 # Each episode resets the environment, it consits of rounds
 # After a number of rounds equal to the batch size, the neural networks are updated
-total_episodes = 50
+total_episodes = 150
 rounds_per_episode = 500
 batch_size = 128
 

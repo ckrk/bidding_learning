@@ -44,11 +44,11 @@ class Actor(nn.Module):
         ## Output Layer Activation Functions for Continuous Tasks
         
         if self.discrete[2] == 0:
-            #x = F.leaky_relu(self.linear3(x), 0.1) # relu with small negative slope#
+            x = F.leaky_relu(self.linear3(x), 0.1) # relu with small negative slope#
             #x = F.relu(self.linear3(x)) # without negative values
             #x = torch.sigmoid(self.linear3(x))
             #x = torch.tanh(self.linear3(x)) # from -1 to 1 (eventually as alternative to rescaling)
-            x = F.hardtanh(self.linear3(x),min_val=10., max_val=40.) # from -1 to 1 (eventually as alternative to rescaling)
+            #x = F.hardtanh(self.linear3(x),min_val=-10., max_val=40.) # from -1 to 1 (eventually as alternative to rescaling)
 
         ## Output Layer Activation Functions for Discrete Tasks
         else:

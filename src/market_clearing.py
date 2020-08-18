@@ -10,8 +10,8 @@ from numpy_groupies import aggregate_numpy as anp
 #d = np.array([1,9,7])
 
 #Flip
-#a = np.array([1,50, 40,0,50])
-#b = np.array([0,50,40,0,50])
+a = np.array([1,50, 40,0,50])
+b = np.array([0,50,40,0,50])
 #a = np.array([0,2,9,0,2])
 #b = np.array([1,3,9,0,3])
 #c = np.array([2,6,9,0,6])
@@ -35,7 +35,7 @@ from numpy_groupies import aggregate_numpy as anp
 
 
 
-#demand = 70
+demand = 70
 
 
 #print(test_array)
@@ -83,7 +83,7 @@ def market_clearing(demand,bids):
 
     # Tie Break
     
-    if len(np.argwhere(bids[:,2] == np.amax(bids[:,2]))) > 1:
+    if len(np.argwhere(bids[:,2] == np.amax(bids[:,2]))) > 1 or sum(bids[:,2]) >= 40*len(bids[:,2]):
         bids = tie_break(bids)
     
     #print(bids)
@@ -120,16 +120,16 @@ def converter(suppliers, nmb_agents):
 
     return all_combined
 
-# shoul work for all cases
+# should work for all cases
 def tie_break(bids):
     # determine candidates who are in a tie break
     tie_break_candidates = np.argwhere(bids[:,2] == np.amax(bids[:,2]))
     
-    # starting point for distributin
+    # starting capacity for distributin
     overall_base_quantity = sum(bids[tie_break_candidates[0,0]:,1])   
     base_quantities = overall_base_quantity/len(tie_break_candidates)
     
-    # parameters needed to start while loop
+    # parameters needed to start while-loop
     quantity_for_distribution = overall_base_quantity
     new_quantities = base_quantities
     more_cap_candidates = np.argwhere(bids[tie_break_candidates[0,0]:,4] > new_quantities)
@@ -150,7 +150,8 @@ def tie_break(bids):
             surplus += new_quantities - bids[less_cap_candidates[i,0],4]
         
         # determine new amount for distribution
-        new_quantities = new_quantities + (surplus/len(more_cap_candidates))
+        if len(more_cap_candidates) > 0:
+            new_quantities = new_quantities + (surplus/len(more_cap_candidates))
         
         # check amount of already satisfied candidates
         distributed_quantities = 0

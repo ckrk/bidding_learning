@@ -108,7 +108,7 @@ class GaussianNoise(object):
     def get_action(self, action, step = 0):
          
         noise_list = np.random.normal(self.mu, self.sigma, self.action_dim) *self.regulation_coef #(self.distance *self.regulation_coef)
-        noise_list = noise_list *(1 - self.decay_rate)**step
+        noise_list = noise_list * max(np.random.normal(0,0.01,1),((1 - self.decay_rate)**step)) 
         
         noisy_action = np.clip(action + noise_list, self.low, self.high)
 

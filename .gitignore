@@ -1,6 +1,8 @@
 __pycache__/
 .pylint.d/
-results/
+results/*
+!results/final_results
 *.pdf
+!results/final_results/*.pdf
 *.log
 radam.py

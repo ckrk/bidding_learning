@@ -7,6 +7,42 @@ from collections import deque
 # Ornstein-Ulhenbeck Process
 # Taken from #https://github.com/vitchyr/rlkit/blob/master/rlkit/exploration_strategies/ou_strategy.py
 # starting max_sigma = 0.3
+
+class UniformNoise(object):
+    def __init__(self, action_space, initial_exploration = 0.99, final_exploration = 0.05, decay_rate = 0.999):
+        
+        self.action_dim      = action_space.shape[0] # Requires Space with (10,) shape!
+        self.low             = action_space.low
+        self.high            = action_space.high
+        self.distance        = abs(self.low - self.high)
+        
+        self.initial_exploration = initial_exploration
+        self.final_exploration   = final_exploration
+        self.decay_rate = decay_rate 
+
+    #def reset(self):
+    #    self.state = np.ones(self.action_dim)
+    
+
+    def get_action(self, action, step = 0):
+        
+        decay = self.decay_rate ** step
+        exploration_probabilty = decay*self.initial_exploration + (1-decay)*self.final_exploration
+        
+        # Exploration Probability
+        explore_yes = np.random.binomial(1,exploration_probabilty)
+         
+        # Unnormalized Uniform Numbers
+        noise_list = np.random.uniform(self.low,self.high,size=self.action_dim)
+        
+        #Renormalize
+        sum_noise = noise_list.sum()
+        noisy_action = explore_yes * noise_list/sum_noise + (1 - explore_yes) * action
+        
+        return noisy_action 
+    
+    
+
 class OUNoise(object):
     def __init__(self, action_space, mu=0.0, theta=0.15, max_sigma=0.3, min_sigma=0.3, decay_period=100000):
         self.mu           = mu

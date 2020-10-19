@@ -1,12 +1,14 @@
+import os
+os.chdir('E:\\Master_E\\Workspace\\bidding_learning') 
 import sys
-sys.path.append('../src/')
+#sys.path.append('../src/')
 #import gym
 import numpy as np
 import matplotlib.pyplot as plt
 
-from agent_ddpg import agent_ddpg
-from utils import OUNoise, Memory, GaussianNoise
-from environment_bid_market import EnvironmentBidMarket
+from src.agent_ddpg import agent_ddpg
+from src.utils import OUNoise, Memory, GaussianNoise
+from src.environment_bid_market import EnvironmentBidMarket
 
 
 
@@ -49,17 +51,16 @@ Enables Discrete Spaces (Not yet functional)
 '''
 
 
+POWER_CAPACITIES = [5]
+PRODUCTION_COSTS = [0]
+DEMAND = [15,16]
+LEARNING_RATE_ACTOR = 1e-4
+LEARNING_RATE_CRITIC = 1e-3
+NUMBER_OF_AGENTS = 1
 
-power_capacities = [100]
-production_costs = [0]
-demand = [500,501]
-learning_rate_actor = 1e-6
-learning_rate_critic = 1e-4
-number_of_agents = 1
-
-env = EnvironmentBidMarket(CAP = power_capacities, costs = production_costs, Demand = demand, Agents = number_of_agents, 
-                           Fringe = 1, Rewards = 0, Split = 0, past_action= 1, 
-                           lr_actor = learning_rate_actor, lr_critic = learning_rate_critic, Discrete = 0)
+env = EnvironmentBidMarket(capacities = POWER_CAPACITIES, costs = PRODUCTION_COSTS, demand = DEMAND, agents = NUMBER_OF_AGENTS, 
+                           fringe_player = 1, rewards = 0, split = 0, past_action= 0, 
+                           lr_actor = LEARNING_RATE_ACTOR, lr_critic = LEARNING_RATE_CRITIC, discrete = [0, 10, 0])
 
 agents = env.create_agents(env)
 rewards = []
@@ -70,12 +71,12 @@ avg_rewards = []
 # This is a popular noise in machine learning. 
 # It starts with one distribution and then converges to another.
 # Frequently, this is used to explore more in the beginning than in the end of the algorithm.
-noise = OUNoise(env.action_space, max_sigma=0.3, discrete = env.Discrete, discrete_split = env.Split)
+noise = OUNoise(env.action_space, mu=0.0, theta=0.15, max_sigma=0.3, min_sigma=0.3, decay_period=100000)
 
 # Gaussian Noise 
 # The standard normal distributed noise with variance sigma scaled to the action spaces size
 #(default: (mean = 0, sigma = 0.1) * action_space_distance)
-#noise = GaussianNoise(env.action_space, mu= 0, sigma = 0.1, regulation_coef= 0.01, decay_rate = 0)
+#noise = GaussianNoise(env.action_space, mu= 0, sigma = 0.1, regulation_coef= 100, decay_rate = 0.1)
 
 
 
@@ -83,7 +84,7 @@ noise = OUNoise(env.action_space, max_sigma=0.3, discrete = env.Discrete, discre
 # divided into batches consisting of rounds
 # Each episode resets the environment, it consits of rounds
 # After a number of rounds equal to the batch size, the neural networks are updated
-total_episodes = 50
+total_episodes = 150
 rounds_per_episode = 500
 batch_size = 128
 
@@ -99,7 +100,7 @@ for episode in range(total_episodes):
         for n in range(len(agents)):
             #Neural Network Chooses Action and Adds Noise
             action_temp = agents[n].get_action(state)
-            action_temp = noise.get_action(action_temp, step+episode) ## episode statt step!!
+            action_temp = noise.get_action(action_temp, episode) 
             actions.append(action_temp[:])
     
         actions = np.asarray(actions)
@@ -117,7 +118,7 @@ for episode in range(total_episodes):
             
     
         state = new_state
-        episode_reward = reward
+        episode_reward += reward
 
         if done:
             sys.stdout.write("***episode: {}, reward: {}, average _reward: {} \n".format(episode, np.round(episode_reward, decimals=2), np.mean(rewards[-10:])))

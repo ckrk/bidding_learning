@@ -30,17 +30,18 @@ The Minimal Working Example implements an easy market situation. Specifically:
 
 ## Requirements
 
-- PyTorch
-- Gym
+- torch
+- gym
 - numpy-groupies (relatively non-standard package that allows to do things similar to pandas groupby in numpy)
-
-- it is recommended to use a package manager (PIP/Conda)
-- Windows users might consider using Anaconda Navigator for package managment
+- matplotlib
 
 ## How to run?
 
 - Clone to local repository
 - run ./src/main.py in standard settings (or with appropriate parameters)
+
+- it is recommended to use a package manager for library installation (PIP/Conda)
+- Windows users might consider using Anaconda Navigator for package managment
 
 ### How to customize a run of the algorithm?
 

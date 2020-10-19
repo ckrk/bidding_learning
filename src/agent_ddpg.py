@@ -4,33 +4,24 @@ import torch.optim as optim
 import torch.nn as nn
 from torch.autograd import Variable
 
-from actor_critic import Actor, Critic
-from utils import Memory
+from src.actor_critic import Actor, Critic
+from src.utils import Memory
 
 
 class agent_ddpg:
-    def __init__(self, env, hidden_size=256, actor_learning_rate=1e-6, critic_learning_rate=1e-4, gamma=0.99, tau=1e-2, max_memory_size=50000, discrete = 0, discrete_split = 0):
+    def __init__(self, env, hidden_size=256, actor_learning_rate=1e-6, critic_learning_rate=1e-4, gamma=0.99, tau=1e-2, max_memory_size=50000, discrete = [0, 10, 0]):
         
         #BiddingMarket_energy_Environment Params
         self.discrete = discrete
-        self.discrete_split = discrete_split
-        
-        # Params
         self.num_states = env.observation_space.shape[0]
         #self.num_actions = env.action_space.shape[0]
-        ###############
-        if self.discrete == 1:
-            self.num_actions = 1
-            if self.discrete_split == 1:
-                self.num_actions = 3
-        else:
-            self.num_actions = env.action_space.shape[0]
-        ################
+        self.num_actions = env.action_space.shape[0]
+
         self.gamma = gamma
         self.tau = tau
 
         # Networks
-        self.actor = Actor(self.num_states, hidden_size, self.num_actions)
+        self.actor = Actor(self.num_states, hidden_size, self.num_actions, discrete = self.discrete)
         self.actor_target = Actor(self.num_states, hidden_size, self.num_actions)
         self.critic = Critic(self.num_states + self.num_actions, hidden_size, self.num_actions)
         self.critic_target = Critic(self.num_states + self.num_actions, hidden_size, self.num_actions)
@@ -50,8 +41,8 @@ class agent_ddpg:
     def get_action(self, state):
         state = Variable(torch.from_numpy(state).float().unsqueeze(0))
         action = self.actor.forward(state)
-        #action = action.detach().numpy()[0,0]  ##[0,0]
-        action = action.detach().numpy()[0,:]  ##[0,0]
+        #action = action.detach().numpy()[0,:]  
+        action = action.detach().numpy()[0,:]  
         return action
     
     def update(self, batch_size):
@@ -66,7 +57,7 @@ class agent_ddpg:
         next_actions = self.actor_target.forward(next_states)
         next_Q = self.critic_target.forward(next_states, next_actions.detach())
         Qprime = rewards + self.gamma * next_Q
-        critic_loss = self.critic_criterion(Qvals, Qprime) ### not same size error
+        critic_loss = self.critic_criterion(Qvals, Qprime) 
 
         # Actor loss
         policy_loss = -self.critic.forward(states, self.actor.forward(states)).mean()

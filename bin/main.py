@@ -1,20 +1,28 @@
-import os
-os.chdir('E:\\Master_E\\Workspace\\bidding_learning') 
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Dec 11 10:35:26 2020
+
+@author: Viktor
+"""
+
 import sys
-#sys.path.append('../src/')
-#import gym
+#sys.path.append('./bin/')
+import gym
 import numpy as np
 import matplotlib.pyplot as plt
+from PyPDF2 import PdfFileMerger
+import os
+import pickle
+import datetime
+import time
 
-from src.agent_ddpg import agent_ddpg
-from src.utils import OUNoise, Memory, GaussianNoise
+from src.agent_ddpg_cuda import agent_ddpg
+from src.utils import  UniformNoise, OUNoise, Memory, GaussianNoise
 from src.environment_bid_market import EnvironmentBidMarket
 
-
-
 '''
- High-Level Interface that calls learning algorithm and Energy-Market Environment
- subject to user-specified inputs
+High-Level Interface that calls learning algorithm and Energy-Market Environment 
+subject to user-specified inputs
 
 Environment Parameters
 
@@ -42,7 +50,6 @@ Allow agents to learn from all agents past actions
 lr_actor:    float
 Learning Rate Actor
 
-
 lr_critic:   float
 Learning Rate Critic
 
@@ -50,88 +57,177 @@ Discrete:    binary
 Enables Discrete Spaces (Not yet functional)
 '''
 
+pdfs =[]
+time_stamp = datetime.datetime.now()
+meta_data_time = time_stamp.strftime('%d-%m-%y %H:%M')
 
-POWER_CAPACITIES = [5]
-PRODUCTION_COSTS = [0]
-DEMAND = [15,16]
+# Agent Parameters
+POWER_CAPACITIES = [50/100,50/100] #50
+PRODUCTION_COSTS = [20/100,20/100] #20
+DEMAND = [70/100,70/100] #70
+PRICE_CAP = 100/100
+NUMBER_OF_AGENTS = 2
+
+# Neural Network Parameters
+ACTION_LIMITS = [-1,1] #[-10/100,100/100]#[-100/100,100/100] # [-100,100] # [-4,4]#
+REWARD_SCALING = 1 #0.01 #1
 LEARNING_RATE_ACTOR = 1e-4
 LEARNING_RATE_CRITIC = 1e-3
-NUMBER_OF_AGENTS = 1
+NORMALIZATION_METHOD = 'none' # options are BN = Batch Normalization, LN = Layer Normalization, none
 
-env = EnvironmentBidMarket(capacities = POWER_CAPACITIES, costs = PRODUCTION_COSTS, demand = DEMAND, agents = NUMBER_OF_AGENTS, 
-                           fringe_player = 1, rewards = 0, split = 0, past_action= 0, 
-                           lr_actor = LEARNING_RATE_ACTOR, lr_critic = LEARNING_RATE_CRITIC, discrete = [0, 10, 0])
+# Noise Parameters
+NOISE ='GaussianNOISE '  #'GaussianNOISE + UniformNoise'
+DECAY_RATE = 0.001 #0.0004 strong; 0.0008 medium; 0.001 soft; # if 0: Not used, if:1: only simple Noise without decay used
+REGULATION_COEFFICENT = 10 # if 1: Not used, if:0: only simple Noise used
 
-agents = env.create_agents(env)
-rewards = []
-avg_rewards = []
-# 2 different noise models
-
-# Ohrenstein Ullenbck Noise
-# This is a popular noise in machine learning. 
-# It starts with one distribution and then converges to another.
-# Frequently, this is used to explore more in the beginning than in the end of the algorithm.
-noise = OUNoise(env.action_space, mu=0.0, theta=0.15, max_sigma=0.3, min_sigma=0.3, decay_period=100000)
-
-# Gaussian Noise 
-# The standard normal distributed noise with variance sigma scaled to the action spaces size
-#(default: (mean = 0, sigma = 0.1) * action_space_distance)
-#noise = GaussianNoise(env.action_space, mu= 0, sigma = 0.1, regulation_coef= 100, decay_rate = 0.1)
+TOTAL_TEST_RUNS = 5 # How many runs should be executed
+EPISODES_PER_TEST_RUN = 10000 # How many episodes should one run contain
+ROUNDS_PER_EPISODE = 500 # How many rounds are allowed per episode (by now, only 1 round is always played due 'done'-command)
+BATCH_SIZE = 128#*2
 
 
+Results = {}
 
-# Learning continues for a number of episodes, 
-# divided into batches consisting of rounds
-# Each episode resets the environment, it consits of rounds
-# After a number of rounds equal to the batch size, the neural networks are updated
-total_episodes = 150
-rounds_per_episode = 500
-batch_size = 128
+Results['meta-data'] = {
+        'date_run':meta_data_time,
+        'power_capacities':POWER_CAPACITIES,
+        'production_costs':PRODUCTION_COSTS,
+        'demand':DEMAND,
+        'noise': NOISE,
+        'regulation_coef':REGULATION_COEFFICENT,
+        'decay_rate' :DECAY_RATE,
+        'lr_critic':LEARNING_RATE_CRITIC,
+        'lr_actor':LEARNING_RATE_ACTOR,
+        'Normalization': NORMALIZATION_METHOD,
+        'reward_scaling':REWARD_SCALING,
+        'total_test_rounds':TOTAL_TEST_RUNS,
+        'episodes_per_test_run':EPISODES_PER_TEST_RUN,
+        'batches':BATCH_SIZE,
+        'rounds':ROUNDS_PER_EPISODE,
+        'agents':NUMBER_OF_AGENTS,
+        'action_limits': ACTION_LIMITS,
+        'price_cap':PRICE_CAP}
 
-# Start Learning
 
-for episode in range(total_episodes):
-    state = env.reset()
-    noise.reset()
-    episode_reward = 0
- 
-    for step in range(rounds_per_episode):
-        actions = []
-        for n in range(len(agents)):
-            #Neural Network Chooses Action and Adds Noise
-            action_temp = agents[n].get_action(state)
-            action_temp = noise.get_action(action_temp, episode) 
-            actions.append(action_temp[:])
+for test_run in  range(TOTAL_TEST_RUNS):
     
-        actions = np.asarray(actions)
-        # Environment delivers output
-        new_state, reward, done, _ = env.step(actions)   
+    print('Test Run: {}'.format(test_run))
     
-        # Add new experience to memory
-        for n in range(len(agents)):
-            agents[n].memory.push(state, actions[n], np.array([reward[n]]), new_state, done)
-   
-        #Update Neural Network
-        if len(agents[0].memory) > batch_size:
+    Results[test_run] ={'episode_results':[], 'runtime':0}
+    t_0 = time.time()
+    
+    env = EnvironmentBidMarket(capacities = POWER_CAPACITIES, costs = PRODUCTION_COSTS, demand = DEMAND, agents = NUMBER_OF_AGENTS, 
+                               fringe_player = 0, rewards = 0, split = 0, past_action= 0,
+                               lr_actor = LEARNING_RATE_ACTOR, lr_critic = LEARNING_RATE_CRITIC, normalization = NORMALIZATION_METHOD, discrete = [0, 10,0], 
+                               reward_scaling = REWARD_SCALING, action_limits = ACTION_LIMITS, price_cap = PRICE_CAP)
+    
+    agents = env.create_agents(env)
+    noise = GaussianNoise(env.action_space, mu= 0, sigma = 0.1, regulation_coef= REGULATION_COEFFICENT, decay_rate = DECAY_RATE)
+    #noise = OUNoise(env.action_space, mu=0.0, theta=0.15, max_sigma=0.3, min_sigma=0.3, decay_period=100000)
+    random_noise = UniformNoise(env.action_space, env.price_cap, initial_exploration = 0.99, final_exploration = 0.05, decay_rate = 0.999)
+
+
+    rewards_temp = []
+    avg_rewards = []
+    bids_temp = []
+    med_bids_temp =[]
+    
+    state = env.reset() # position important when using past action
+    
+    for episode in range(EPISODES_PER_TEST_RUN):
+        Results[test_run][episode] = {'rewards':[], 'quantities':[], 'actions':[]}
+        #state = env.reset()
+        noise.reset()
+        episode_reward = 0
+
+        for step in range(ROUNDS_PER_EPISODE):
+            actions = []
             for n in range(len(agents)):
-                agents[n].update(batch_size)
+                action_temp = agents[n].get_action(state)
+                action_temp = noise.get_action(action_temp, episode)
+                #action_temp = random_noise.get_action(action_temp, episode) 
+                actions.append(action_temp[:])
+        
+            actions = np.asarray(actions)
+            new_state, reward, done, _ = env.step(actions)   
+        
+            for n in range(len(agents)):
+                agents[n].memory.push(state, actions[n], np.array([reward[n]]), new_state, done)
+       
+        
+            if len(agents[0].memory) > BATCH_SIZE:
+                for n in range(len(agents)):
+                    agents[n].update(BATCH_SIZE)
+                
+        
+            state = new_state
+            episode_reward = reward
             
+            # Statistics !!! not working for split option(skip ploting actions/bids, than it will work)
+            rewards_temp.append(episode_reward)
+            bids_temp.append(actions.squeeze(1))
+        
+            rewards = np.asarray(rewards_temp)
+            bids = np.asarray(bids_temp)
+            
+
+            if done:
+                #sys.stdout.write("***TestRound: {}, episode: {}, reward: {}, average _reward: {} \n".format(test_run, episode, np.round(episode_reward, decimals=2), np.mean(rewards[-10:])))
+                #env.render()
+                #sold_qunatities, market_price = env.variable_render()
+                break
+
+        med_bids_temp.append(np.median(bids[-10:], axis=0))
+        avg_rewards.append(np.median(rewards[-10:], axis=0))
+        
+        sold_qunatities, market_price = env.variable_render()
+
+        Results[test_run][episode]['rewards'] = episode_reward
+        Results[test_run][episode]['avg_reward'] = np.array(episode_reward).mean(axis=0)
+        Results[test_run][episode]['actions'] = actions
+        Results[test_run][episode]['sold_quantities'] = sold_qunatities
+        Results[test_run][episode]['market_price'] = market_price
+        
+    med_bids = np.asarray(med_bids_temp) *100
+    avg_rewards = np.asarray(avg_rewards) *10 *100
+
+
+    plt.plot([0]*EPISODES_PER_TEST_RUN, color='grey', label = 'Bid Limits', lw =1)
+    plt.plot([100]*EPISODES_PER_TEST_RUN, color='grey', lw =1)
+    plt.plot([52]*EPISODES_PER_TEST_RUN, color='tab:orange', label = 'Nash Equilibrium', lw =1)
+    plt.plot(med_bids[1:,0], 'tab:red', label = 'Bids Agent1', lw =1, linestyle = '--')
+    plt.plot(med_bids[1:,1], 'tab:blue', label = 'Bids Agent2', lw =1, linestyle = '--')
+    #plt.plot(med_bids[1:,2], 'tab:green', label = 'Bids Agent3', lw =1, linestyle = '--')# 3rd agents
+    #plt.plot(avg_rewards[1:,0], 'tab:red', label = 'Rewards Agent1', lw =1) # displaying rewards
+    #plt.plot(avg_rewards[1:,1], 'tab:blue', label = 'Rewards Agent2', lw =1) # displaying rewards
+    #plt.plot(avg_rewards[1:,2], 'tab:green', label = 'Rewards Agent3', lw =1) # 3rd agents
+
+
+    plt.plot()
+    plt.xlabel('Episode')
+    plt.ylabel('Reward')
+    plt.legend(loc=4, prop={'size': 7})
+    plt.title('none lr4-3 woPast Action: Run {}'.format(test_run))
+    plt.savefig('temp{}.pdf'.format(test_run))
+    #plt.show()
+    plt.close()
     
-        state = new_state
-        episode_reward += reward
-
-        if done:
-            sys.stdout.write("***episode: {}, reward: {}, average _reward: {} \n".format(episode, np.round(episode_reward, decimals=2), np.mean(rewards[-10:])))
-            env.render()
-            break
-
-    rewards.append(episode_reward)
-    avg_rewards.append(np.mean(rewards[-10:]))
+    pdfs.append('temp{}.pdf'.format(test_run))
+    
+    t_end = time.time()
+    time_total = t_end - t_0
+    Results[test_run]['runtime'] = time_total
 
 
-plt.plot(rewards)
-plt.plot(avg_rewards)
-plt.plot()
-plt.xlabel('Episode')
-plt.ylabel('Reward')
-plt.show()
+### Merg PDFs and pickle
+with open('none_results_lr4-3_woPA_00.pkl', 'wb') as pickle_file:
+    pickle.dump(Results, pickle_file)
+
+
+merger = PdfFileMerger()
+
+for pdf in pdfs:
+    merger.append(pdf)
+
+merger.write("none_plots_lr4-3_woPA_00.pdf")
+merger.close()

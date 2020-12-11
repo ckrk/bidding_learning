@@ -39,7 +39,7 @@ demand = 70
 
 
 #print(test_array)
-def market_clearing(demand,bids):    
+def market_clearing(demand,bids,price_cap):    
     """ 
     Implements a uniform pricing market clearing of several players price-quantity bids
     Requires the bids in a certain from and numbered
@@ -83,8 +83,8 @@ def market_clearing(demand,bids):
 
     # Tie Break
     
-    if len(np.argwhere(bids[:,2] == np.amax(bids[:,2]))) > 1 or sum(bids[:,2]) >= 40*len(bids[:,2]):
-        bids = tie_break(bids)
+    if len(np.argwhere(bids[:,2] == np.amax(bids[:,2]))) > 1 or len(np.argwhere(bids[:,2] >= price_cap)) > 1:
+        bids = tie_break(bids, price_cap)
     
     #print(bids)
         
@@ -121,10 +121,14 @@ def converter(suppliers, nmb_agents):
     return all_combined
 
 # should work for all cases
-def tie_break(bids):
+def tie_break(bids, price_cap):
     # determine candidates who are in a tie break
-    tie_break_candidates = np.argwhere(bids[:,2] == np.amax(bids[:,2]))
+    #tie_break_candidates = np.argwhere(bids[:,2] == np.amax(bids[:,2]))
+    tie_break_candidates = np.argwhere(bids[:,2] >= price_cap)
     
+    if len(tie_break_candidates) == 0:
+        tie_break_candidates = np.argwhere(bids[:,2] == np.amax(bids[:,2]))
+        
     # starting capacity for distributin
     overall_base_quantity = sum(bids[tie_break_candidates[0,0]:,1])   
     base_quantities = overall_base_quantity/len(tie_break_candidates)

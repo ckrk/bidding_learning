@@ -9,19 +9,20 @@ from collections import deque
 # starting max_sigma = 0.3
 
 class UniformNoise(object):
-    def __init__(self, action_space, initial_exploration = 0.99, final_exploration = 0.05, decay_rate = 0.999):
+    def __init__(self, action_space, price_cap, initial_exploration = 0.99, final_exploration = 0.05, decay_rate = 0.999):
         
         self.action_dim      = action_space.shape[0] # Requires Space with (10,) shape!
         self.low             = action_space.low
         self.high            = action_space.high
         self.distance        = abs(self.low - self.high)
+        self.price_cap       = price_cap
         
         self.initial_exploration = initial_exploration
         self.final_exploration   = final_exploration
         self.decay_rate = decay_rate 
 
-    #def reset(self):
-    #    self.state = np.ones(self.action_dim)
+    def reset(self):
+        self.state = np.ones(self.action_dim)
     
 
     def get_action(self, action, step = 0):
@@ -33,11 +34,11 @@ class UniformNoise(object):
         explore_yes = np.random.binomial(1,exploration_probabilty)
          
         # Unnormalized Uniform Numbers
-        noise_list = np.random.uniform(self.low,self.high,size=self.action_dim)
+        noise_list = np.random.uniform(self.low, self.price_cap ,size=self.action_dim) #used self.low/10 before
         
         #Renormalize
-        sum_noise = noise_list.sum()
-        noisy_action = explore_yes * noise_list/sum_noise + (1 - explore_yes) * action
+        #sum_noise = noise_list.sum()
+        noisy_action = explore_yes * noise_list + (1 - explore_yes) * action
         
         return noisy_action 
     
@@ -143,13 +144,11 @@ class GaussianNoise(object):
 
     def get_action(self, action, step = 0):
          
-        noise_list = np.random.normal(self.mu, self.sigma, self.action_dim) *self.regulation_coef #(self.distance *self.regulation_coef)
-        noise_list = noise_list * max(np.random.normal(0,0.01,1),((1 - self.decay_rate)**step)) 
+        noise_list = np.random.normal(self.mu, self.sigma, self.action_dim)* ((1 - self.decay_rate)**step) * self.regulation_coef 
+        
+        if ((noise_list)**2)**0.5 < 0.01:
+            noise_list = np.random.normal(0,0.01,self.action_dim) 
         
         noisy_action = np.clip(action + noise_list, self.low, self.high)
 
         return noisy_action 
-    
-    
-
-      

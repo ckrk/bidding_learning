@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Dec 11 10:35:26 2020
-
-@author: Viktor
-"""
-
 import sys
 #sys.path.append('./bin/')
 import gym

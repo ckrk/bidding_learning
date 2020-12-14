@@ -1,4 +1,6 @@
-# Bidding-Learning **Version 1.0.1** - [Change log](CHANGELOG.md)
+# Bidding-Learning 
+**Version 1.0.1** - [Change log](CHANGELOG.md)
+
 Implementations of the Deep Q-Learning Algorithms for Auctions.
 
 ## What should it do?

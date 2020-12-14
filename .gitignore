@@ -4,10 +4,10 @@ results/*
 !results/final_results
 results/final_results/*
 !results/final_results/v1_0_0_settings
-!results/final_results/v2_0_0_settings
+!results/final_results/v1_0_1_settings
 *.pdf
 !results/final_results/v1_0_0_settings/*.pdf
-!results/final_results/v2_0_0_settings/*.pdf
+!results/final_results/v1_0_1_settings/*.pdf
 *.log
 *.pkl
 radam.py

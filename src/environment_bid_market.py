@@ -7,7 +7,7 @@ from collections import deque
 import logging
 
 from src.market_clearing import market_clearing, converter
-from src.agent_ddpg_cuda import agent_ddpg
+from src.agent_ddpg import agent_ddpg
 
 
 class EnvironmentBidMarket(gym.Env):

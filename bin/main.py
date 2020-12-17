@@ -9,7 +9,7 @@ import pickle
 import datetime
 import time
 
-from src.agent_ddpg_cuda import agent_ddpg
+from src.agent_ddpg import agent_ddpg 
 from src.utils import  UniformNoise, OUNoise, Memory, GaussianNoise
 from src.environment_bid_market import EnvironmentBidMarket
 
@@ -73,7 +73,7 @@ NOISE ='GaussianNOISE '  #'GaussianNOISE + UniformNoise'
 DECAY_RATE = 0.001 #0.0004 strong; 0.0008 medium; 0.001 soft; # if 0: Not used, if:1: only simple Noise without decay used
 REGULATION_COEFFICENT = 10 # if 1: Not used, if:0: only simple Noise used
 
-TOTAL_TEST_RUNS = 5 # How many runs should be executed
+TOTAL_TEST_RUNS = 2 # How many runs should be executed
 EPISODES_PER_TEST_RUN = 10000 # How many episodes should one run contain
 ROUNDS_PER_EPISODE = 500 # How many rounds are allowed per episode (by now, only 1 round is always played due 'done'-command)
 BATCH_SIZE = 128#*2
@@ -159,7 +159,6 @@ for test_run in  range(TOTAL_TEST_RUNS):
             # Statistics !!! not working for split option(skip ploting actions/bids, than it will work)
             rewards_temp.append(episode_reward)
             bids_temp.append(actions.squeeze(1))
-        
             rewards = np.asarray(rewards_temp)
             bids = np.asarray(bids_temp)
             

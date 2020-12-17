@@ -64,8 +64,8 @@ NUMBER_OF_AGENTS = 2
 # Neural Network Parameters
 ACTION_LIMITS = [-1,1] #[-10/100,100/100]#[-100/100,100/100] # [-100,100] # [-4,4]#
 REWARD_SCALING = 1 #0.01 #1
-LEARNING_RATE_ACTOR = 1e-4
-LEARNING_RATE_CRITIC = 1e-3
+LEARNING_RATE_ACTOR = 1e-3
+LEARNING_RATE_CRITIC = 1e-2
 NORMALIZATION_METHOD = 'none' # options are BN = Batch Normalization, LN = Layer Normalization, none
 
 # Noise Parameters

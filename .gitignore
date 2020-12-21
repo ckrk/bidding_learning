@@ -5,9 +5,15 @@ results/*
 results/final_results/*
 !results/final_results/v1_0_0_settings
 !results/final_results/v1_0_1_settings
+results/final_results/v1_0_1_settings/*
+!results/final_results/v1_0_1_settings/batch_normlization
+!results/final_results/v1_0_1_settings/layer_normlization
+!results/final_results/v1_0_1_settings/none_normlization
 *.pdf
 !results/final_results/v1_0_0_settings/*.pdf
-!results/final_results/v1_0_1_settings/*.pdf
+!results/final_results/v1_0_1_settings/batch_normlization/*.pdf
+!results/final_results/v1_0_1_settings/layer_normlization/*.pdf
+!results/final_results/v1_0_1_settings/none_normlization/*.pdf
 *.log
 *.pkl
 radam.py

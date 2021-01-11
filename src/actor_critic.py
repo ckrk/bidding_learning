@@ -6,7 +6,6 @@ from torch.autograd import Variable
 
 import numpy as np
 
-#torch.manual_seed(100)
 
 WEIGHTS_FINAL_INIT = 3e-3
 BIAS_FINAL_INIT = 3e-4

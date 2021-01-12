@@ -22,12 +22,13 @@ class agent_ddpg:
         self.tau = tau
         self.norm = norm
         self.hidden_size= hidden_size
+        self.output_size = 1 #before, output size was equal to action size (self.num_actions)
         
         # Networks
         self.actor = Actor(self.num_states, self.hidden_size, self.num_actions, discrete = self.discrete, norm = self.norm).to(device)
         self.actor_target = Actor(self.num_states, self.hidden_size, self.num_actions, discrete = self.discrete , norm = self.norm).to(device)
-        self.critic = Critic(self.num_states, self.hidden_size, output_size=1, self.num_actions, norm = self.norm).to(device)
-        self.critic_target = Critic(self.num_states, self.hidden_size, output_size=1, self.num_actions, norm = self.norm).to(device)
+        self.critic = Critic(self.num_states, self.hidden_size, self.output_size, self.num_actions, norm = self.norm).to(device)
+        self.critic_target = Critic(self.num_states, self.hidden_size, self.output_size, self.num_actions, norm = self.norm).to(device)
 
         for target_param, param in zip(self.actor_target.parameters(), self.actor.parameters()):
             target_param.data.copy_(param.data)

@@ -60,6 +60,7 @@ PRODUCTION_COSTS = [20/100,20/100] #20
 DEMAND = [70/100,70/100] #70
 PRICE_CAP = 100/100
 NUMBER_OF_AGENTS = 2
+PAST_ACTION = 0
 
 # Neural Network Parameters
 ACTION_LIMITS = [-1,1] #[-10/100,100/100]#[-100/100,100/100] # [-100,100] # [-4,4]#
@@ -73,7 +74,7 @@ NOISE ='GaussianNOISE '  #'GaussianNOISE + UniformNoise'
 DECAY_RATE = 0.001 #0.0004 strong; 0.0008 medium; 0.001 soft; # if 0: Not used, if:1: only simple Noise without decay used
 REGULATION_COEFFICENT = 10 # if 1: Not used, if:0: only simple Noise used
 
-TOTAL_TEST_RUNS = 2 # How many runs should be executed
+TOTAL_TEST_RUNS = 1 # How many runs should be executed
 EPISODES_PER_TEST_RUN = 10000 # How many episodes should one run contain
 ROUNDS_PER_EPISODE = 500 # How many rounds are allowed per episode (by now, only 1 round is always played due 'done'-command)
 BATCH_SIZE = 128#*2
@@ -99,6 +100,7 @@ Results['meta-data'] = {
         'rounds':ROUNDS_PER_EPISODE,
         'agents':NUMBER_OF_AGENTS,
         'action_limits': ACTION_LIMITS,
+        'past_action': PAST_ACTION,
         'price_cap':PRICE_CAP}
 
 
@@ -110,7 +112,7 @@ for test_run in  range(TOTAL_TEST_RUNS):
     t_0 = time.time()
     
     env = EnvironmentBidMarket(capacities = POWER_CAPACITIES, costs = PRODUCTION_COSTS, demand = DEMAND, agents = NUMBER_OF_AGENTS, 
-                               fringe_player = 0, rewards = 0, split = 0, past_action= 0,
+                               fringe_player = 0, rewards = 0, split = 0, past_action= PAST_ACTION,
                                lr_actor = LEARNING_RATE_ACTOR, lr_critic = LEARNING_RATE_CRITIC, normalization = NORMALIZATION_METHOD, discrete = [0, 10,0], 
                                reward_scaling = REWARD_SCALING, action_limits = ACTION_LIMITS, price_cap = PRICE_CAP)
     

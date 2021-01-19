@@ -6,6 +6,7 @@ Adapted DDPG parameters according to the orginal paper:
 "Continuous control with deep reinforcement learning" (Lillicrap et al., 2016)
 
 **Added:**
+- Changed output layer size of Critic from shape.aciton_space to 1
 - Changed hidden layer size from 256x256 to 400x300
 - Actions are included as input of the critic network until the 2nd layer (=hidden layer); before they were included until the 1st
 - Parameter tau got changed from 1e-2 to 1e-3

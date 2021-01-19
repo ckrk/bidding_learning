@@ -4,38 +4,6 @@ import numpy_groupies as npg
 from numpy_groupies import aggregate_numpy as anp
 
 
-#a = np.array([0,5,10])
-#b = np.array([1,2,10])
-#c = np.array([2,3,11])
-#d = np.array([1,9,7])
-
-#Flip
-a = np.array([1,50, 40,0,50])
-b = np.array([0,50,40,0,50])
-#a = np.array([0,2,9,0,2])
-#b = np.array([1,3,9,0,3])
-#c = np.array([2,6,9,0,6])
-#d = np.array([3,9,9,0,9])
-#e = np.array([4,20,9,0,20])
-#f = np.array([5,7,9,0,7])
-
-#Fringe Readout for Testing
-
-#Readout fringe players from other.csv (m)
-#read_out = np.genfromtxt("others.csv",delimiter=";",autostrip=True,comments="#",skip_header=1,usecols=(0,1))
-#Readout fringe switched to conform with format; finge[0]=quantity fringe[1]=bid
-#fringe = np.fliplr(read_out)
-#fringe = np.pad(fringe,((0,0),(1,0)),mode='constant')
-
-#test_array = np.stack((a,b,c,a,d,c,b))
-#bids = np.vstack([a, fringe])
-#bids = np.stack((a,b))
-#test_array = fringe
-
-
-
-
-demand = 70
 
 
 #print(test_array)
@@ -82,28 +50,17 @@ def market_clearing(demand,bids,price_cap):
     #print(bids)
 
     # Tie Break
-    
     if len(np.argwhere(bids[:,2] == np.amax(bids[:,2]))) > 1 or len(np.argwhere(bids[:,2] >= price_cap)) > 1:
         bids = tie_break(bids, price_cap)
-    
     #print(bids)
-        
-
-    #Aggregate quantities py player name
-    
-    #Labels are player names in a[:,0] and Values are quantities in a[:,1]
-    
-    #Attention: the labels need to be integers
-    #bids[:,0]=bids[:,0].astype(int)
-    
+ 
     #Attention: without dtype float in the values we get an overflow
-    
     quantities = npg.aggregate(bids[:,0].astype(int),bids[:,1],func='sum',dtype=np.float)
     #print(quantities)
     
     return market_price, bids, quantities
 
-#market_clearing(37,test_array)
+
 
 def converter(suppliers, nmb_agents):
     
@@ -123,8 +80,8 @@ def converter(suppliers, nmb_agents):
 # should work for all cases
 def tie_break(bids, price_cap):
     # determine candidates who are in a tie break
-    #tie_break_candidates = np.argwhere(bids[:,2] == np.amax(bids[:,2]))
-    tie_break_candidates = np.argwhere(bids[:,2] >= price_cap)
+    tie_break_candidates = np.argwhere(bids[:,2] == np.amax(bids[:,2]))
+    t#ie_break_candidates = np.argwhere(bids[:,2] >= price_cap)
     
     if len(tie_break_candidates) == 0:
         tie_break_candidates = np.argwhere(bids[:,2] == np.amax(bids[:,2]))
@@ -196,5 +153,5 @@ def simple_tie_break(bids):
 Possible Testcases:
     Check if sales \leq supply
     Check if sales \geq demand
-    Check 3 cases low demand, equal demanl and high demand
+    Check 3 cases low demand, equal demand and high demand
 '''

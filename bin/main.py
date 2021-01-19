@@ -63,8 +63,8 @@ NUMBER_OF_AGENTS = 2
 PAST_ACTION = 0
 
 # Neural Network Parameters
-ACTION_LIMITS = [-1,1] #[-10/100,100/100]#[-100/100,100/100] # [-100,100] # [-4,4]#
-REWARD_SCALING = 1 #0.01 #1
+ACTION_LIMITS = [-1,1] #[-10/100,100/100]#[-100/100,100/100]
+REWARD_SCALING = 1 #0.01 #
 LEARNING_RATE_ACTOR = 1e-4
 LEARNING_RATE_CRITIC = 1e-3
 NORMALIZATION_METHOD = 'none' # options are BN = Batch Normalization, LN = Layer Normalization, none
@@ -77,7 +77,7 @@ REGULATION_COEFFICENT = 10 # if 1: Not used, if:0: only simple Noise used
 TOTAL_TEST_RUNS = 1 # How many runs should be executed
 EPISODES_PER_TEST_RUN = 10000 # How many episodes should one run contain
 ROUNDS_PER_EPISODE = 500 # How many rounds are allowed per episode (by now, only 1 round is always played due 'done'-command)
-BATCH_SIZE = 128#*2
+BATCH_SIZE = 128 # *0.5 # *2
 
 
 Results = {}
@@ -117,8 +117,8 @@ for test_run in  range(TOTAL_TEST_RUNS):
                                reward_scaling = REWARD_SCALING, action_limits = ACTION_LIMITS, price_cap = PRICE_CAP)
     
     agents = env.create_agents(env)
-    noise = GaussianNoise(env.action_space, mu= 0, sigma = 0.1, regulation_coef= REGULATION_COEFFICENT, decay_rate = DECAY_RATE)
-    #noise = OUNoise(env.action_space, mu=0.0, theta=0.15, max_sigma=0.3, min_sigma=0.3, decay_period=100000)
+    noise = GaussianNoise(env.action_space, mu= 0, sigma = 0.1, regulation_coef= REGULATION_COEFFICENT, decay_rate = DECAY_RATE) # Gaussian Noise (only instead of Ornstein Uhlenbeck Noise)
+    #noise = OUNoise(env.action_space, mu=0.0, theta=0.15, max_sigma=0.3, min_sigma=0.3, decay_period=100000) # Ornstein Uhlenbeck Noise ( only instead of Gaussian Noise)
     random_noise = UniformNoise(env.action_space, env.price_cap, initial_exploration = 0.99, final_exploration = 0.05, decay_rate = 0.999)
 
 
@@ -140,7 +140,7 @@ for test_run in  range(TOTAL_TEST_RUNS):
             for n in range(len(agents)):
                 action_temp = agents[n].get_action(state)
                 action_temp = noise.get_action(action_temp, episode)
-                #action_temp = random_noise.get_action(action_temp, episode) 
+                #action_temp = random_noise.get_action(action_temp, episode) # if adsitionaly a random noise is wanted
                 actions.append(action_temp[:])
         
             actions = np.asarray(actions)
@@ -166,9 +166,9 @@ for test_run in  range(TOTAL_TEST_RUNS):
             
 
             if done:
+                # use some rendering to get insights during running (turned off to save time)
                 #sys.stdout.write("***TestRound: {}, episode: {}, reward: {}, average _reward: {} \n".format(test_run, episode, np.round(episode_reward, decimals=2), np.mean(rewards[-10:])))
                 #env.render()
-                #sold_qunatities, market_price = env.variable_render()
                 break
 
         med_bids_temp.append(np.median(bids[-10:], axis=0))
@@ -203,7 +203,7 @@ for test_run in  range(TOTAL_TEST_RUNS):
     plt.legend(loc=4, prop={'size': 7})
     plt.title('none lr4-3 woPast Action: Run {}'.format(test_run))
     plt.savefig('temp{}.pdf'.format(test_run))
-    #plt.show()
+    #plt.show() # if you want to see plots immediately 
     plt.close()
     
     pdfs.append('temp{}.pdf'.format(test_run))

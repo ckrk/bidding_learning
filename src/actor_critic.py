@@ -74,7 +74,7 @@ class Critic(nn.Module):
             # Layer 2
             x = torch.cat((x, action), 1) # as suggested by the original paper
             x = self.linear2(x)
-            x = self.ln2(x) # maybe better with that too !!! !!! !!! 
+            x = self.ln2(x)  
             x = F.relu(x)
           
         if self.norm == 'BN':
@@ -83,7 +83,7 @@ class Critic(nn.Module):
             x = F.relu(self.linear1(x))
             
             # Layer 2
-            x = self.bn1(x) # as suggested by the original paper (not sure about this one)
+            x = self.bn1(x) # as suggested by the original paper 
             x = torch.cat((x, action), 1) # as suggested by the original paper
             x = F.relu(self.linear2(x))
         
@@ -124,8 +124,6 @@ class Actor(nn.Module):
             self.bn1 = nn.BatchNorm1d(hidden_size[0]) 
             self.bn2 = nn.BatchNorm1d(hidden_size[1]) 
 
-            #self.ReLU = nn.ReLU()
-            #self.Tanh = nn.Tanh()
         
         #'''
         # Weight Init
@@ -163,12 +161,10 @@ class Actor(nn.Module):
             # Batch Normalization
             # Layer 1
             x = self.norm0(x)
-            #x = self.ReLU(self.linear1(x))
             x = F.relu(self.linear1(x))
             
             # Layer 2
             x = self.bn1(x)
-            #x = self.ReLU(self.linear2(x))
             x = F.relu(self.linear2(x))
             
             x = self.bn2(x)
@@ -186,7 +182,6 @@ class Actor(nn.Module):
         if self.discrete[2] == 0:
             #x = F.leaky_relu(self.linear3(x), 0.1) # relu with small negative slope#
             x = torch.tanh(self.linear3(x)) # from -1 to 1 (eventually as alternative to rescaling)
-            #x = self.Tanh((self.linear3(x)))
 
         ## Output Layer Activation Functions for Discrete Tasks (but eventually not working with DDPG)
         else:

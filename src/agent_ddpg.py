@@ -15,14 +15,13 @@ class agent_ddpg:
         #BiddingMarket_energy_Environment Params
         self.discrete = discrete
         self.num_states = env.observation_space.shape[0]
-        #self.num_actions = env.action_space.shape[0]
         self.num_actions = env.action_space.shape[0]
 
         self.gamma = gamma
         self.tau = tau
         self.norm = norm
         self.hidden_size= hidden_size
-        self.output_size = 1 #before, output size was equal to action size (self.num_actions)
+        self.output_size = 1 #only for critic; before, output size was equal to action size (self.num_actions)
         
         # Networks
         self.actor = Actor(self.num_states, self.hidden_size, self.num_actions, discrete = self.discrete, norm = self.norm).to(device)
@@ -54,6 +53,7 @@ class agent_ddpg:
     def update(self, batch_size):
         states, actions, rewards, next_states, _ = self.memory.sample(batch_size)
         
+        # depends on update Versions of pytorch and conda
         #states = torch.cuda.FloatTensor(states, device=device)
         #actions = torch.cuda.FloatTensor(actions, device=device)
         #rewards = torch.cuda.FloatTensor(rewards, device=device)
@@ -64,6 +64,7 @@ class agent_ddpg:
         rewards = torch.FloatTensor(rewards, device=device)
         next_states = torch.FloatTensor(next_states, device=device)
         
+        # depends on update Versions of pytorch and conda
         #states = torch.from_numpy(states).float().to(device)
         #actions = torch.from_numpy(actions).float().to(device)
         #rewards = torch.from_numpy(rewards).float().to(device)

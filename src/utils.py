@@ -2,11 +2,9 @@ import numpy as np
 import random
 from collections import deque
 
-#np.random.seed(100)
 
-# Ornstein-Ulhenbeck Process
-# Taken from #https://github.com/vitchyr/rlkit/blob/master/rlkit/exploration_strategies/ou_strategy.py
-# starting max_sigma = 0.3
+# Ornstein-Ulhenbeck Process, Taken from #https://github.com/vitchyr/rlkit/blob/master/rlkit/exploration_strategies/ou_strategy.py
+
 
 class UniformNoise(object):
     def __init__(self, action_space, price_cap, initial_exploration = 0.99, final_exploration = 0.05, decay_rate = 0.999):
@@ -70,8 +68,6 @@ class OUNoise(object):
     def evolve_state(self):
         x  = self.state
         dx = self.theta * (self.mu - x) + self.sigma * np.random.randn(self.action_dim) 
-        # np.random.randn(0)
-        #dx = self.theta * (self.mu - x) + self.sigma * (np.random.randn(self.action_dim) * 7)
         self.state = x + dx
         return self.state
     

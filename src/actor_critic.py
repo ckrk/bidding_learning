@@ -102,10 +102,9 @@ class Critic(nn.Module):
         return x
 
 class Actor(nn.Module):
-    def __init__(self, input_size, hidden_size, output_size, learning_rate = 3e-4, discrete = [0, 10, 0], norm = 'none'):
+    def __init__(self, input_size, hidden_size, output_size, learning_rate = 3e-4, norm = 'none'):
         super(Actor, self).__init__()
         
-        self.discrete = discrete
         self.norm = norm
         
         #Standard Settings
@@ -176,16 +175,9 @@ class Actor(nn.Module):
             # Layer 2
             x = F.relu(self.linear2(x))
 
-        
         # Layer 3
         ## Output Layer Activation Functions for Continuous Tasks
-        if self.discrete[2] == 0:
-            #x = F.leaky_relu(self.linear3(x), 0.1) # relu with small negative slope#
-            x = torch.tanh(self.linear3(x)) # from -1 to 1 (eventually as alternative to rescaling)
-
-        ## Output Layer Activation Functions for Discrete Tasks (but eventually not working with DDPG)
-        else:
-            x = F.gumbel_softmax(self.linear3(x), tau=1, hard=False, dim=1) # from 0 to 1, sums up to 1            
-            #x = F.softmax(self.linear3(x), dim=1) # from 0 to 1, sums up to 1 
+        #x = F.leaky_relu(self.linear3(x), 0.1) # relu with small negative slope#
+        x = torch.tanh(self.linear3(x)) # from -1 to 1 (eventually as alternative to rescaling)
 
         return x

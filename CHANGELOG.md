@@ -1,5 +1,21 @@
 # Change log
 
+## v1.0.2 - Jan. 25, 2021
+
+**Clean up Code**
+
+- Removed unnecessary comments
+- Removed unused and unfinished features (saved for further usage):
+	- removed split bids
+	- removed discrete action space
+
+- Added function for plotting results
+- Changed dictionary saving structure
+- Adapted fringe player: now fringe bids get divided by max(fringe-bid) to ensure a space between -1 and 1
+- Results from v1.0.1 are still the same for v1.0.2
+
+
+
 ## v1.0.1 - Dez. 11, 2020
 
 Adapted DDPG parameters according to the orginal paper:

@@ -4,10 +4,7 @@ import numpy_groupies as npg
 from numpy_groupies import aggregate_numpy as anp
 
 
-
-
-#print(test_array)
-def market_clearing(demand,bids,price_cap):    
+def market_clearing(demand,bids):    
     """ 
     Implements a uniform pricing market clearing of several players price-quantity bids
     Requires the bids in a certain from and numbered
@@ -50,8 +47,8 @@ def market_clearing(demand,bids,price_cap):
     #print(bids)
 
     # Tie Break
-    if len(np.argwhere(bids[:,2] == np.amax(bids[:,2]))) > 1 or len(np.argwhere(bids[:,2] >= price_cap)) > 1:
-        bids = tie_break(bids, price_cap)
+    if len(np.argwhere(bids[:,2] == np.amax(bids[:,2]))) > 1:
+        bids = tie_break(bids)
     #print(bids)
  
     #Attention: without dtype float in the values we get an overflow
@@ -62,26 +59,11 @@ def market_clearing(demand,bids,price_cap):
 
 
 
-def converter(suppliers, nmb_agents):
-    
-    sup_split = []
-
-    for n in range(nmb_agents):
-        sup_splitA = [int(n), (suppliers[n,1]*suppliers[n,4]), suppliers[n,2], suppliers[n,5]]
-        sup_splitB = [int(n), (suppliers[n,1] - suppliers[n,1]*suppliers[n,4]), suppliers[n,3], suppliers[n,5]]
-        sup_split.append(sup_splitA)
-        sup_split.append(sup_splitB)
-        
-       
-    all_combined = np.asarray(sup_split)
-
-    return all_combined
-
 # should work for all cases
-def tie_break(bids, price_cap):
+def tie_break(bids):
+    
     # determine candidates who are in a tie break
     tie_break_candidates = np.argwhere(bids[:,2] == np.amax(bids[:,2]))
-    t#ie_break_candidates = np.argwhere(bids[:,2] >= price_cap)
     
     if len(tie_break_candidates) == 0:
         tie_break_candidates = np.argwhere(bids[:,2] == np.amax(bids[:,2]))
@@ -129,7 +111,6 @@ def tie_break(bids, price_cap):
 # not working for all cases
 def simple_tie_break(bids):
     
-  
     tie_break_candidates = np.argwhere(bids[:,2] == np.amax(bids[:,2]))
         
     quantity_for_distribution = sum(bids[tie_break_candidates[0,0]:,1])
@@ -149,9 +130,4 @@ def simple_tie_break(bids):
         
     return bids
 
-''' 
-Possible Testcases:
-    Check if sales \leq supply
-    Check if sales \geq demand
-    Check 3 cases low demand, equal demand and high demand
-'''
+

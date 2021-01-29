@@ -8,6 +8,7 @@
 - Removed unused and unfinished features (saved for further usage):
 	- removed split bids
 	- removed discrete action space
+	- removed several reward functions
 
 - Added function for plotting results
 - Changed dictionary saving structure

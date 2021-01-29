@@ -1,5 +1,6 @@
 # Bidding-Learning 
 **Version 1.0.2** - [Change log](CHANGELOG.md)
+
 **Version 1.0.1** - [Change log](CHANGELOG.md)
 
 Implementations of the Deep Q-Learning Algorithms for Auctions.
@@ -26,7 +27,7 @@ The Minimal Working Example implements an easy market situation. Specifically:
 - Please check "data/fringe-players/fringe_player_data_00.csv" to understand the behavior of the fringe player. It shows the bids that are submitted each round by the fringe player in our standard setting.
 - The demand should be predefined to be 15.
 - The strategic player has 0 costs and 5 unit capaciy.
-- action limit should be defined as [-298.086554/298.086554, 298.086554/298.086554] which equal to [-1,1]. This extra step is shown to demonstrate that bids of the fringe player are devided by the maximum bid of the fringe player file itself, to ensure an action space between [-1,1] like the action output space of the agent due the tanh function. After running the simulation actions can be rescaled by multiplication with 298.086554, for an easier interpreation.
+- Action limit should be defined as [-298.086554/298.086554, 298.086554/298.086554] which equals to [-1,1]. This extra step is shown to demonstrate that bids of the fringe player are devided by the maximum bid from the fringe player file itself, to ensure an action space between [-1,1] like the action output space of the agent is scaled due the tanh function. After running the simulation actions can be rescaled by multiplication with 298.086554, for an easier interpreation.
 - The market price without the players participation is 149.4928944. We would expect that the player can gain by becoming the price setting player and offering between 95.69833503-102.0423446.
 - Tie breaking may be relevant. Currently the in case of tie the player with lower number gets everything. Proper tie breaking is involved to program.
 

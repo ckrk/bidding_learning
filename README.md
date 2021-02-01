@@ -32,16 +32,17 @@ The Minimal Working Example implements an easy market situation. Specifically:
 - Tie breaking may be relevant. Currently the in case of tie the player with lower number gets everything. Proper tie breaking is involved to program.
 
 ## Requirements
-
-- torch
-- gym
-- numpy-groupies (relatively non-standard package that allows to do things similar to pandas groupby in numpy)
-- matplotlib
+- python 3.7
+- pytorch=1.6.0
+- gym=0.18.0
+- numpy=1.19.1
+- numpy-groupies=0.9.13 (relatively non-standard package that allows to do things similar to pandas groupby in numpy)
+- seaborn=0.11.1 (plotting library based on matplotlib)
 
 ## How to run?
 
 - Clone to local repository
-- run ./src/main.py in standard settings (or with appropriate parameters)
+- run ./bin/main.py in standard settings (or with appropriate parameters)
 
 - it is recommended to use a package manager for library installation (PIP/Conda)
 - Windows users might consider using Anaconda Navigator for package managment

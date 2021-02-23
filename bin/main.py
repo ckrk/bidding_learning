@@ -83,13 +83,13 @@ EPISODES_PER_TEST_RUN = 10000 # How many episodes should one run contain
 ROUNDS_PER_EPISODE = 1 # How many rounds are allowed per episode (right now number of rounds has no impact -due 'done' is executed if step >= round- and choosing 1 is easier to interpret; )
 BATCH_SIZE = 128 # *0.5 # *2
 
-#"Completely reproducible results are not guaranteed across PyTorch releases, individual commits, or different platforms. 
-#Furthermore, results may not be reproducible between CPU and GPU executions, even when using identical seeds."
+# "Completely reproducible results are not guaranteed across PyTorch releases, individual commits, or different platforms. 
+# Furthermore, results may not be reproducible between CPU and GPU executions, even when using identical seeds."
 # also see: https://pytorch.org/docs/stable/notes/randomness.html
 seed = np.random.randint(1000)
 # if reproducabilty is desired when training on GPU using CuDNN, the two commands below are needed
-#torch.backends.cudnn.deterministic = True
-#torch.backends.cudnn.benchmark = False
+# torch.backends.cudnn.deterministic = True
+# torch.backends.cudnn.benchmark = False
 
 
 

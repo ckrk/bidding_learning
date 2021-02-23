@@ -1,0 +1,7 @@
+numpy=1.19.1
+numpy_groupies=0.9.13
+pandas=1.2.1
+pypdf2=1.26.0
+seaborn=0.11.1
+gym=0.18.0
+pytorch=1.6.0

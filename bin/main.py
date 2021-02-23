@@ -4,6 +4,7 @@ os.chdir(path)
 
 import sys
 import numpy as np
+import torch
 import matplotlib.pyplot as plt
 from PyPDF2 import PdfFileMerger
 
@@ -65,7 +66,7 @@ DEMAND = [70/100,70/100] #70
 ACTION_LIMITS = [-1,1] #[-10/100,100/100]#[-100/100,100/100]
 NUMBER_OF_AGENTS = 2
 PAST_ACTION = 0
-FRINGE = 1
+FRINGE = 0
 
 # Neural Network Parameters
 # rescaling the rewards to avoid hard weight Updates of the Criticer 
@@ -80,9 +81,19 @@ DECAY_RATE = 0.001 #0.0004 strong; 0.0008 medium; 0.001 soft; # if 0: Not used, 
 REGULATION_COEFFICENT = 10 # if 1: Not used, if:0: only simple Noise used
 
 TOTAL_TEST_RUNS = 1 # How many runs should be executed
-EPISODES_PER_TEST_RUN = 5000 # How many episodes should one run contain
+EPISODES_PER_TEST_RUN = 10000 # How many episodes should one run contain
 ROUNDS_PER_EPISODE = 1 # How many rounds are allowed per episode (right now number of rounds has no impact -due 'done' is executed if step >= round- and choosing 1 is easier to interpret; )
 BATCH_SIZE = 128 # *0.5 # *2
+
+#"Completely reproducible results are not guaranteed across PyTorch releases, individual commits, or different platforms. 
+#Furthermore, results may not be reproducible between CPU and GPU executions, even when using identical seeds."
+# also see: https://pytorch.org/docs/stable/notes/randomness.html
+seed = np.random.randint(1000)
+# if reproducabilty is desired when training on GPU using CuDNN, the two commands below are needed
+#torch.backends.cudnn.deterministic = True
+#torch.backends.cudnn.benchmark = False
+
+
 
 # Dictionary to save data and Parameter settings
 Results = {}
@@ -105,7 +116,8 @@ Results['meta-data'] = {
         'agents':NUMBER_OF_AGENTS,
         'action_limits': ACTION_LIMITS,
         'past_action': PAST_ACTION,
-        'fringe:player': FRINGE}
+        'fringe:player': FRINGE,
+        'seed':seed}
 
 
 for test_run in  range(TOTAL_TEST_RUNS):
@@ -115,11 +127,15 @@ for test_run in  range(TOTAL_TEST_RUNS):
     Results[test_run] ={'runtime':0}
     t_0 = time.time()
     
+    # set seed
+    np.random.seed(seed+test_run)
+    torch.manual_seed(seed+test_run)
+    
     # set up environment
     env = EnvironmentBidMarket(capacities = POWER_CAPACITIES, costs = PRODUCTION_COSTS, demand = DEMAND, agents = NUMBER_OF_AGENTS, 
                                fringe_player = FRINGE, past_action= PAST_ACTION, lr_actor = LEARNING_RATE_ACTOR, lr_critic = LEARNING_RATE_CRITIC, 
                                normalization = NORMALIZATION_METHOD, reward_scaling = REWARD_SCALING, action_limits = ACTION_LIMITS, rounds_per_episode = ROUNDS_PER_EPISODE)
-    # set up agents
+    # set up agents (ddpg)
     agents = env.create_agents(env)
     
     # set up noise
@@ -134,6 +150,7 @@ for test_run in  range(TOTAL_TEST_RUNS):
     for episode in range(EPISODES_PER_TEST_RUN):
         Results[test_run][episode] = {'rewards':[], 'actions':[], 'market_price':[] , 'sold_quantities':[],
                                       'round':[], 'state':[], 'new_state':[]}
+        
         # reset noise and state (past_actions resets only at the bginning of a new run)
         state = env.reset(episode)
         noise.reset() # only important for OUNoise 
@@ -186,7 +203,7 @@ for test_run in  range(TOTAL_TEST_RUNS):
     time_total = t_end - t_0
     Results[test_run]['runtime'] = time_total
     
-    # Plot
+    # Plot (only works optimal for "1" TOTAL_TEST_RUNS. If more Test Runs are executed, save plots as pdf, see below)
     # takes as input the data from the saved dictionary, the number of agnets, the maximum action limit, a threshold for an Nash Equilibrium (if: 'none', no threshold gets displayed)
     # the total number of episodes per run, the actual run, which curves shoul be plotted (options: 'actions', rewards' or 'both'),
     # a title for the plot, rescale parameters if needed (usage: rescale[param for actions, param for rewards, param for bid limit])
@@ -195,12 +212,12 @@ for test_run in  range(TOTAL_TEST_RUNS):
                        EPISODES_PER_TEST_RUN, test_run, curves = 'actions', 
                        title = 'Norm:{} Agents:{} PA: {} Fringe: {}, Run:{}'.format(NORMALIZATION_METHOD,NUMBER_OF_AGENTS, PAST_ACTION, FRINGE, test_run),
                        rescale=[100,1000,100], moving_window=9)
-    
+
     
     # save plots (uncommment ALL below)
     #plt.savefig('temp{}.pdf'.format(test_run))
-    #plt.close()
     #pdfs.append('temp{}.pdf'.format(test_run))
+    #plt.close()
 
 
 '''

@@ -174,11 +174,11 @@ def plot_run_outcome(data, number_of_agents, bid_limit, NE, episodes, run, curve
             plt.plot(med_actions[1:,i], 'C{}'.format(i+1), label = 'Bids Agent{}'.format(i), lw =1, linestyle = '--') # displaying actions
             plt.ylabel('Action')
         elif curves == 'rewards':
-            plt.plot(med_rewards[1:,i], 'C{}'.format(i+1), label = 'Rewards Agent1', lw =1) # displaying rewards
+            plt.plot(med_rewards[1:,i], 'C{}'.format(i+1), label = 'Rewards Agent{}'.fromat(i), lw =1) # displaying rewards
             plt.ylabel('Reward')
         else:
             plt.plot(med_actions[1:,i], 'C{}'.format(i+1), label = 'Bids Agent{}'.format(i), lw =1, linestyle = '--')
-            plt.plot(med_rewards[1:,i], 'C{}'.format(i+1), label = 'Rewards Agent1', lw =1) # displaying rewards
+            plt.plot(med_rewards[1:,i], 'C{}'.format(i+1), label = 'Rewards Agent{}'.format(i), lw =1) # displaying rewards
             plt.ylabel('Reward/Action')
 
 

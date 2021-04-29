@@ -5,6 +5,7 @@
 
 Implementations of the Deep Q-Learning Algorithms for Auctions.
 
+
 ## What should it do?
 
 - Generally, the algorithm sets up a reinforcement learning algorithm in an user defined environment,
@@ -33,6 +34,20 @@ Sometimes you will get strange results. Hence, try to rerun the algorithm 2-3 ti
 - numpy-groupies=0.9.13 (relatively non-standard package that allows to do things similar to pandas groupby in numpy)
 - seaborn=0.11.1 (plotting library based on matplotlib)
 
+## Citing
+
+If you use our algorithm in your work, please cite the accompanying [paper]:
+
+```bibtex
+@misc{graf2021computational,
+      title={{Computational Performance of Deep Reinforcement Learning to find Nash Equilibria}}, 
+      author={Christoph Graf and Viktor Zobernig and Johannes Schmidt and Claude Kl\"ockl},
+      year={2021},
+      eprint={2104.12895},
+      archivePrefix={arXiv},
+      primaryClass={cs.GT}
+}
+```
 
 ### How to customize a run of the algorithm?
 

@@ -36,7 +36,7 @@ Sometimes you will get strange results. Hence, try to rerun the algorithm 2-3 ti
 
 ## Citing
 
-If you use our algorithm in your work, please cite the accompanying [paper]:
+If you use our algorithm in your work, please cite the accompanying [paper](https://arxiv.org/abs/2104.12895):
 
 ```bibtex
 @misc{graf2021computational,

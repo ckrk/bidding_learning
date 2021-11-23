@@ -27,6 +27,7 @@ class demand_normal:
         self.variances = variances 
         self.scenarios = means.shape[0] # Scenarios in Zeilen!
 
+
         
     def generate(self,samples):
         '''
@@ -38,6 +39,7 @@ class demand_normal:
         Returns
         -------
         np.array of n-samples drawn from the above distribution cycle
+        
         '''
         
         
@@ -57,4 +59,5 @@ class demand_normal:
                                         for i in range(self.scenarios)])
             simulated_demand_timeseries = np.multiply(demand_raw, std_timeseries) + mean_timeseries
             
+
         return simulated_demand_timeseries

@@ -7,6 +7,7 @@ from collections import deque
 
 from src.market_clearing import market_clearing
 from src.agent_ddpg import agent_ddpg
+from src.demand_models import demand_normal
 
 
 class EnvironmentBidMarket(gym.Env):
@@ -26,12 +27,22 @@ class EnvironmentBidMarket(gym.Env):
         # basic game parameters considering the agents
         self.capacities = capacities
         self.costs = costs
-        self.demand = demand
         self.agents = agents
         self.action_limits = action_limits
         self.rounds_per_episode = rounds_per_episode
         
-        # additional opptions
+        # Determine type of demand model
+        if  type(demand) == float or type(demand) == list:           
+            self.demand = demand
+        elif type(demand) == tuple:
+            self.demand = demand
+            self.means = demand[0]
+            self.variances = demand[1]
+            # Create normal demand model
+            self.demand_model = demand_normal(self.means,self.variances)
+        
+        
+        # additional options
         self.fringe_player = fringe_player
         self.reward_scaling = reward_scaling # rescaling the rewards to avoid hard weight Updates of the Criticer 
         self.past_action = past_action
@@ -104,7 +115,10 @@ class EnvironmentBidMarket(gym.Env):
         State includes: Demand, Capacitys of all Players, sort by from lowest to highest last Actions of all Players (Optional)
     
         """
-        demand = np.random.uniform(self.demand[0], self.demand[1], 1)
+        if type(self.demand) == list:
+            demand = np.random.uniform(self.demand[0], self.demand[1], 1)
+        if type(self.demand) == tuple:
+            demand = self.episodes_demand_timeseries[self.current_step]
         obs = np.append(demand, self.capacities)
         
         if self.past_action == 1:
@@ -140,7 +154,7 @@ class EnvironmentBidMarket(gym.Env):
         market_price = market[0]
         sold_quantities = market[2]
 
-        # caluclate rewards
+        # calculate rewards
         reward = self.reward_function(all_suppliers, sold_quantities, market_price, self.agents, action)
         
 
@@ -163,6 +177,7 @@ class EnvironmentBidMarket(gym.Env):
         
         
         #### DONE and next_state
+        self.render()
         done = self.current_step >= self.rounds_per_episode
         obs = self._next_observation(self.agents)
         
@@ -200,12 +215,16 @@ class EnvironmentBidMarket(gym.Env):
     def reset(self, episode):
         # Reset the state of the environment to an initial state
         self.current_step = 0
+        self.current_episode = episode
         self.avg_action = 0
         self.sum_action = 0
         self.sum_demand = 0
         self.sum_rewards = 0
         self.avg_rewards = 0
         self.AllAktionen = deque(maxlen=500)
+        
+        if type(self.demand) == tuple:
+            self.episodes_demand_timeseries = self.demand_model.generate(self.rounds_per_episode+1) #+1 for round zero
         
         if episode == 0: 
             self.last_action = np.zeros(self.agents)
@@ -218,16 +237,18 @@ class EnvironmentBidMarket(gym.Env):
         
         return self._next_observation(self.agents)
     
-    def render(self, mode='human', close=False):
+    def render(self, mode='demand', close=False):
         # Calls an output of several important parameters during the learning
         # This defines the content of the output
-        print(f'AllAktionen: {self.AllAktionen}')
-        print(f'Last Demand of this Episode: {self.last_demand}')
-        print(f'Last Reward of this Episode: {self.last_rewards}')
-        print(f'last sold Qs:{self.sold_quantities}')
-        print(f'Last Market Price: {self.market_price}')
-        print(f'Average Reward: {self.avg_rewards}')
+        #print(f'AllAktionen: {self.AllAktionen}')
+        print('Episode',self.current_episode,'Step',self.current_step)
+        print(f'Last Demand: {self.last_demand}')
+        #print(f'Last Reward of this Episode: {self.last_rewards}')
+        #print(f'last sold Qs:{self.sold_quantities}')
+        #print(f'Last Market Price: {self.market_price}')
+        #print(f'Average Reward: {self.avg_rewards}')
         print(f'Average Demand: {self.avg_demand}')
+        print('Cumulative Demand',self.sum_demand)
         
         
         

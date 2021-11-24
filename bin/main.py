@@ -60,7 +60,10 @@ meta_data_time = time_stamp.strftime('%d-%m-%y %H:%M')
 # Agent Parameters
 POWER_CAPACITIES = [50 / 100, 50 / 100]  # 50
 PRODUCTION_COSTS = [20 / 100, 20 / 100]  # 20
-DEMAND = [70 / 100, 70 / 100]  # 70
+mean=np.array([6,6,6,6,6])
+var=np.array([9,0,9,0,4])
+DEMAND = (mean,var)
+#[70 / 100, 70 / 100]  # 70
 ACTION_LIMITS = [-1, 1]  # [-10/100,100/100]#[-100/100,100/100]
 NUMBER_OF_AGENTS = 2
 PAST_ACTION = 0
@@ -79,8 +82,8 @@ DECAY_RATE = 0.001  # 0.0004 strong; 0.0008 medium; 0.001 soft; # if 0: Not used
 REGULATION_COEFFICENT = 10  # if 1: Not used, if:0: only simple Noise used
 
 TOTAL_TEST_RUNS = 1 # How many runs should be executed
-EPISODES_PER_TEST_RUN = 10000 # How many episodes should one run contain
-ROUNDS_PER_EPISODE = 1 # How many rounds are allowed per episode (right now number of rounds has no impact -due 'done' is executed if step >= round- and choosing 1 is easier to interpret; )
+EPISODES_PER_TEST_RUN = 30 # 10000 # How many episodes should one run contain
+ROUNDS_PER_EPISODE = 24 # How many rounds are allowed per episode (right now number of rounds has no impact -due 'done' is executed if step >= round- and choosing 1 is easier to interpret; )
 BATCH_SIZE = 128 # *0.5 # *2
 
 # "Completely reproducible results are not guaranteed across PyTorch releases, individual commits, or different platforms. 
@@ -120,6 +123,7 @@ Results['meta-data'] = {
 for test_run in  range(TOTAL_TEST_RUNS):
     print('Test Run: {}'.format(test_run))
     
+    
     # save runtime
     Results[test_run] = {'runtime':0}
     t_0 = time.time()
@@ -148,6 +152,7 @@ for test_run in  range(TOTAL_TEST_RUNS):
                                       'round':[], 'state':[], 'new_state':[]}
         
         # reset noise and state (past_actions resets only at the bginning of a new run)
+        print('Episode: ',episode)
         state = env.reset(episode)
         noise.reset()  # only important for OUNoise
         

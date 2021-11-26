@@ -108,7 +108,7 @@ class EnvironmentBidMarket(gym.Env):
         
         return suppliers
         
-    def _next_observation(self, nmb_agents):
+    def _next_observation(self):
         
         """
         Set Up State
@@ -134,7 +134,7 @@ class EnvironmentBidMarket(gym.Env):
         self.current_step += 1
         
         # get current state        
-        obs = self._next_observation(self.agents)
+        obs = self._next_observation()
         demand = obs[0]
         
         # set up all the agents as suppliers in the market
@@ -179,7 +179,7 @@ class EnvironmentBidMarket(gym.Env):
         #### DONE and next_state
         self.render()
         done = self.current_step >= self.rounds_per_episode
-        obs = self._next_observation(self.agents)
+        obs = self._next_observation()
         
 
         return obs, reward, done, {}
@@ -235,7 +235,7 @@ class EnvironmentBidMarket(gym.Env):
             return print('******************************\n ERROR: length of CAP and costs has to correspond to the number of Agents \n******************************')
 
         
-        return self._next_observation(self.agents)
+        return self._next_observation()
     
     def render(self, mode='demand', close=False):
         # Calls an output of several important parameters during the learning

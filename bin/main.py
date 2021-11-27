@@ -26,9 +26,17 @@ costs:        np.array 1x(number of Agents)
 
 Attention these np.arrays have to correspond to the number of Agents
 
-Demand:       np.array 1x2
+Demand:       np.array 1x2 (Uniform,Constant demand)
+                
 Chooses demand from arang between [min,max-1]
 For fixed Demand, write: the preferred [Number, Number +1] (e.g. Demand = 99 -> [99,100])
+
+              or
+              
+              2-tuple of np.arrays (Normal Demand)
+
+Chooses demand from a sequence of normal distributions
+with means and variances as specified by the np.arrays
 
 Agents:       scalar
 Number of learning agents
@@ -58,14 +66,14 @@ time_stamp = datetime.datetime.now()
 meta_data_time = time_stamp.strftime('%d-%m-%y %H:%M')
 
 # Agent Parameters
-POWER_CAPACITIES = [50 / 100, 50 / 100]  # 50
-PRODUCTION_COSTS = [20 / 100, 20 / 100]  # 20
+POWER_CAPACITIES = [50 / 100] #[50 / 100, 50 / 100]  # 50
+PRODUCTION_COSTS = [20 / 100] #[20 / 100, 20 / 100]  # 20
 mean=np.array([6,6,6,6,6])
 var=np.array([9,0,9,0,4])
 DEMAND = (mean,var)
 #[70 / 100, 70 / 100]  # 70
 ACTION_LIMITS = [-1, 1]  # [-10/100,100/100]#[-100/100,100/100]
-NUMBER_OF_AGENTS = 2
+NUMBER_OF_AGENTS = 1
 PAST_ACTION = 0
 FRINGE = 0
 
@@ -154,17 +162,21 @@ for test_run in  range(TOTAL_TEST_RUNS):
         # reset noise and state (past_actions resets only at the bginning of a new run)
         print('Episode: ',episode)
         state = env.reset(episode)
+        print(state)
         noise.reset()  # only important for OUNoise
         
         for step in range(ROUNDS_PER_EPISODE):
             actions = []
+            print(agents)
+            print(len(agents))
+            print(range(len(agents)))
             for n in range(len(agents)):
                 action_temp = agents[n].get_action(state)
                 action_temp = noise.get_action(action_temp, episode)
                 actions.append(action_temp[:])
             
             actions = np.asarray(actions)
-            
+            print(actions)
             # get reward an new state from environment
             new_state, reward, done, _ = env.step(actions)   
             

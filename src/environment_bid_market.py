@@ -95,12 +95,13 @@ class EnvironmentBidMarket(gym.Env):
         """
         
         suppliers = [0]*nmb_agents
-        
+        print(suppliers)
         for n in range(nmb_agents):
             a1 = action[n,0]
             suppliers[n] = [int(n), self.capacities[n], a1, self.costs[n], self.capacities[n]]
                 
         suppliers = np.asarray(suppliers)
+        print(suppliers)
         
         if self.fringe_player == 1:
             self.fringe[:,2] = self.fringe[:,2]/np.max(self.fringe[:,2]) # to ensure that fringe player bids are also in a range frrom [-1,1]
@@ -144,15 +145,12 @@ class EnvironmentBidMarket(gym.Env):
         # last bid of cumsum offerd capacitys determines the price; also the real sold quantities are derived
         # if using splits, convert them in the right shape for market_clearing-function 
         # and after that combine sold quantities of the same supplier again
-        market = market_clearing(demand, all_suppliers)
+        market_price, _ , sold_quantities = market_clearing(demand, all_suppliers)
         self.last_action= action
         
         # save last actions for next state (= next obeservation) and sort them by lowest bids
         self.last_action = np.sort(self.last_action, axis = None)
-        
-        #market price and sold quantities determined through market clearing
-        market_price = market[0]
-        sold_quantities = market[2]
+
 
         # calculate rewards
         reward = self.reward_function(all_suppliers, sold_quantities, market_price, self.agents, action)

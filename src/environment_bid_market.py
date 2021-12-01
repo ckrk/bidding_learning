@@ -1,5 +1,6 @@
 import numpy as np
 import os
+import pandas as pd
 
 import gym
 from gym import spaces
@@ -40,6 +41,13 @@ class EnvironmentBidMarket(gym.Env):
             self.variances = demand[1]
             # Create normal demand model
             self.demand_model = demand_normal(self.means,self.variances)
+            
+        # Determine exogenous supply
+        #path = os.path.join(os.path.dirname(__file__), '../data/exogenous_supply/test_supply.xls')
+        #self.exo_supply = pd.read_excel(path)
+        # label fringe by self.agents to get one label higher than highest agent
+        self.exo_supply = np.array([[self.agents,0.2,0.3,0.,0.2],
+                                    [self.agents,6,0.5,0.,6]])
         
         
         # additional options
@@ -95,13 +103,11 @@ class EnvironmentBidMarket(gym.Env):
         """
         
         suppliers = [0]*nmb_agents
-        print(suppliers)
         for n in range(nmb_agents):
             a1 = action[n,0]
             suppliers[n] = [int(n), self.capacities[n], a1, self.costs[n], self.capacities[n]]
                 
         suppliers = np.asarray(suppliers)
-        print(suppliers)
         
         if self.fringe_player == 1:
             self.fringe[:,2] = self.fringe[:,2]/np.max(self.fringe[:,2]) # to ensure that fringe player bids are also in a range frrom [-1,1]
@@ -134,33 +140,36 @@ class EnvironmentBidMarket(gym.Env):
         
         self.current_step += 1
         
+        # set up all the agents as suppliers in the market
+        agent_suppliers = self.set_up_suppliers(action, self.agents)
+        total_supply = np.concatenate((agent_suppliers, self.exo_supply))
+        print(total_supply)
+
         # get current state        
         obs = self._next_observation()
         demand = obs[0]
         
-        # set up all the agents as suppliers in the market
-        all_suppliers = self.set_up_suppliers(action, self.agents)
-
         # market_clearing: orders all suppliers from lowest to highest bid, 
         # last bid of cumsum offerd capacitys determines the price; also the real sold quantities are derived
         # if using splits, convert them in the right shape for market_clearing-function 
         # and after that combine sold quantities of the same supplier again
-        market_price, _ , sold_quantities = market_clearing(demand, all_suppliers)
+        market_price, _ , sold_quantities = market_clearing(demand, total_supply)
         self.last_action= action
+        #print(sold_quantities)
         
         # save last actions for next state (= next obeservation) and sort them by lowest bids
         self.last_action = np.sort(self.last_action, axis = None)
 
 
         # calculate rewards
-        reward = self.reward_function(all_suppliers, sold_quantities, market_price, self.agents, action)
+        reward = self.reward_function(agent_suppliers, sold_quantities, market_price, self.agents, action)
         
 
         # Intersting Variables and Render Commands 
         self.safe(action, self.current_step)
         self.sold_quantities = sold_quantities
         self.market_price = market_price
-        self.Suppliers = all_suppliers 
+        self.Suppliers = agent_suppliers 
         
         self.last_demand = demand 
         self.sum_demand += demand
@@ -245,8 +254,10 @@ class EnvironmentBidMarket(gym.Env):
         #print(f'last sold Qs:{self.sold_quantities}')
         #print(f'Last Market Price: {self.market_price}')
         #print(f'Average Reward: {self.avg_rewards}')
-        print(f'Average Demand: {self.avg_demand}')
-        print('Cumulative Demand',self.sum_demand)
+        print(f'Average Demand: {self.avg_demand}','Cumulative Demand',self.sum_demand)
+        print('Market Price:', self.market_price)
+        print('Reward', self.last_rewards)
+        
         
         
         

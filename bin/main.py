@@ -167,16 +167,13 @@ for test_run in  range(TOTAL_TEST_RUNS):
         
         for step in range(ROUNDS_PER_EPISODE):
             actions = []
-            print(agents)
-            print(len(agents))
-            print(range(len(agents)))
             for n in range(len(agents)):
                 action_temp = agents[n].get_action(state)
                 action_temp = noise.get_action(action_temp, episode)
                 actions.append(action_temp[:])
             
             actions = np.asarray(actions)
-            print(actions)
+
             # get reward an new state from environment
             new_state, reward, done, _ = env.step(actions)   
             

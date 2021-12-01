@@ -53,7 +53,7 @@ def market_clearing(demand,bids):
  
     #Attention: without dtype float in the values we get an overflow
     quantities = npg.aggregate(bids[:,0].astype(int),bids[:,1],func='sum',dtype=np.float)
-    #print(quantities)
+    print('Sales:',quantities)
     
     return market_price, bids, quantities
 

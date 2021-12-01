@@ -1,5 +1,5 @@
 # Bidding-Learning 
-**Version 1.0.3a Forked in Order ton incorporate Single Player and Normal Distributed Demand**
+**Version 1.0.3a Forked in Order to incorporate Single Player and Normal Distributed Demand**
 
 **Version 1.0.2** - [Change log](CHANGELOG.md)
 

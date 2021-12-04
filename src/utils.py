@@ -217,7 +217,7 @@ def moving_median_rewards_actions(data, run, episodes=15000, n=9):
     return recompiled_actions, recomplied_rewards
 
 
-def expectedOfferCurve(mu, sigmaSquare):
+def recoverOfferCurve(mu, sigmaSquare):
     '''
     Assume offer price differences are log-normally distributed with mu being the mean and sigmaSquare the empirical variance for each offer price step
     More precisely, define: y := log(y_k) if k =0

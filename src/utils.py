@@ -190,7 +190,7 @@ def plot_run_outcome(data, number_of_agents, bid_limit, NE, episodes, run, curve
     
 
 
-def moving_median_rewards_actions(data,run, episodes=15000, n=9): 
+def moving_median_rewards_actions(data, run, episodes=15000, n=9): 
     '''
     reads actions and rewards for all episodes in a specific run from dictionary 
     and further calculates the moving median for a specified period "n"
@@ -215,3 +215,25 @@ def moving_median_rewards_actions(data,run, episodes=15000, n=9):
     recomplied_rewards = np.asarray(med_rewards)
     
     return recompiled_actions, recomplied_rewards
+
+
+def expectedOfferCurve(mu, sigmaSquare):
+    '''
+    Assume offer price differences are log-normally distributed with mu being the mean and sigmaSquare the empirical variance for each offer price step
+    More precisely, define: y := log(y_k) if k =0
+                                 log(y_k - y_{k-1}) if k > 0
+    where [y_0, y_1, ... , y_K] are the offer prices for the K discretized steps
+    
+    mu and sigmaSquare must be 1-d np.arrays on a grid (ascending)
+    output: offer curve (y-values, i.e., offer prices)  
+    
+    see https://math.stackexchange.com/questions/2409702/expected-value-of-a-lognormal-distribution
+    
+    example: mu = np.array([np.log(20.), np.log(30.-20.), np.log(50.-30.), np.log(70.-30.)]) 
+             sigmaSquare = np.array([1., 1., 1., 1.])
+    
+    '''
+        
+    return np.cumsum(np.exp(mu + .5 * sigmaSquare))
+    
+    

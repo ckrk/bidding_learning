@@ -12,7 +12,8 @@ import pickle
 import datetime
 import time
 
-from src.utils import UniformNoise, OUNoise, GaussianNoise, plot_run_outcome
+from src.noise_models import UniformNoise, OUNoise, GaussianNoise 
+from src.utils import plot_run_outcome
 from src.environment_bid_market import EnvironmentBidMarket
 
 '''

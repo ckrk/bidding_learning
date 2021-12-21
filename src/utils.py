@@ -1,79 +1,9 @@
 import numpy as np
-from numpy.random import default_rng
 import random
 import matplotlib.pyplot as plt
 from collections import deque
 
 
-class UniformNoise(object):
-    def __init__(self, action_space, initial_exploration = 0.99, final_exploration = 0.05, decay_rate = 0.999):
-        
-        self.action_dim      = action_space.shape[0] # Requires Space with (10,) shape!
-        self.low             = action_space.low
-        self.high            = action_space.high
-        self.distance        = abs(self.low - self.high)
-        
-        self.initial_exploration = initial_exploration
-        self.final_exploration   = final_exploration
-        self.decay_rate = decay_rate 
-
-    def reset(self):
-        self.state = np.ones(self.action_dim)
-    
-
-    def get_action(self, action, step = 0):
-        
-        decay = self.decay_rate ** step
-        exploration_probabilty = decay*self.initial_exploration + (1-decay)*self.final_exploration
-        
-        # Exploration Probability
-        explore_yes = np.random.binomial(1,exploration_probabilty)
-         
-        # Unnormalized Uniform Numbers
-        noise_list = np.random.uniform(self.low, self.high ,size=self.action_dim) #used self.low/10 before
-        
-        #Renormalize
-        #sum_noise = noise_list.sum()
-        noisy_action = explore_yes * noise_list + (1 - explore_yes) * action
-        
-        return noisy_action 
-    
-# Ornstein-Ulhenbeck Process, Taken from #https://github.com/vitchyr/rlkit/blob/master/rlkit/exploration_strategies/ou_strategy.py
-class OUNoise(object):
-    def __init__(self, action_space, mu=0.0, theta=0.15, max_sigma=0.3, min_sigma=0.3, decay_period=100000):
-        self.mu           = mu
-        self.theta        = theta
-        self.sigma        = max_sigma
-        self.max_sigma    = max_sigma
-        self.min_sigma    = min_sigma
-        self.decay_period = decay_period
-
-        #BiddingMarket_energy_Environment Params
-        self.action_dim   = action_space.shape[0]
-        self.low          = action_space.low
-        self.high         = action_space.high
-        # only relevant for Discrete action_space
-        if len(self.low) > 3:
-            self.low = 0
-            self.high = 1
- 
-        self.reset()
-        
-    def reset(self):
-        self.state = np.ones(self.action_dim) * self.mu
-        
-    def evolve_state(self):
-        x  = self.state
-        dx = self.theta * (self.mu - x) + self.sigma * np.random.randn(self.action_dim) 
-        self.state = x + dx
-        return self.state
-    
-    def get_action(self, action, t=0):
-        ou_state = self.evolve_state()
-        self.sigma = self.max_sigma - (self.max_sigma - self.min_sigma) * min(1.0, t / self.decay_period)
-        return np.clip(action + ou_state, self.low, self.high)
-
-        
 
 class Memory:
     def __init__(self, max_size):
@@ -109,45 +39,6 @@ class Memory:
 
 
 
-
-class GaussianNoise(object):
-    def __init__(self, action_space, mu = 0.0, sigma = 0.1, regulation_coef = 1, decay_rate = 0):
-        
-        self.action_dim      = action_space.shape[0]
-        self.low             = action_space.low
-        self.high            = action_space.high
-        # only relevant for Discrete action_space
-        if len(self.low) > 3:
-            self.low = 0
-            self.high = 1
-            
-        self.distance        = abs(self.low - self.high)
-        
-        self.decay_rate = decay_rate 
-        self.regulation_coef = regulation_coef
-        self.mu              = mu
-        self.sigma           = sigma
-        
-        self.reset()
-        
-        
-    def reset(self):
-        self.state = np.ones(self.action_dim) * self.mu
-    
-
-    def get_action(self, action, step = 0):
-         
-        noise_list = np.random.normal(self.mu, self.sigma, self.action_dim)* ((1 - self.decay_rate)**step) * self.regulation_coef 
-        
-        if ((noise_list)**2)**0.5 < 0.01:
-            noise_list = np.random.normal(0,0.01,self.action_dim) 
-        
-        noisy_action = np.clip(action + noise_list, self.low, self.high)
-
-        return noisy_action 
-
-
-    
 def plot_run_outcome(data, number_of_agents, bid_limit, NE, episodes, run, curves = 'both', 
                        title = 'Bidding Game',rescale=[1,1,1], moving_window = 9):
     '''
@@ -217,55 +108,3 @@ def moving_median_rewards_actions(data, run, episodes=15000, n=9):
     
     return recompiled_actions, recomplied_rewards
 
-
-def recoverOfferCurve(mu, sigmaSquare):
-    '''
-    Assume offer price differences are log-normally distributed with mu being the mean and sigmaSquare the empirical variance of the logs of each offer price step
-    More precisely, define: y := log(y_k) if k =0
-                                 log(y_k - y_{k-1}) if k > 0
-    where [y_0, y_1, ... , y_K] are the offer prices for the K discretized steps
-    
-    mu and sigmaSquare must be 1-d np.arrays on a grid (ascending)
-    output: offer curve (y-values, i.e., offer prices)  
-    
-    see https://math.stackexchange.com/questions/2409702/expected-value-of-a-lognormal-distribution
-    
-    example: mu = np.array([np.log(20.), np.log(30.-20.), np.log(50.-30.), np.log(70.-30.)]) 
-             sigmaSquare = np.array([1., 1., 1., 1.]) 
-             Note that the elements of sigmaSquare should be the variance of logs  
-    
-    '''
-        
-    return np.cumsum(np.exp(mu + .5 * sigmaSquare))
-    
-def sampleOfferCurves(loc, shape, N, seed=42):
-    '''
-    mu and sigmaSquare must be np.arrays of mean and variance of log normal distributed offer curve step increments
-    More precisely, define: y := log(y_k) if k =0
-                                 log(y_k - y_{k-1}) if k > 0
-    where [y_0, y_1, ... , y_K] are the offer prices for the K discretized steps
-    N is the number of random samples
-    
-    output is a 2-d array of offer price steps with dim (N x |loc|)
-    
-    example: loc = np.array([20., 10., 5., 50.]), i.e., [0] + list(np.cumsum(loc)) is the mean offer curve
-             shape = loc / 10 is the step-wise standard deviation
-    
-    https://en.wikipedia.org/wiki/Log-normal_distribution#Arithmetic_moments
-    Sampling for one offer (incremental) offer steps using moment conditions
-    
-    moment generating function: E[X^n] = exp(n * loc + .5 * n^2 * shape^2)
-    E[X] = exp(loc + .5 * shape^2)
-    E[X^2] = exp(2 * loc + 2 * shape^2)
-    V[X] = E[X^2] - E[X]^2 = exp(2 * loc + shape^2) * exp(sigma^2 - 1)
-    
-    trace out loc and shape from first and second moment, resp. Var
-    loc = log(E[X]^2/(E[X^2])^.5) = log(E[X]^2/((V[X] + E[X]^2)^.5) 
-    shape = (log(1 + V[X]/E[X]^2))^.5 
-    
-    alternative: https://www.pbr-book.org/3ed-2018/Monte_Carlo_Integration/Sampling_Random_Variables
-    cpp implementation https://www.pbr-book.org/3ed-2018/Monte_Carlo_Integration/Sampling_Random_Variables
-    '''
-    rng = default_rng(seed)
-    return np.cumsum(np.vstack([rng.lognormal(np.log(loc[j]**2/(np.sqrt(loc[j]**2 + shape[j]**2))), np.sqrt(np.log(1+(shape[j]**2/loc[j]**2))), N) for j in range(len(loc))]).T, 1)
-    

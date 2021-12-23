@@ -1,4 +1,6 @@
 # Bidding-Learning 
+**Version 1.0.4 Forked to rangL competition branch**
+
 **Version 1.0.3 Forked to Single Player branch**
 - Incorporate Single Player
 - Added and Normal Distributed Demand

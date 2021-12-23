@@ -1,5 +1,8 @@
 # Bidding-Learning 
-**Version 1.0.3a Forked in Order to incorporate Single Player and Normal Distributed Demand**
+**Version 1.0.3 Forked to Single Player branch**
+- Incorporate Single Player
+- Added and Normal Distributed Demand
+- refactored methods from utils.py into demand_models.py and noise_model.py
 
 **Version 1.0.2** - [Change log](CHANGELOG.md)
 

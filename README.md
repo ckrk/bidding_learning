@@ -1,35 +1,32 @@
 # Bidding-Learning 
+**Version 1.0.3a Forked in Order to incorporate Single Player and Normal Distributed Demand**
+
 **Version 1.0.2** - [Change log](CHANGELOG.md)
 
 **Version 1.0.1** - [Change log](CHANGELOG.md)
 
 Implementations of the Deep Q-Learning Algorithms for Auctions.
 
+
 ## What should it do?
 
 - Generally, the algorithm sets up a reinforcement learning algorithm in an user defined environment,
 that represents energy market auctions. The user defines number of players, their production costs & capacities as well as learning related hyper parameters of specifities of the bidding rules. Then the algorithm trains the players and outputs statistics about their behavior during training.
 
-- Specifically, if run in the standard settings the algorithm learns in a simple predefined environment that is a minimal working example. It is chosen to be easy to understand and for comparability while debbuging.
-
 ## Pay attention that the algorithm involves randomness
 
-This is bad for reproducibility but the algorithm intrinsically uses random steps.
-Sometimes you will get strange results. Hence, try to rerun the algorithm 2-3 times in the same settings if you feel you get non-sensical values to be sure it repeatedly fails. Sometimes you just get unlucky.
-We get strange results in a significant number of times, if the final graphic just outputs a flat line, try a simple restart.
+The algorithm is seeded and delivers reproducible results with the same seed.
+Nontheless, the algorithm intrinsically uses randomness for exploration and different runs will differ randomly.
+Sometimes you will get strange results. Hence, try to rerun the algorithm 2-3 times in varying settings if you feel you get non-sensical values to be sure it repeatedly fails. Sometimes you just get unlucky.
 
-## What is the Minimum Working Example? What do the standard settings implement?
+## How to run?
 
-The Minimal Working Example implements an easy market situation. Specifically:
-- There is only a single learning player, while the remaining market is represented as non-learning "fringe player".
-- The learning player always bids his whole capacity and is aware of the bids in the last round.
-- The fringe player always submits the bids specified in a coresponding csv file.
-- Please check "data/fringe-players/fringe_player_data_00.csv" to understand the behavior of the fringe player. It shows the bids that are submitted each round by the fringe player in our standard setting.
-- The demand should be predefined to be 15.
-- The strategic player has 0 costs and 5 unit capaciy.
-- Action limit should be defined as [-298.086554/298.086554, 298.086554/298.086554] which equals to [-1,1]. This extra step is shown to demonstrate that bids of the fringe player are devided by the maximum bid from the fringe player file itself, to ensure an action space between [-1,1] like the action output space of the agent is scaled due the tanh function. After running the simulation actions can be rescaled by multiplication with 298.086554, for an easier interpreation.
-- The market price without the players participation is 149.4928944. We would expect that the player can gain by becoming the price setting player and offering between 95.69833503-102.0423446.
-- Tie breaking may be relevant. Currently the in case of tie the player with lower number gets everything. Proper tie breaking is involved to program.
+- Clone to local repository
+- run ./bin/main.py in standard settings (or with appropriate parameters)
+
+- it is recommended to use a package manager for library installation (PIP/Conda)
+- Windows users might consider using Anaconda Navigator for package managment
+- install the python packages listed in Requirements
 
 ## Requirements
 - python 3.7
@@ -39,13 +36,20 @@ The Minimal Working Example implements an easy market situation. Specifically:
 - numpy-groupies=0.9.13 (relatively non-standard package that allows to do things similar to pandas groupby in numpy)
 - seaborn=0.11.1 (plotting library based on matplotlib)
 
-## How to run?
+## Citing
 
-- Clone to local repository
-- run ./bin/main.py in standard settings (or with appropriate parameters)
+If you use our algorithm in your work, please cite the accompanying [paper](https://arxiv.org/abs/2104.12895):
 
-- it is recommended to use a package manager for library installation (PIP/Conda)
-- Windows users might consider using Anaconda Navigator for package managment
+```bibtex
+@misc{graf2021computational,
+      title={{Computational Performance of Deep Reinforcement Learning to find Nash Equilibria}}, 
+      author={Christoph Graf and Viktor Zobernig and Johannes Schmidt and Claude Kl\"ockl},
+      year={2021},
+      eprint={2104.12895},
+      archivePrefix={arXiv},
+      primaryClass={cs.GT}
+}
+```
 
 ### How to customize a run of the algorithm?
 
@@ -69,13 +73,6 @@ EnvironmentBidMarket(capacities = capacities, costs = costs, demand =[5,6], agen
 - rounds_per_episode: Number of rounds per episode. Is only necessary to reset the environment when using past_actions, so that past_actions are only get reset at the start of a new test run. Default is 1.
 
 The output mode is hardcoded in the function render belonging to EnvironmentBidMarket
-
-#### Fringe Player
-
-The fringe player reads his bids from a csv-file. The name of the file is hardcoded in the reset function from environment_bid_market.py. All csv's are stored in ./data/fringe-players.
-Currently, we provide following standard test csv:
-- fringe_player_data_00.csv (non-trivial, Test Case by Christoph Graf, for comparision with optimization solver, 60 bids)
-
 
 #### Test Parameters
 

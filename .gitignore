@@ -16,4 +16,6 @@ results/final_results/v1_0_1_settings/*
 !results/final_results/v1_0_1_settings/none_normalization/*.pdf
 *.log
 *.pkl
+*.project
+*.pydevproject
 radam.py

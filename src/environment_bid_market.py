@@ -1,5 +1,6 @@
 import numpy as np
 import os
+import pandas as pd
 
 import gym
 from gym import spaces
@@ -7,6 +8,7 @@ from collections import deque
 
 from src.market_clearing import market_clearing
 from src.agent_ddpg import agent_ddpg
+from src.demand_models import demand_normal
 
 
 class EnvironmentBidMarket(gym.Env):
@@ -26,12 +28,29 @@ class EnvironmentBidMarket(gym.Env):
         # basic game parameters considering the agents
         self.capacities = capacities
         self.costs = costs
-        self.demand = demand
         self.agents = agents
         self.action_limits = action_limits
         self.rounds_per_episode = rounds_per_episode
         
-        # additional opptions
+        # Determine type of demand model
+        if  type(demand) == float or type(demand) == list:           
+            self.demand = demand
+        elif type(demand) == tuple:
+            self.demand = demand
+            self.means = demand[0]
+            self.variances = demand[1]
+            # Create normal demand model
+            self.demand_model = demand_normal(self.means,self.variances)
+            
+        # Determine exogenous supply
+        #path = os.path.join(os.path.dirname(__file__), '../data/exogenous_supply/test_supply.xls')
+        #self.exo_supply = pd.read_excel(path)
+        # label fringe by self.agents to get one label higher than highest agent
+        self.exo_supply = np.array([[self.agents,0.2,0.3,0.,0.2],
+                                    [self.agents,6,0.5,0.,6]])
+        
+        
+        # additional options
         self.fringe_player = fringe_player
         self.reward_scaling = reward_scaling # rescaling the rewards to avoid hard weight Updates of the Criticer 
         self.past_action = past_action
@@ -84,7 +103,6 @@ class EnvironmentBidMarket(gym.Env):
         """
         
         suppliers = [0]*nmb_agents
-        
         for n in range(nmb_agents):
             a1 = action[n,0]
             suppliers[n] = [int(n), self.capacities[n], a1, self.costs[n], self.capacities[n]]
@@ -97,14 +115,17 @@ class EnvironmentBidMarket(gym.Env):
         
         return suppliers
         
-    def _next_observation(self, nmb_agents):
+    def _next_observation(self):
         
         """
         Set Up State
         State includes: Demand, Capacitys of all Players, sort by from lowest to highest last Actions of all Players (Optional)
     
         """
-        demand = np.random.uniform(self.demand[0], self.demand[1], 1)
+        if type(self.demand) == list:
+            demand = np.random.uniform(self.demand[0], self.demand[1], 1)
+        if type(self.demand) == tuple:
+            demand = self.episodes_demand_timeseries[self.current_step]
         obs = np.append(demand, self.capacities)
         
         if self.past_action == 1:
@@ -119,36 +140,36 @@ class EnvironmentBidMarket(gym.Env):
         
         self.current_step += 1
         
+        # set up all the agents as suppliers in the market
+        agent_suppliers = self.set_up_suppliers(action, self.agents)
+        total_supply = np.concatenate((agent_suppliers, self.exo_supply))
+        print(total_supply)
+
         # get current state        
-        obs = self._next_observation(self.agents)
+        obs = self._next_observation()
         demand = obs[0]
         
-        # set up all the agents as suppliers in the market
-        all_suppliers = self.set_up_suppliers(action, self.agents)
-
         # market_clearing: orders all suppliers from lowest to highest bid, 
         # last bid of cumsum offerd capacitys determines the price; also the real sold quantities are derived
         # if using splits, convert them in the right shape for market_clearing-function 
         # and after that combine sold quantities of the same supplier again
-        market = market_clearing(demand, all_suppliers)
+        market_price, _ , sold_quantities = market_clearing(demand, total_supply)
         self.last_action= action
+        #print(sold_quantities)
         
         # save last actions for next state (= next obeservation) and sort them by lowest bids
         self.last_action = np.sort(self.last_action, axis = None)
-        
-        #market price and sold quantities determined through market clearing
-        market_price = market[0]
-        sold_quantities = market[2]
 
-        # caluclate rewards
-        reward = self.reward_function(all_suppliers, sold_quantities, market_price, self.agents, action)
+
+        # calculate rewards
+        reward = self.reward_function(agent_suppliers, sold_quantities, market_price, self.agents, action)
         
 
         # Intersting Variables and Render Commands 
         self.safe(action, self.current_step)
         self.sold_quantities = sold_quantities
         self.market_price = market_price
-        self.Suppliers = all_suppliers 
+        self.Suppliers = agent_suppliers 
         
         self.last_demand = demand 
         self.sum_demand += demand
@@ -163,8 +184,9 @@ class EnvironmentBidMarket(gym.Env):
         
         
         #### DONE and next_state
+        self.render()
         done = self.current_step >= self.rounds_per_episode
-        obs = self._next_observation(self.agents)
+        obs = self._next_observation()
         
 
         return obs, reward, done, {}
@@ -200,12 +222,16 @@ class EnvironmentBidMarket(gym.Env):
     def reset(self, episode):
         # Reset the state of the environment to an initial state
         self.current_step = 0
+        self.current_episode = episode
         self.avg_action = 0
         self.sum_action = 0
         self.sum_demand = 0
         self.sum_rewards = 0
         self.avg_rewards = 0
         self.AllAktionen = deque(maxlen=500)
+        
+        if type(self.demand) == tuple:
+            self.episodes_demand_timeseries = self.demand_model.generate(self.rounds_per_episode+1) #+1 for round zero
         
         if episode == 0: 
             self.last_action = np.zeros(self.agents)
@@ -216,18 +242,22 @@ class EnvironmentBidMarket(gym.Env):
             return print('******************************\n ERROR: length of CAP and costs has to correspond to the number of Agents \n******************************')
 
         
-        return self._next_observation(self.agents)
+        return self._next_observation()
     
-    def render(self, mode='human', close=False):
+    def render(self, mode='demand', close=False):
         # Calls an output of several important parameters during the learning
         # This defines the content of the output
-        print(f'AllAktionen: {self.AllAktionen}')
-        print(f'Last Demand of this Episode: {self.last_demand}')
-        print(f'Last Reward of this Episode: {self.last_rewards}')
-        print(f'last sold Qs:{self.sold_quantities}')
-        print(f'Last Market Price: {self.market_price}')
-        print(f'Average Reward: {self.avg_rewards}')
-        print(f'Average Demand: {self.avg_demand}')
+        #print(f'AllAktionen: {self.AllAktionen}')
+        print('Episode',self.current_episode,'Step',self.current_step)
+        print(f'Last Demand: {self.last_demand}')
+        #print(f'Last Reward of this Episode: {self.last_rewards}')
+        #print(f'last sold Qs:{self.sold_quantities}')
+        #print(f'Last Market Price: {self.market_price}')
+        #print(f'Average Reward: {self.avg_rewards}')
+        print(f'Average Demand: {self.avg_demand}','Cumulative Demand',self.sum_demand)
+        print('Market Price:', self.market_price)
+        print('Reward', self.last_rewards)
+        
         
         
         

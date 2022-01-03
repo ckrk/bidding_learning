@@ -12,7 +12,8 @@ import pickle
 import datetime
 import time
 
-from src.utils import UniformNoise, OUNoise, GaussianNoise, plot_run_outcome
+from src.noise_models import UniformNoise, OUNoise, GaussianNoise 
+from src.utils import plot_run_outcome
 from src.environment_bid_market import EnvironmentBidMarket
 
 '''
@@ -26,9 +27,17 @@ costs:        np.array 1x(number of Agents)
 
 Attention these np.arrays have to correspond to the number of Agents
 
-Demand:       np.array 1x2
+Demand:       np.array 1x2 (Uniform,Constant demand)
+                
 Chooses demand from arang between [min,max-1]
 For fixed Demand, write: the preferred [Number, Number +1] (e.g. Demand = 99 -> [99,100])
+
+              or
+              
+              2-tuple of np.arrays (Normal Demand)
+
+Chooses demand from a sequence of normal distributions
+with means and variances as specified by the np.arrays
 
 Agents:       scalar
 Number of learning agents
@@ -58,11 +67,14 @@ time_stamp = datetime.datetime.now()
 meta_data_time = time_stamp.strftime('%d-%m-%y %H:%M')
 
 # Agent Parameters
-POWER_CAPACITIES = [50 / 100, 50 / 100]  # 50
-PRODUCTION_COSTS = [20 / 100, 20 / 100]  # 20
-DEMAND = [70 / 100, 70 / 100]  # 70
+POWER_CAPACITIES = [50 / 100] #[50 / 100, 50 / 100]  # 50
+PRODUCTION_COSTS = [20 / 100] #[20 / 100, 20 / 100]  # 20
+mean=np.array([6,6,6,6,6])
+var=np.array([9,0,9,0,4])
+DEMAND = (mean,var)
+#[70 / 100, 70 / 100]  # 70
 ACTION_LIMITS = [-1, 1]  # [-10/100,100/100]#[-100/100,100/100]
-NUMBER_OF_AGENTS = 2
+NUMBER_OF_AGENTS = 1
 PAST_ACTION = 0
 FRINGE = 0
 
@@ -79,8 +91,8 @@ DECAY_RATE = 0.001  # 0.0004 strong; 0.0008 medium; 0.001 soft; # if 0: Not used
 REGULATION_COEFFICENT = 10  # if 1: Not used, if:0: only simple Noise used
 
 TOTAL_TEST_RUNS = 1 # How many runs should be executed
-EPISODES_PER_TEST_RUN = 10000 # How many episodes should one run contain
-ROUNDS_PER_EPISODE = 1 # How many rounds are allowed per episode (right now number of rounds has no impact -due 'done' is executed if step >= round- and choosing 1 is easier to interpret; )
+EPISODES_PER_TEST_RUN = 30 # 10000 # How many episodes should one run contain
+ROUNDS_PER_EPISODE = 24 # How many rounds are allowed per episode (right now number of rounds has no impact -due 'done' is executed if step >= round- and choosing 1 is easier to interpret; )
 BATCH_SIZE = 128 # *0.5 # *2
 
 # "Completely reproducible results are not guaranteed across PyTorch releases, individual commits, or different platforms. 
@@ -120,6 +132,7 @@ Results['meta-data'] = {
 for test_run in  range(TOTAL_TEST_RUNS):
     print('Test Run: {}'.format(test_run))
     
+    
     # save runtime
     Results[test_run] = {'runtime':0}
     t_0 = time.time()
@@ -148,7 +161,9 @@ for test_run in  range(TOTAL_TEST_RUNS):
                                       'round':[], 'state':[], 'new_state':[]}
         
         # reset noise and state (past_actions resets only at the bginning of a new run)
+        print('Episode: ',episode)
         state = env.reset(episode)
+        print(state)
         noise.reset()  # only important for OUNoise
         
         for step in range(ROUNDS_PER_EPISODE):
@@ -159,7 +174,7 @@ for test_run in  range(TOTAL_TEST_RUNS):
                 actions.append(action_temp[:])
             
             actions = np.asarray(actions)
-            
+
             # get reward an new state from environment
             new_state, reward, done, _ = env.step(actions)   
             

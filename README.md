@@ -1,4 +1,11 @@
 # Bidding-Learning 
+**Version 1.0.4 Forked to rangL competition branch**
+
+**Version 1.0.3 Forked to Single Player branch**
+- Incorporate Single Player
+- Added and Normal Distributed Demand
+- refactored methods from utils.py into demand_models.py and noise_model.py
+
 **Version 1.0.2** - [Change log](CHANGELOG.md)
 
 **Version 1.0.1** - [Change log](CHANGELOG.md)

@@ -4,7 +4,7 @@ path_rangle_challenge = os.path.dirname(path)
 path_parent_folder = os.path.dirname(os.path.dirname(path))
 os.chdir(path)
 sys.path.append(path_rangle_challenge)
-sys.path.append(os.path.join(path_rangle_challenge,'netzerotc'))
+sys.path.append(os.path.join(path_parent_folder,'netzerotc'))
 
 
 import numpy as np
@@ -19,6 +19,8 @@ import time
 from src.noise_models import UniformNoise, OUNoise, GaussianNoise 
 from src.utils import plot_run_outcome
 from src.environment_bid_market import EnvironmentBidMarket
+#Rangl Competition Environment
+from environment.reference_environment.env import GymEnv as CompetitionEnv
 
 '''
 High-Level Interface that calls learning algorithm and Energy-Market Environment 

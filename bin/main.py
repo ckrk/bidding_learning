@@ -1,7 +1,11 @@
 import os, sys
 path = os.path.dirname(os.path.realpath('__file__'))
+path_rangle_challenge = os.path.dirname(path)
+path_parent_folder = os.path.dirname(os.path.dirname(path))
 os.chdir(path)
-sys.path.append(os.path.dirname(path))
+sys.path.append(path_rangle_challenge)
+sys.path.append(os.path.join(path_rangle_challenge,'netzerotc'))
+
 
 import numpy as np
 import torch

@@ -32,30 +32,40 @@ assert len(action) == 3
 # Check the to_observation method
 assert len(env.observation_space.sample()) == len(env.state.to_observation())
 
-# Create agent-ddpg
-agent = agent_ddpg(env, hidden_size=[400, 300], actor_learning_rate=1e-4, critic_learning_rate=1e-3, gamma=0.99, tau=1e-3, max_memory_size=50000, norm = 'none')
-
 # Batch size, gives the size of the sample that is srawn for updating the agent
-BATCH_SIZE = 20
+BATCH_SIZE = 40
 
 # Reset the environment
 env.reset()
 done = False
 
+# Create agent-ddpg
+"increase max memory size ?"
+agent = agent_ddpg(env, hidden_size=[400, 300], actor_learning_rate=1e-4, critic_learning_rate=1e-3, gamma=0.99, tau=1e-3, max_memory_size=50000, norm = 'none')
+
+
 # Training
-for step in range(100):
+for step in range(1000):
     env.reset()
+    done = False #!!!!
+    
+    print("step:",step)
+    
     while not done:
         
         action = agent.get_action(np.asarray([env.state.to_observation()[0]]))
+        #action = agent.get_action(env.state.to_observation())
         
         # Specify the action. Check the effect of any fixed policy by specifying the action here:
         observation, reward, done, _ = env.step(action)
         
         agent.memory.push(tuple(map(operator.sub, observation, (1,))), action, reward, observation, done)
         
-        if len(agent.memory) > BATCH_SIZE:
-            agent.update(BATCH_SIZE)
+        #if len(agent.memory) > BATCH_SIZE:
+            #agent.update(BATCH_SIZE)
+    
+    if len(agent.memory) > BATCH_SIZE:
+        agent.update(BATCH_SIZE)
         
         
 # Testing/Evaluation
@@ -72,8 +82,8 @@ while not done:
     
     agent.memory.push(tuple(map(operator.sub, observation, (1,))), action, reward, observation, done)
     
-    if len(agent.memory) > BATCH_SIZE:
-        agent.update(BATCH_SIZE)
+   #if len(agent.memory) > BATCH_SIZE: # necessary??
+        #agent.update(BATCH_SIZE)
 
 
 # Plot the episode

@@ -4,6 +4,8 @@ import torch.optim as optim
 import torch.nn as nn
 from torch.autograd import Variable
 
+import numpy as np
+
 from src.actor_critic import Actor, Critic
 from src.utils import Memory
 
@@ -12,6 +14,9 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 class agent_ddpg:
     def __init__(self, env, hidden_size=[400, 300], actor_learning_rate=1e-4, critic_learning_rate=1e-3, gamma=0.99, tau=1e-3, max_memory_size=50000, norm = 'none'):
         
+        # Gym Environment
+        
+        self.env = env
         #BiddingMarket_energy_Environment Params
         self.num_states = env.observation_space.shape[0]
         self.num_actions = env.action_space.shape[0]
@@ -40,14 +45,21 @@ class agent_ddpg:
         self.critic_criterion  = nn.MSELoss()
         self.actor_optimizer  = optim.Adam(self.actor.parameters(), lr=actor_learning_rate)
         self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=critic_learning_rate)
-    
+        
+    def action_scaling(self, action):
+        action_ = ((1+ action)*self.env.action_space.high)/2
+        action_ = np.clip(action_, self.env.action_space.low, self.env.action_space.high)
+        return action_
+
     def get_action(self, state):
+        #state = np.asarray([state[0]])
         state = Variable(torch.from_numpy(state).float().unsqueeze(0).to(device))
         self.actor.eval()
         action = self.actor.forward(state)
         self.actor.train() 
-        #action = action.detach().numpy()[0,:]  
+        #action = action.detach().numpy()[0,:]
         action = action.detach().cpu().numpy()[0,:]  
+        action = self.action_scaling(action)
         return action
     
     def update(self, batch_size):

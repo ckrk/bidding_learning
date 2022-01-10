@@ -18,6 +18,7 @@ import gym
 import rangl 
 
 from src.agent_ddpg import agent_ddpg
+from src.noise_models import UniformNoise, OUNoise, GaussianNoise 
 
 from pathlib import Path
 
@@ -34,6 +35,11 @@ assert len(env.observation_space.sample()) == len(env.state.to_observation())
 
 # Batch size, gives the size of the sample that is srawn for updating the agent
 BATCH_SIZE = 40
+
+# Random Guassian Noise gets added to the actions for exploratation 
+REGULATION_COEFFICENT = 1 # only moves the variance (if =1: sigma stays the same)
+DECAY_RATE = 1 # basically no decay rate gets apllied
+noise = GaussianNoise(env.action_space, mu=0, sigma=1, regulation_coef=REGULATION_COEFFICENT, decay_rate=DECAY_RATE)
 
 # Reset the environment
 env.reset()
@@ -55,6 +61,7 @@ for step in range(1000):
         
         action = agent.get_action(np.asarray([env.state.to_observation()[0]]))
         #action = agent.get_action(env.state.to_observation())
+        action = noise.get_action(action)
         
         # Specify the action. Check the effect of any fixed policy by specifying the action here:
         observation, reward, done, _ = env.step(action)

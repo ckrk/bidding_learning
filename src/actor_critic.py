@@ -102,10 +102,11 @@ class Critic(nn.Module):
         return x
 
 class Actor(nn.Module):
-    def __init__(self, input_size, hidden_size, output_size, learning_rate = 3e-4, norm = 'none'):
+    def __init__(self, input_size, hidden_size, output_size, high_action_limit, learning_rate = 3e-4, norm = 'none'):
         super(Actor, self).__init__()
         
         self.norm = norm
+        self.high_action_limit=high_action_limit
         
         #Standard Settings
         self.linear1 = nn.Linear(input_size, hidden_size[0])
@@ -179,5 +180,8 @@ class Actor(nn.Module):
         ## Output Layer Activation Functions for Continuous Tasks
         #x = F.leaky_relu(self.linear3(x), 0.1) # relu with small negative slope#
         x = torch.tanh(self.linear3(x)) # from -1 to 1 (eventually as alternative to rescaling)
-
+        
+        # Apply Rescaling for tanh hyperbolicus to output domain
+        x = ((1+ x)*torch.from_numpy(self.high_action_limit))/2
+        
         return x

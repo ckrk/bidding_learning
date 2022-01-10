@@ -29,8 +29,8 @@ class agent_ddpg:
         self.output_size = 1 #only for critic
         
         # Networks
-        self.actor = Actor(self.num_states, self.hidden_size, self.num_actions, norm = self.norm).to(device)
-        self.actor_target = Actor(self.num_states, self.hidden_size, self.num_actions, norm = self.norm).to(device)
+        self.actor = Actor(self.num_states, self.hidden_size, self.num_actions, self.env.action_space.high, norm = self.norm).to(device)
+        self.actor_target = Actor(self.num_states, self.hidden_size, self.num_actions, self.env.action_space.high, norm = self.norm).to(device)
         self.critic = Critic(self.num_states, self.hidden_size, self.output_size, self.num_actions, norm = self.norm).to(device)
         self.critic_target = Critic(self.num_states, self.hidden_size, self.output_size, self.num_actions, norm = self.norm).to(device)
 
@@ -46,10 +46,10 @@ class agent_ddpg:
         self.actor_optimizer  = optim.Adam(self.actor.parameters(), lr=actor_learning_rate)
         self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=critic_learning_rate)
         
-    def action_scaling(self, action):
-        action_ = ((1+ action)*self.env.action_space.high)/2
-        action_ = np.clip(action_, self.env.action_space.low, self.env.action_space.high)
-        return action_
+#    def action_scaling(self, action):
+#        action_ = ((1+ action)*self.env.action_space.high)/2
+#        action_ = np.clip(action_, self.env.action_space.low, self.env.action_space.high)
+#        return action_
 
     def get_action(self, state):
         #state = np.asarray([state[0]])
@@ -59,7 +59,6 @@ class agent_ddpg:
         self.actor.train() 
         #action = action.detach().numpy()[0,:]
         action = action.detach().cpu().numpy()[0,:]  
-        action = self.action_scaling(action)
         return action
     
     def update(self, batch_size):

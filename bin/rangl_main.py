@@ -57,7 +57,7 @@ for step in range(1000):
         #action = agent.get_action(env.state.to_observation())
         
         # Specify the action. Check the effect of any fixed policy by specifying the action here:
-        observation, reward, done, _ = env.step(agent.action_scaling(action))
+        observation, reward, done, _ = env.step(action)
         
         agent.memory.push(tuple(map(operator.sub, observation, (1,))), action, reward, observation, done)
         

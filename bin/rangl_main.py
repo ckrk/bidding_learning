@@ -34,7 +34,7 @@ assert len(action) == 3
 assert len(env.observation_space.sample()) == len(env.state.to_observation())
 
 # Batch size, gives the size of the sample that is srawn for updating the agent
-BATCH_SIZE = 40
+BATCH_SIZE = 120
 
 # Random Guassian Noise gets added to the actions for exploratation 
 REGULATION_COEFFICENT = 1 # only moves the variance (if =1: sigma stays the same)
@@ -53,7 +53,7 @@ agent = agent_ddpg(env, hidden_size=[400, 300], actor_learning_rate=1e-4, critic
 # Training
 for step in range(1000):
     env.reset()
-    done = False #!!!!
+    done = False 
     
     print("step:",step)
     
@@ -62,17 +62,19 @@ for step in range(1000):
         action = agent.get_action(np.asarray([env.state.to_observation()[0]]))
         #action = agent.get_action(env.state.to_observation())
         action = noise.get_action(action)
+        print(action)
         
         # Specify the action. Check the effect of any fixed policy by specifying the action here:
         observation, reward, done, _ = env.step(action)
         
+        #Saves the played round as tuple in the memory
         agent.memory.push(tuple(map(operator.sub, observation, (1,))), action, reward, observation, done)
         
-        #if len(agent.memory) > BATCH_SIZE:
-            #agent.update(BATCH_SIZE)
+        if len(agent.memory) > BATCH_SIZE:
+            agent.update(BATCH_SIZE)
     
-    if len(agent.memory) > BATCH_SIZE:
-        agent.update(BATCH_SIZE)
+    #if len(agent.memory) > BATCH_SIZE:
+        #agent.update(BATCH_SIZE)
         
         
 # Testing/Evaluation

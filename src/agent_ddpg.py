@@ -66,8 +66,11 @@ class agent_ddpg:
         states, actions, rewards, next_states, _ = self.memory.sample(batch_size)
         states = torch.FloatTensor(states, device=device)
         actions = torch.FloatTensor(actions, device=device)
-        rewards = torch.FloatTensor(rewards, device=device)
+        rewards = torch.FloatTensor(rewards, device=device) #######################
         next_states = torch.FloatTensor(next_states, device=device)
+        
+        # reshape rewards
+        rewards = rewards.view((len(rewards),1))
         
         # Critic loss       
         Qvals = self.critic.forward(states, actions)

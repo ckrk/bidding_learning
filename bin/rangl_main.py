@@ -7,8 +7,7 @@ sys.path.append(path_rangle_challenge)
 sys.path.append(os.path.join(path_parent_folder,'netzerotc'))
 
 import operator 
-
-#import logging
+from comet_ml import Experiment
 
 import pandas as pd
 import numpy as np
@@ -25,6 +24,7 @@ from pathlib import Path
 # create environment
 env = gym.make("rangl:nztc-open-loop-v0")
 
+
 # Generate a random action and check it has the right length
 # [increment in offshore wind capacity GW, increment in blue hydrogen energy TWh, increment in green hydrogen energy TWh]
 action = env.action_space.sample()
@@ -39,7 +39,9 @@ BATCH_SIZE = 120
 # Random Guassian Noise gets added to the actions for exploratation 
 REGULATION_COEFFICENT = 1 # only moves the variance (if =1: sigma stays the same)
 DECAY_RATE = 1 # basically no decay rate gets apllied
-noise = GaussianNoise(env.action_space, mu=0, sigma=1, regulation_coef=REGULATION_COEFFICENT, decay_rate=DECAY_RATE)
+NOISE_VARIANCE=7
+noise = GaussianNoise(env.action_space, mu=0, sigma=NOISE_VARIANCE, regulation_coef=REGULATION_COEFFICENT, decay_rate=DECAY_RATE)
+
 
 # Reset the environment
 env.reset()
@@ -47,8 +49,15 @@ done = False
 
 # Create agent-ddpg
 "increase max memory size ?"
-agent = agent_ddpg(env, hidden_size=[400, 300], actor_learning_rate=1e-4, critic_learning_rate=1e-3, gamma=0.99, tau=1e-3, max_memory_size=50000, norm = 'none')
+ACTOR_LR = 1e-5
+agent = agent_ddpg(env, hidden_size=[400, 300], actor_learning_rate=ACTOR_LR, critic_learning_rate=1e-3, gamma=0.99, tau=1e-3, max_memory_size=50000, norm = 'none')
 
+# comet logging
+experiment = Experiment(project_name="rangl-challenge-2022",
+                        api_key="Ox3mrixNIRjzNrCu5rysnbboi")
+experiment.log_parameter('Batch Size', BATCH_SIZE)
+experiment.log_parameter('Noise Variance', NOISE_VARIANCE)
+experiment.log_parameter('Learning Rate (Actor)', ACTOR_LR)
 
 # Training
 for step in range(1000):
@@ -98,6 +107,8 @@ while not done:
 # Plot the episode
 # Ploting works only if the environment wasn`t reseted before plottting !!! (So better plot only after a Test/Evaluation run)
 env.plot("fixed_policy_DirectDeployment.png")
+
+experiment.end()
 
 #assert Path("fixed_policy_DirectDeployment.png").is_file()
 

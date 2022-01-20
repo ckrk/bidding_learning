@@ -75,6 +75,7 @@ for step in range(1000):
         
         # Specify the action. Check the effect of any fixed policy by specifying the action here:
         observation, reward, done, _ = env.step(action)
+        experiment.log_metric('Reward (Training Phase)',reward,step=step)
         
         #Saves the played round as tuple in the memory
         agent.memory.push(tuple(map(operator.sub, observation, (1,))), action, reward, observation, done)
@@ -97,6 +98,7 @@ while not done:
     
     # Specify the action. Check the effect of any fixed policy by specifying the action here:
     observation, reward, done, _ = env.step(action)
+    experiment.log_metric('Reward (Testing-Phase)',reward)
     
     agent.memory.push(tuple(map(operator.sub, observation, (1,))), action, reward, observation, done)
     
@@ -107,6 +109,7 @@ while not done:
 # Plot the episode
 # Ploting works only if the environment wasn`t reseted before plottting !!! (So better plot only after a Test/Evaluation run)
 env.plot("fixed_policy_DirectDeployment.png")
+experiment.log_figure(figure_name='Environment Output', figure=env.plot("fixed_policy_DirectDeployment.png"))
 
 experiment.end()
 

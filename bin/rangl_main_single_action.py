@@ -92,6 +92,7 @@ for step in range(1000):
         
         # Specify the action. Check the effect of any fixed policy by specifying the action here:
         observation, reward, done, _ = env.step(action_per_round)
+        experiment.log_metric('Reward (Training Phase)',reward,step=step)
         #print(reward)
         
         cum_reward += reward
@@ -137,6 +138,7 @@ while not done:
     print(action_per_round)
     # Specify the action. Check the effect of any fixed policy by specifying the action here:
     observation, reward, done, _ = env.step(action_per_round)
+    experiment.log_metric('Reward (Testing-Phase)',reward)
     
     a1 += 3
     a3 += 3
@@ -145,5 +147,7 @@ while not done:
 # Plot the episode
 # Ploting works only if the environment wasn`t reseted before plottting !!! (So better plot only after a Test/Evaluation run)
 env.plot("fixed_policy_DirectDeployment_avgReward_1Action_Noise4_gamma99_.png")
+experiment.log_figure(figure_name='Environment Output', figure=env.plot("fixed_policy_DirectDeployment.png"))
+
 
 experiment.end()

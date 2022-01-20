@@ -64,7 +64,7 @@ class agent_ddpg:
         
         states, actions, rewards, next_states, _ = self.memory.sample(batch_size)
         states = torch.FloatTensor(states, device=device)
-        actions = torch.FloatTensor(actions, device=device)
+        actions = torch.FloatTensor(np.asarray(actions), device=device)
         rewards = torch.FloatTensor(rewards, device=device) #######################
         next_states = torch.FloatTensor(next_states, device=device)
         

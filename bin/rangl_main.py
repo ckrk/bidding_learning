@@ -26,7 +26,7 @@ env = gym.make("rangl:nztc-open-loop-v0")
 
 
 # Hyper parameters for DDPG
-BATCH_SIZE = 120
+BATCH_SIZE = 128
 ACTOR_LR = 1e-5
 CRITIC_LR = 1e-3
 GAMMA = 0.99
@@ -70,7 +70,7 @@ for step in range(1000):
         action = agent.get_action(np.asarray([env.state.to_observation()[0]]))
         #action = agent.get_action(env.state.to_observation())
         action = noise.get_action(action)
-        print(action)
+        #print(action)
         
         # Specify the action. Check the effect of any fixed policy by specifying the action here:
         observation, reward, done, _ = env.step(action)
@@ -94,12 +94,12 @@ done = False
 while not done:
     
     action = agent.get_action(np.asarray([env.state.to_observation()[0]]))
-    
+    print(action)
     # Specify the action. Check the effect of any fixed policy by specifying the action here:
     observation, reward, done, _ = env.step(action)
     experiment.log_metric('Reward (Testing-Phase)',reward)
     
-    agent.memory.push(tuple(map(operator.sub, observation, (1,))), action, reward, observation, done)
+    #agent.memory.push(tuple(map(operator.sub, observation, (1,))), action, reward, observation, done)
     
    #if len(agent.memory) > BATCH_SIZE: # necessary??
         #agent.update(BATCH_SIZE)

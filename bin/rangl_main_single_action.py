@@ -147,7 +147,7 @@ sum(cum_rewards)/1000
 
 torch.save(agent.actor.state_dict(), 'trained_agent.pt')
 
-experiment.log_metric('Reward (Testing-Phase)', sum(cum_reward))
+experiment.log_metric('Reward (Testing-Phase)', sum(cum_rewards))
 # Plot the episode
 # Ploting works only if the environment wasn`t reseted before plottting !!! (So better plot only after a Test/Evaluation run)
 env.plot("fixed_policy_DirectDeployment_avgReward_1Action_Noise4_gamma99_.png")

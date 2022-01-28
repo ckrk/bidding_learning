@@ -12,7 +12,7 @@ from src.utils import Memory
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
   
 class agent_ddpg:
-    def __init__(self, env, hidden_size=[400, 300], actor_learning_rate=1e-4, critic_learning_rate=1e-3, gamma=0.99, tau=1e-3, max_memory_size=50000, norm = 'none'):
+    def __init__(self, env, hidden_size=[400, 300], actor_learning_rate=1e-4, critic_learning_rate=5e-3, gamma=0.99, tau=1e-3, max_memory_size=50000, norm = 'none'):
         
         # Gym Environment
         
@@ -56,8 +56,20 @@ class agent_ddpg:
         self.actor.eval()
         action = self.actor.forward(state)
         self.actor.train() 
-        #action = action.detach().numpy()[0,:]
-        action = action.detach().cpu().numpy()[0,:]  
+        action = action.detach().numpy()[0,:]
+        #action = action.detach().cpu().numpy()[0,:]  
+        return action
+    
+    def get_action_rangl(self, state):
+        
+        ind_state = np.asarray([1])
+        ind_state = Variable(torch.from_numpy(ind_state).float().unsqueeze(0).to(device))
+        self.actor.eval()
+        action = self.actor.forward(ind_state)
+        self.actor.train() 
+        action = action.detach().numpy()[0,:]
+        #action = action.detach().cpu().numpy()[0,:]
+        action = action[((state[0]+1)*3):((state[0]+1)*3+3)]
         return action
     
     def update(self, batch_size):

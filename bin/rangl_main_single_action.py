@@ -124,8 +124,8 @@ env.reset()
 done = False
 
 
-cum_reward=[]
-for i in range(10):
+cum_rewards=[]
+for i in range(1000):
     env.reset()
     done = False
     rewards_list=[]
@@ -139,10 +139,10 @@ for i in range(10):
         rewards_list.append(reward)
 
         
-    cum_reward.append(sum(rewards_list))
+    cum_rewards.append(sum(rewards_list))
     
     
-cum_reward/1000
+sum(cum_rewards)/1000
 
 experiment.log_metric('Reward (Testing-Phase)', sum(cum_reward))
 # Plot the episode

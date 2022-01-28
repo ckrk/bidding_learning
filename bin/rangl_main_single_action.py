@@ -13,6 +13,7 @@ from comet_ml import Experiment
 # pandas as pd
 import numpy as np
 import gym
+import torch
 
 # needed to create environment with gym.make
 import rangl 
@@ -143,6 +144,8 @@ for i in range(1000):
     
     
 sum(cum_rewards)/1000
+
+torch.save(agent.actor.state_dict(), 'trained_agent.pt')
 
 experiment.log_metric('Reward (Testing-Phase)', sum(cum_reward))
 # Plot the episode

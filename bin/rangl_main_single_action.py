@@ -30,10 +30,12 @@ env = gym.make("rangl:nztc-open-loop-v0")
 
 
 # Hyper Parameters for DDPG
-BATCH_SIZE = 128
-ACTOR_LR =1e-4
-CRITIC_LR = 1e-3
-GAMMA = 0.99
+TRAINING_STEPS = 1000
+TEST_STEPS = 1000
+BATCH_SIZE = 256
+ACTOR_LR =1e-3
+CRITIC_LR = 1e-2
+GAMMA = 0
 
 # Hyper parameters for the noise 
 REGULATION_COEFFICENT = 1 # only moves the variance (if =1: sigma stays the same)
@@ -61,6 +63,8 @@ ind_state = (1,)
 # comet logging
 experiment = Experiment(project_name="rangl-challenge-2022",
                         api_key="4fWyWzYNLrJ4X4md1JWg8TBWw")
+experiment.log_parameter('Training Steps', TRAINING_STEPS)
+experiment.log_parameter('Test Steps', TEST_STEPS)
 experiment.log_parameter('Batch Size', BATCH_SIZE)
 experiment.log_parameter('Noise Variance', NOISE_VARIANCE)
 experiment.log_parameter('Learning Rate (Actor)', ACTOR_LR)
@@ -71,7 +75,7 @@ experiment.log_parameter('Gamma', GAMMA)
 all_rewards=[]
 all_actions=[]
 # Training
-for step in range(10):
+for step in range(TRAINING_STEPS):
     
     cum_reward = 0
     actions_per_episode = []
@@ -126,7 +130,7 @@ done = False
 
 
 cum_rewards=[]
-for i in range(10):
+for i in range(TEST_STEPS):
     env.reset()
     done = False
     rewards_list=[]

@@ -8,7 +8,7 @@ sys.path.append(os.path.join(path_parent_folder,'netzerotc'))
 
 import operator 
 from comet_ml import Experiment
-#import logging
+import datetime
 
 # pandas as pd
 import numpy as np
@@ -71,7 +71,7 @@ experiment.log_parameter('Gamma', GAMMA)
 all_rewards=[]
 all_actions=[]
 # Training
-for step in range(1000):
+for step in range(10):
     
     cum_reward = 0
     actions_per_episode = []
@@ -126,7 +126,7 @@ done = False
 
 
 cum_rewards=[]
-for i in range(1000):
+for i in range(10):
     env.reset()
     done = False
     rewards_list=[]
@@ -147,11 +147,16 @@ sum(cum_rewards)/1000
 
 torch.save(agent.actor.state_dict(), 'trained_agent.pt')
 
-experiment.log_metric('Reward (Testing-Phase)', sum(cum_reward))
+experiment.log_metric('Reward (Testing-Phase)', sum(cum_rewards))
 # Plot the episode
 # Ploting works only if the environment wasn`t reseted before plottting !!! (So better plot only after a Test/Evaluation run)
 env.plot("fixed_policy_DirectDeployment_avgReward_1Action_Noise4_gamma99_.png")
 experiment.log_figure(figure_name='Environment Output', figure=env.plot("fixed_policy_DirectDeployment.png"))
 
+time_stamp = datetime.datetime.now()
+meta_data_time = time_stamp.strftime('%d-%m-%y %H:%M')
+torch.save(agent.actor.state_dict(), 'Actor'+meta_data_time+'.pt')
+torch.save(agent.critic.state_dict(), 'Critic'+meta_data_time+'.pt')
+experiment.log_other('NN Filenames:','Actor'+meta_data_time+'.pt,'+'Critic'+meta_data_time+'.pt')
 
 experiment.end()

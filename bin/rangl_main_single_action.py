@@ -34,7 +34,6 @@ ACTOR_LR =1e-4
 CRITIC_LR = 1e-3
 GAMMA = 0.99
 
-
 # Hyper parameters for the noise 
 REGULATION_COEFFICENT = 1 # only moves the variance (if =1: sigma stays the same)
 DECAY_RATE = 1 # basically no decay rate gets apllied
@@ -43,9 +42,9 @@ NOISE_VARIANCE = 4
 # Random Guassian Noise gets added to the actions for exploratation
 noise = GaussianNoise(env.action_space, mu=0, sigma=NOISE_VARIANCE, regulation_coef=REGULATION_COEFFICENT, decay_rate=DECAY_RATE)
 # Noise adjustement for "1 Round Game"
-noise.action_dim = noise.action_dim * 20
-noise.low = np.asarray(noise.low.tolist()*20)
-noise.high = np.asarray(noise.high.tolist()*20)
+#noise.action_dim = noise.action_dim * 20
+#noise.low = np.asarray(noise.low.tolist()*20)
+#noise.high = np.asarray(noise.high.tolist()*20)
 
 # Reset the environment
 env.reset()
@@ -69,46 +68,42 @@ experiment.log_parameter('Gamma', GAMMA)
 
 # saving outcome as list
 all_rewards=[]
-
+all_actions=[]
 # Training
 for step in range(1000):
     
     cum_reward = 0
-    a1 = 0
-    a3 = 3
-    #env.seed(111)
+    actions_per_episode = []
+
     env.reset()
     done = False 
     
     print("step:",step)
     
-    action = agent.get_action(np.asarray([ind_state[0]]))
-    action = noise.get_action(action)
-    #print(action)
     
     while not done:
-        
-        action_per_round = action[a1:a3]
-        
+        action = agent.get_action_rangl(env.state.to_observation())
+        action = noise.get_action(action)
         # Specify the action. Check the effect of any fixed policy by specifying the action here:
-        observation, reward, done, _ = env.step(action_per_round)
-        experiment.log_metric('Reward (Training Phase)',reward,step=step)
-        #print(reward)
-        
+        observation, reward, done, _ = env.step(action)
+
         cum_reward += reward
         all_rewards.append(reward)
-        a1 += 3
-        a3 += 3
+        all_actions.append(action)
+        actions_per_episode = np.append(actions_per_episode, action)
 
-     #Saves the played round as tuple in the memory
-    agent.memory.push(ind_state, action, cum_reward/20, ind_state, done)
+
+    #Saves the played round as tuple in the memory
+    agent.memory.push(ind_state, actions_per_episode, cum_reward/20, ind_state, done)
+    
+    experiment.log_metric('Reward (Testing-Phase)', cum_reward)
     
     if len(agent.memory) > BATCH_SIZE:
         agent.update(BATCH_SIZE)
 
 
 
-
+"""
 # plotting reward progress
 #moving median of n_th step (takes median from n rows and outputs an array of the same length as the input)
 med_rewards=[]
@@ -121,29 +116,35 @@ for i in range(1000*20):
 recompiled_rewards = np.asarray(med_rewards)
 plt.plot(all_rewards)
 plt.plot(recompiled_rewards)
-        
+"""     
 # Testing/Evaluation
 # Reset the environment
 #env.seed(111)
 env.reset()
 done = False
 
-a1 = 0
-a3 = 3
-action = agent.get_action(np.asarray([env.state.to_observation()[0]]))
 
-while not done:
-    
-    action_per_round = action[a1:a3]
-    print(action_per_round)
-    # Specify the action. Check the effect of any fixed policy by specifying the action here:
-    observation, reward, done, _ = env.step(action_per_round)
-    experiment.log_metric('Reward (Testing-Phase)',reward)
-    
-    a1 += 3
-    a3 += 3
-    
+cum_reward=[]
+for i in range(10):
+    env.reset()
+    done = False
+    rewards_list=[]
 
+    print(i)
+    while not done:
+        
+        action = agent.get_action_rangl(env.state.to_observation())
+        # Specify the action. Check the effect of any fixed policy by specifying the action here:
+        observation, reward, done, _ = env.step(action)
+        rewards_list.append(reward)
+
+        
+    cum_reward.append(sum(rewards_list))
+    
+    
+cum_reward/1000
+
+experiment.log_metric('Reward (Testing-Phase)', sum(cum_reward))
 # Plot the episode
 # Ploting works only if the environment wasn`t reseted before plottting !!! (So better plot only after a Test/Evaluation run)
 env.plot("fixed_policy_DirectDeployment_avgReward_1Action_Noise4_gamma99_.png")

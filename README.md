@@ -43,16 +43,16 @@ Sometimes you will get strange results. Hence, try to rerun the algorithm 2-3 ti
 
 ## Citing
 
-If you use our algorithm in your work, please cite the accompanying [paper](https://arxiv.org/abs/2104.12895):
+If you use our algorithm in your work, please cite the accompanying [paper]([https://doi.org/10.1007/s10614-022-10351-6]):
 
 ```bibtex
-@misc{graf2021computational,
-      title={{Computational Performance of Deep Reinforcement Learning to find Nash Equilibria}}, 
+@article{graf2021computational,
+      title={{Computational Performance of Deep Reinforcement Learning to Find Nash Equilibria}}, 
       author={Christoph Graf and Viktor Zobernig and Johannes Schmidt and Claude Kl\"ockl},
-      year={2021},
-      eprint={2104.12895},
-      archivePrefix={arXiv},
-      primaryClass={cs.GT}
+      year={2024},
+      journal={Computational Economics},
+      volume=63,
+      pages=529--576
 }
 ```
 
